@@ -74,6 +74,13 @@ font-variant-numeric:tabular-nums;color:#475467}
 .probe.warn .pv{color:#B54708}
 .probe.bad .bar i{background:linear-gradient(90deg,#FDA29B,#D92D20)}
 .probe.bad .pv{color:#B42318}
+.card.dim{background:linear-gradient(180deg,#FDFDFE,#F8F9FB);border-color:#E4E8EF}
+.card.dim .cnum b{color:#667085}
+.flagx{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;
+  color:#B54708;background:#FFFAEB;border:1px solid #FEDF89;border-radius:5px;
+  padding:1px 5px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+#stale{display:none;margin:0 0 14px;padding:9px 12px;border-radius:10px;
+  background:#FFFAEB;border:1px solid #FEDF89;color:#B54708;font-size:11.5px;line-height:1.6}
 .url{display:block;max-width:100%;background:var(--surf2);border:1px solid var(--line2);border-radius:11px;
 padding:9px 10px;font:11.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#31405A;
 word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer}
@@ -101,6 +108,8 @@ th:nth-child(5),td:nth-child(5){width:11%}
   </div>
 </header>
 
+<div id="stale"></div>
+
 <section class="sec">
   <div class="sec-t">怎么用<span>所有客户端都这三步</span></div>
   <div class="gs"><span class="i">1</span><div><b>复制一条链接</b><p>点下面任意卡片的「复制链接」按钮</p></div></div>
@@ -113,7 +122,7 @@ th:nth-child(5),td:nth-child(5){width:11%}
 <div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 测试点在美国机房，国内实连率会低一些</div>
 </div>
 <script>
-const DATA = {"updated": "11-20 14:06", "raw": 1903, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "推荐 · 只含可连节点", "note": "已剔除连不上的，成功率高", "fit": "Clash 系专用，v2rayNG 导入会报错", "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 321, "probe": {"ok": 24, "total": 24}}, {"tag": "带规则分流", "note": "开箱即用，不用自己配规则", "fit": "Clash 系专用，自带分流规则", "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 510, "probe": {"ok": 17, "total": 24}}, {"tag": "全量节点", "note": "含未测速的节点，量最大", "fit": "Clash 系专用，节点最全", "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 428, "probe": {"ok": 23, "total": 24}}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 9, "probe": {"ok": 8, "total": 9}}, {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "6 小时更新", "url": "https://radarhub.top/v2ray.txt", "count": 500, "probe": {"ok": 24, "total": 24}}, {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 439, "probe": {"ok": 23, "total": 24}}, {"tag": "全网合并", "note": "自动聚合多个公开来源", "fit": "明文节点，v2rayNG 可导，Clash 不认", "freq": "每日更新", "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt", "count": 358, "probe": {"ok": 14, "total": 24}}, {"tag": "老牌仓库", "note": "每小时更新一次", "fit": "Base64 订阅，v2rayNG / 小火箭", "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 36, "probe": {"ok": 24, "total": 24}}, {"tag": "每日分享", "note": "节点和机场一起发", "fit": "明文节点，v2rayNG / 小火箭", "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 525, "probe": {"ok": 23, "total": 24}}, {"tag": "备用源", "note": "前面几条都失败时用这条", "fit": "仓库名带 clash，实际是 v2ray 格式", "freq": "每日更新", "url": "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt", "count": 26, "probe": {"ok": 3, "total": 11}}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "推荐 · 带规则", "note": "与上面的 Clash 同源，格式不同", "fit": "仅 Hiddify / sing-box，Clash 不认", "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 496, "probe": {"ok": 17, "total": 24}}]}], "delta": {"add": 0, "drop": 0}};
+const DATA = {"updated": "11-20 14:14", "ts": 1795155250, "raw": 1903, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "推荐 · 只含可连节点", "note": "已剔除连不上的，成功率高", "fit": "Clash 系专用，v2rayNG 导入会报错", "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 321, "probe": {"ok": 24, "total": 24}, "streak": 0}, {"tag": "带规则分流", "note": "开箱即用，不用自己配规则", "fit": "Clash 系专用，自带分流规则", "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 510, "probe": {"ok": 17, "total": 24}, "streak": 0}, {"tag": "全量节点", "note": "含未测速的节点，量最大", "fit": "Clash 系专用，节点最全", "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 428, "probe": {"ok": 23, "total": 24}, "streak": 0}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 9, "probe": {"ok": 8, "total": 9}, "streak": 0}, {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "6 小时更新", "url": "https://radarhub.top/v2ray.txt", "count": 500, "probe": {"ok": 24, "total": 24}, "streak": 0}, {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 439, "probe": {"ok": 24, "total": 24}, "streak": 0}, {"tag": "全网合并", "note": "自动聚合多个公开来源", "fit": "明文节点，v2rayNG 可导，Clash 不认", "freq": "每日更新", "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt", "count": 358, "probe": {"ok": 14, "total": 24}, "streak": 0}, {"tag": "老牌仓库", "note": "每小时更新一次", "fit": "Base64 订阅，v2rayNG / 小火箭", "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 36, "probe": {"ok": 24, "total": 24}, "streak": 0}, {"tag": "每日分享", "note": "节点和机场一起发", "fit": "明文节点，v2rayNG / 小火箭", "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 525, "probe": {"ok": 23, "total": 24}, "streak": 0}, {"tag": "备用源", "note": "前面几条都失败时用这条", "fit": "仓库名带 clash，实际是 v2ray 格式", "freq": "每日更新", "url": "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt", "count": 26, "probe": {"ok": 3, "total": 11}, "streak": 1}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "推荐 · 带规则", "note": "与上面的 Clash 同源，格式不同", "fit": "仅 Hiddify / sing-box，Clash 不认", "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 496, "probe": {"ok": 17, "total": 24}, "streak": 0}]}], "delta": {"add": 0, "drop": 1}};
 const CN = ['','一','二','三','四'];
 function probeLine(p) {
   if (!p || !p.total) return '';
@@ -132,8 +141,9 @@ DATA.groups.forEach((g, gi) => {
   gEl.appendChild(head);
   g.items.forEach(it => {
     const c = document.createElement('div');
-    c.className = it.tag.indexOf('推荐') === 0 ? 'card hi' : 'card';
-    c.innerHTML = `<div class="ch"><span class="tag">${it.tag}</span><span class="freq">${it.freq}</span></div>
+    const bad = (it.streak || 0) >= 2;
+    c.className = (it.tag.indexOf('推荐') === 0 ? 'card hi' : 'card') + (bad ? ' dim' : '');
+    c.innerHTML = `<div class="ch"><span class="tag">${it.tag}</span>${bad ? '<span class="flagx">近期不稳</span>' : ''}<span class="freq">${it.freq}</span></div>
       <div class="cnum"><b>${it.count === null ? '—' : it.count.toLocaleString()}</b><span>条节点</span></div>
       ${probeLine(it.probe)}
       <div class="cnote">${it.note}</div>
@@ -153,6 +163,15 @@ DATA.groups.forEach((g, gi) => {
   });
 });
 document.getElementById('p2').textContent = DATA.groups.reduce((a, g) => a + g.items.length, 0) + ' 条链接';
+if (DATA.ts) {
+  const hrs = (Date.now() / 1000 - DATA.ts) / 3600;
+  if (hrs >= 12) {
+    const el = document.getElementById('stale');
+    el.style.display = 'block';
+    el.innerHTML = `这份数据已经 <b>${Math.floor(hrs)} 小时</b>没有更新了（最后一次 ${DATA.updated}）。
+      自动采集可能中断，链接大概率仍能用，但不如新鲜时可靠。`;
+  }
+}
 if (DATA.delta && (DATA.delta.add || DATA.delta.drop)) {
   const p4 = document.getElementById('p4');
   p4.textContent = `今日 +${DATA.delta.add} / −${DATA.delta.drop}`;
