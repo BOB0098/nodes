@@ -21,6 +21,7 @@
 三、本地重新生成（可选）
    python3 collector.py            联网采集并重建页面
    python3 collector.py --cache    用本地缓存重建（不联网，快）
+   python3 collector.py --render   只按 data/nodes.json 重渲染页面，不联网
 
    产出：
    · index.html                 网页（数据已内嵌，离线也能打开）
@@ -31,9 +32,9 @@
 四、发布到自己的 GitHub（可选，想让链接换成自己的域名时用）
    1. 新建仓库，把本目录全部文件 push 上去
    2. Settings → Actions → General → Workflow permissions 选 Read and write
-   3. 内置 .github/workflows/daily.yml，每天北京时间 06:00 自动采集并提交
+   3. 内置 .github/workflows/daily.yml，每 3 小时（cron 17 */3 * * *）自动采集并提交
    4. 开启 GitHub Pages（gh-pages 分支），得到自己的网址
-   注意：这条路是每天跑一次，反而不如网页打开即拉取来得新。
+   注意：GitHub 队列会延迟，页面写「约 3 小时更新」；想立刻刷新就手动 Run workflow。
 
 五、采集规则
    · 11 个源，并发拉取

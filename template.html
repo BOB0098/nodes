@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#FAFBFC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0B0C0F" media="(prefers-color-scheme: dark)">
 <title>节点配置链接</title>
+<script>/* 手动主题优先于系统偏好：首帧前落属性，避免暗色下闪白 */try{var t=localStorage.getItem('nb-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 /* ── 设计 token ───────────────────────────────────────────────────────────
    亮色为基准。颜色 / 圆角 / 间距 / 字号全部集中在这里，改版只动这一段。  */
@@ -33,6 +34,7 @@
   --warn:#D97706;--warn-ink:#B45309;
   --bad:#DC2626;--bad-ink:#B91C1C;
   --warn-bg:rgba(217,119,6,.09);
+  --bad-bg:rgba(220,38,38,.08);
   --track:#E8EAEE;
 
   /* 圆角 */
@@ -70,6 +72,7 @@
     --warn:light-dark(#D97706,#F59E0B);--warn-ink:light-dark(#B45309,#FBBF24);
     --bad:light-dark(#DC2626,#EF4444);--bad-ink:light-dark(#B91C1C,#FCA5A5);
     --warn-bg:light-dark(rgba(217,119,6,.09),rgba(245,158,11,.12));
+    --bad-bg:light-dark(rgba(220,38,38,.08),rgba(239,68,68,.14));
     --track:light-dark(#E8EAEE,rgba(255,255,255,.1));
     --sh-1:0 1px 2px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.3)),0 6px 16px light-dark(rgba(15,23,42,.055),rgba(0,0,0,.45));
     --sh-2:0 1px 2px light-dark(rgba(15,23,42,.04),rgba(0,0,0,.26)),0 4px 12px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.38));
@@ -80,6 +83,12 @@
     :root{--fwh:600;--fwb:500}
   }
 }
+
+/* ── 手动主题 ────────────────────────────────────────────────────────────
+   只改 html 的 color-scheme，所有 light-dark() token 自动跟着翻面，不用复制一套配色。
+   [data-theme] 选择器比 :root 高一档，能盖住上面的系统偏好；字重一并跟随。 */
+html[data-theme="dark"]{color-scheme:dark;--fwh:600;--fwb:500}
+html[data-theme="light"]{color-scheme:light;--fwh:700;--fwb:600}
 
 /* ── 基础 ──────────────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -102,7 +111,7 @@ body:before{content:"";position:absolute;top:0;left:calc(-1 * var(--sp-page));ri
 
 /* 聚焦：贴底色内环 + 近黑外环，无边框元素也能看清焦点 */
 :focus-visible{outline:none}
-a:focus-visible,.cbtn:focus-visible,.url:focus-visible{
+a:focus-visible,.cbtn:focus-visible,.qbtn:focus-visible,.url:focus-visible,button.pill:focus-visible{
   box-shadow:0 0 0 2px var(--bg-a),0 0 0 4.5px rgba(17,19,24,.42)}
 
 .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;width:100%}
@@ -114,6 +123,12 @@ h1{font-size:40px;font-weight:var(--fwh);letter-spacing:-.02em;line-height:1.16;
 .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
 .pill{background:var(--surf-solid);color:var(--ink-2);font-size:13px;font-weight:500;padding:5px 12px;
   border-radius:var(--r-pill);border:1px solid var(--stroke);box-shadow:var(--sh-press)}
+/* 主题开关也是 pill，只是可点：不另起一套外观 */
+button.pill{font-family:inherit;line-height:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:5px;
+  transition:background .2s var(--e-out),color .2s var(--e-out),transform .18s var(--e-out)}
+button.pill:hover{color:var(--ink)}
+button.pill:active{transform:scale(.96)}
+.tbtn svg{width:13px;height:13px;fill:currentColor;flex:0 0 auto}
 .mirror{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
   font-size:13px;color:var(--ink-3)}
 .mirror a{color:var(--ink);text-decoration:none;background:var(--surf-solid);border:1px solid var(--stroke);
@@ -142,6 +157,8 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 .kern{margin-left:auto;font-size:12px;font-weight:var(--fwb);color:var(--ink-2);background:var(--surf-solid);
   border:1px solid var(--stroke);padding:4px 10px;border-radius:var(--r-pill);white-space:nowrap}
 .gdesc{font-size:13px;color:var(--ink-2);margin:0 0 12px 40px;line-height:1.7;text-wrap:pretty}
+/* 客户端名整体不拆行：不然「Clash Meta for Android」换行会把 Android 甩到下一行 */
+.gdesc .cl{display:inline-block;white-space:nowrap}
 
 
 /* ── 卡片 ──────────────────────────────────────────────────────────────── */
@@ -198,6 +215,7 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   color:var(--warn-ink);background:var(--warn-bg);border-radius:8px;padding:2px 8px;
   vertical-align:1px;white-space:nowrap}
 .flagx[hidden]{display:none}
+.flagx.cnf{color:var(--bad-ink);background:var(--bad-bg)}
 
 #stale{margin:0 0 16px;padding:12px 14px;border-radius:var(--r-sub);background:var(--warn-bg);color:var(--warn-ink);
   font-size:13px;line-height:1.65;text-wrap:pretty;border:1px solid var(--stroke)}
@@ -217,6 +235,23 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 .cbtn[data-copied]{background:var(--ok);color:#fff;animation:pop .42s var(--e-spring)}
 .cbtn[data-fading]{opacity:0}
 .cbtn-txt{pointer-events:none}
+
+/* ── 复制 + 二维码 ─────────────────────────────────────────────────────── */
+.acts{display:flex;gap:10px;margin-top:12px}
+.acts .cbtn{margin-top:0;flex:1;min-width:0}
+.qbtn{flex:0 0 52px;height:52px;padding:0;border:1px solid var(--stroke);border-radius:var(--r-pill);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);
+  background:var(--surf-solid);box-shadow:var(--sh-press);font-family:inherit;
+  transition:background .22s var(--e-out),color .22s var(--e-out),transform .2s var(--e-spring)}
+.qbtn svg{width:22px;height:22px;fill:currentColor}
+.qbtn[aria-expanded="true"]{background:var(--solid);color:var(--on-solid);border-color:transparent}
+.qbtn:active{transform:scale(.94)}
+.qrbox{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px;padding:12px;
+  border-radius:var(--r-sub);background:var(--surf-flat);animation:rise .28s var(--e-out) both}
+.qrbox[hidden]{display:none}
+/* 二维码固定浅底深码：跟随主题反色会让相机识别率大打折扣 */
+.qrc{display:block;width:auto;max-width:100%;height:auto;border-radius:6px;background:#fff;image-rendering:pixelated}
+.qrtip{font-size:12px;color:var(--ink-3);text-align:center;line-height:1.5}
 
 .foot{color:var(--ink-3);font-size:12px;text-align:center;margin-top:24px;line-height:1.85;text-wrap:pretty}
 .foot b{color:var(--warn-ink)}
@@ -241,8 +276,9 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   <p class="sub">复制任意一条 → 粘进客户端 → 更新，就能用</p>
   <div class="pills">
     <span class="pill" id="p2">__N__ 条链接</span>
-    <span class="pill">数据 3 小时更新</span>
+    <span class="pill">数据约 3 小时更新</span>
     <span class="pill" id="p4" hidden></span>
+    <button class="pill tbtn" id="theme" type="button" aria-pressed="false">深色</button>
   </div>
   <div class="mirror"><span>打不开时用备用入口</span>
     <a href="https://cdn.jsdelivr.net/gh/BOB0098/nodes@main/index.html" target="_blank" rel="noopener">① jsDelivr</a>
@@ -261,18 +297,22 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
 <div id="groups"></div>
 
-<footer class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br><b>测试点在美国机房，国内直连会明显偏低，百分比只作排序参考</b><br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 三条都不通就换一批</footer>
+<footer class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>卡片按「可连率 × 条数」排序，即预计可用节点数；测不到的两项排最后<br><b>测试点在美国机房，国内直连会明显偏低；标红「国内常不通」的源要先有可用代理</b><br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 三条都不通就换一批</footer>
 </div>
 
 <template id="tpl-card">
   <article class="card">
-    <div class="ch"><h3 class="tag"></h3><span class="flagx" hidden>近期不稳</span><span class="freq"></span></div>
+    <div class="ch"><h3 class="tag"></h3><span class="flagx" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span><span class="freq"></span></div>
     <p class="cnum"><b></b><span>条节点</span></p>
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
     <p class="fit"></p>
     <code class="url"></code>
-    <button class="cbtn" type="button"><span class="cbtn-txt">复制链接</span></button>
+    <div class="acts">
+      <button class="cbtn" type="button"><span class="cbtn-txt">复制链接</span></button>
+      <button class="qbtn" type="button" aria-label="显示二维码" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="3" height="3" rx=".7"/><rect x="18" y="14" width="3" height="3" rx=".7"/><rect x="14" y="18" width="3" height="3" rx=".7"/><rect x="18" y="18" width="3" height="3" rx=".7"/></svg></button>
+    </div>
+    <div class="qrbox" hidden><canvas class="qrc" role="img" aria-label="订阅链接二维码"></canvas><span class="qrtip">手机相机扫一下，或客户端「从图片导入」</span></div>
   </article>
 </template>
 
@@ -287,6 +327,208 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   const tpl = document.getElementById('tpl-card');
   const LABEL = '复制链接';
   const timers = new WeakMap();
+
+  /* ── 二维码 ────────────────────────────────────────────────────────────
+     自己写，不引库：字节模式 + 纠错 L，版本 1–6（容量 134 字节，够放本页所有链接）。
+     Reed-Solomon、掩码评分、格式信息都在这里，只保留跑得起来的必要部分。 */
+  const QR = (() => {
+    // GF(256) 指数 / 对数表
+    const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+    for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; LOG[x] = i; x = (x << 1) ^ (x & 0x80 ? 0x11d : 0); }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+    const mul = (a, b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+
+    // 版本 → [数据码字, 每块纠错码字, 块数]；CAP = 字节模式容量
+    const V = [null, [19, 7, 1], [34, 10, 1], [55, 15, 1], [80, 20, 1], [108, 26, 1], [136, 18, 2]];
+    const CAP = [0, 17, 32, 53, 78, 106, 134];
+    const ALIGN = [null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34]];
+
+    // 生成多项式除法：余数就是纠错码字
+    function rs(data, n) {
+      let g = [1];
+      for (let i = 0; i < n; i++) {
+        const ng = new Array(g.length + 1).fill(0);
+        for (let j = 0; j < g.length; j++) { ng[j] ^= g[j]; ng[j + 1] ^= mul(g[j], EXP[i]); }
+        g = ng;
+      }
+      const buf = data.concat(new Array(n).fill(0));
+      for (let i = 0; i < data.length; i++) {
+        const f = buf[i];
+        if (!f) continue;
+        for (let j = 0; j < g.length; j++) buf[i + j] ^= mul(g[j], f);
+      }
+      return buf.slice(data.length);
+    }
+
+    function encode(text) {
+      const bytes = Array.from(new TextEncoder().encode(text));
+      let ver = 1;
+      while (ver < 6 && CAP[ver] < bytes.length) ver++;
+      if (CAP[ver] < bytes.length) return null;
+      const [nData, nEc, nBlk] = V[ver];
+
+      // 位流：模式 0100 → 8 位长度 → 数据 → 终止符 → 补齐 → 填充码字
+      const bits = [];
+      const put = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+      put(4, 4); put(bytes.length, 8);
+      bytes.forEach(b => put(b, 8));
+      for (let i = Math.min(4, nData * 8 - bits.length); i > 0; i--) bits.push(0);
+      while (bits.length % 8) bits.push(0);
+      const data = [];
+      for (let i = 0; i < bits.length; i += 8) data.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+      for (let i = 0; data.length < nData; i++) data.push(i % 2 ? 0x11 : 0xEC);
+
+      // 分块编码后交错
+      const per = nData / nBlk, dblk = [], eblk = [];
+      for (let b = 0; b < nBlk; b++) {
+        const d = data.slice(b * per, (b + 1) * per);
+        dblk.push(d); eblk.push(rs(d, nEc));
+      }
+      const out = [];
+      for (let i = 0; i < per; i++) dblk.forEach(d => out.push(d[i]));
+      for (let i = 0; i < nEc; i++) eblk.forEach(d => out.push(d[i]));
+      return { ver, size: 17 + 4 * ver, data: out };
+    }
+
+    // 功能图形就位后的空矩阵，fn 标记「已占用、不参与掩码」
+    function skeleton(ver, size) {
+      const g = Array.from({ length: size }, () => new Array(size).fill(0));
+      const fn = Array.from({ length: size }, () => new Array(size).fill(false));
+      const set = (r, c, v) => { g[r][c] = v; fn[r][c] = true; };
+
+      for (const [r0, c0] of [[0, 0], [0, size - 7], [size - 7, 0]]) {
+        for (let r = -1; r < 8; r++) for (let c = -1; c < 8; c++) {
+          const R = r0 + r, C = c0 + c;
+          if (R < 0 || R >= size || C < 0 || C >= size) continue;
+          const on = r >= 0 && r < 7 && c >= 0 && c < 7 &&
+                     (r === 0 || r === 6 || c === 0 || c === 6 || (r > 1 && r < 5 && c > 1 && c < 5));
+          set(R, C, on ? 1 : 0);            // 7×7 回字 + 一圈浅色分隔带
+        }
+      }
+      for (let i = 8; i < size - 8; i++) { set(6, i, i % 2 ? 0 : 1); set(i, 6, i % 2 ? 0 : 1); }
+
+      for (const r of ALIGN[ver]) for (const c of ALIGN[ver]) {
+        if (fn[r][c]) continue;             // 压在定位角上的跳过
+        for (let dr = -2; dr < 3; dr++) for (let dc = -2; dc < 3; dc++)
+          set(r + dr, c + dc, Math.max(Math.abs(dr), Math.abs(dc)) === 1 ? 0 : 1);
+      }
+      for (let i = 0; i < 9; i++) { if (!fn[8][i]) set(8, i, 0); if (!fn[i][8]) set(i, 8, 0); }
+      for (let i = 0; i < 8; i++) {
+        if (!fn[8][size - 1 - i]) set(8, size - 1 - i, 0);
+        if (!fn[size - 1 - i][8]) set(size - 1 - i, 8, 0);
+      }
+      set(size - 8, 8, 1);                  // 固定深色模块
+      return { g, fn };
+    }
+
+    function build(m) {
+      const { size, data } = m;
+      const { g, fn } = skeleton(m.ver, size);
+
+      // 数据填格：右下角起，两列一组，蛇形上下
+      let bit = 0;
+      const next = () => {
+        const v = bit < data.length * 8 ? (data[bit >> 3] >> (7 - (bit & 7))) & 1 : 0;
+        bit++;
+        return v;
+      };
+      let up = true;
+      for (let col = size - 1; col > 0; col -= 2) {
+        if (col === 6) col--;               // 跳过第 6 列定时线
+        for (let i = 0; i < size; i++) {
+          const row = up ? size - 1 - i : i;
+          for (let j = 0; j < 2; j++) {
+            const c = col - j;
+            if (!fn[row][c]) g[row][c] = next();
+          }
+        }
+        up = !up;
+      }
+
+      const MASKS = [
+        (r, c) => (r + c) % 2 === 0,
+        r => r % 2 === 0,
+        (r, c) => c % 3 === 0,
+        (r, c) => (r + c) % 3 === 0,
+        (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+        (r, c) => (r * c) % 2 + (r * c) % 3 === 0,
+        (r, c) => ((r * c) % 2 + (r * c) % 3) % 2 === 0,
+        (r, c) => ((r + c) % 2 + (r * c) % 3) % 2 === 0
+      ];
+
+      // 格式信息：01 = 纠错 L，BCH(15,5) 后异或 0x5412
+      const fmt = mask => {
+        const d = (1 << 3) | mask;
+        let v = d << 10;
+        for (let i = 14; i >= 10; i--) if ((v >> i) & 1) v ^= 0x537 << (i - 10);
+        return ((d << 10) | v) ^ 0x5412;
+      };
+      const stamp = (a, bits15) => {
+        for (let i = 0; i < 15; i++) {
+          const b = (bits15 >> i) & 1;
+          if (i < 8) a[8][size - 1 - i] = b; else if (i < 9) a[8][7] = b; else a[8][14 - i] = b;
+        }
+        for (let i = 0; i < 15; i++) {
+          const b = (bits15 >> i) & 1;
+          if (i < 6) a[i][8] = b; else if (i < 8) a[i + 1][8] = b; else a[size - 15 + i][8] = b;
+        }
+      };
+
+      // 四条惩罚规则挑掩码：连续同色、2×2 同色块、疑似定位图形、深浅失衡
+      const penalty = a => {
+        let p = 0, dark = 0;
+        const runOf = get => {
+          let run = 1;
+          for (let i = 1; i < size; i++) {
+            if (get(i) === get(i - 1)) run++;
+            else { if (run >= 5) p += 3 + run - 5; run = 1; }
+          }
+          if (run >= 5) p += 3 + run - 5;
+        };
+        for (let r = 0; r < size; r++) { runOf(i => a[r][i]); runOf(i => a[i][r]); }
+        for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++) {
+          const v = a[r][c];
+          if (v === a[r][c + 1] && v === a[r + 1][c] && v === a[r + 1][c + 1]) p += 3;
+        }
+        for (let r = 0; r < size; r++) {
+          let row = '', col = '';
+          for (let c = 0; c < size; c++) { row += a[r][c]; col += a[c][r]; dark += a[r][c]; }
+          p += 40 * (row.split('10111010000').length - 1) + 40 * (row.split('00001011101').length - 1);
+          p += 40 * (col.split('10111010000').length - 1) + 40 * (col.split('00001011101').length - 1);
+        }
+        p += 10 * Math.floor(Math.abs(dark * 100 / (size * size) - 50) / 5);
+        return p;
+      };
+
+      let best = null, bestScore = Infinity;
+      for (let k = 0; k < 8; k++) {
+        const t = g.map(row => row.slice());
+        for (let r = 0; r < size; r++) for (let c = 0; c < size; c++)
+          if (!fn[r][c] && MASKS[k](r, c)) t[r][c] ^= 1;
+        stamp(t, fmt(k));
+        const sc = penalty(t);
+        if (sc < bestScore) { bestScore = sc; best = t; }
+      }
+      return best;
+    }
+
+    function draw(canvas, text) {
+      const m = encode(text);
+      if (!m) return false;
+      const g = build(m), size = g.length, quiet = 4, total = size + quiet * 2;
+      const scale = Math.max(3, Math.round(216 / total));
+      canvas.width = canvas.height = total * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#000';
+      for (let r = 0; r < size; r++) for (let c = 0; c < size; c++)
+        if (g[r][c]) ctx.fillRect((c + quiet) * scale, (r + quiet) * scale, scale, scale);
+      return true;
+    }
+
+    return { draw };
+  })();
 
   /* ── 渲染 ─────────────────────────────────────────────────────────── */
   const frag = document.createDocumentFragment();
@@ -305,7 +547,14 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
     const desc = document.createElement('p');
     desc.className = 'gdesc';
-    desc.textContent = g.clients;
+    // 逐个客户端包一层 nowrap，换行只发生在「·」处
+    g.clients.split('·').map(s => s.trim()).filter(Boolean).forEach((name, i) => {
+      if (i) desc.append('\u00A0·\u00A0');
+      const sp = document.createElement('span');
+      sp.className = 'cl';
+      sp.textContent = name;
+      desc.append(sp);
+    });
 
     head.append(h2, desc);
     frag.append(head);
@@ -313,10 +562,12 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
     g.items.forEach(it => {
       const node = tpl.content.firstElementChild.cloneNode(true);
       const bad = (it.streak || 0) >= 2;
-      node.className = 'card' + (it.tag.indexOf('推荐') === 0 ? ' hi' : '') + (bad ? ' dim' : '');
+      const cnf = !!it.cnbad;
+      node.className = 'card' + (it.tag.indexOf('推荐') === 0 ? ' hi' : '') + (bad || cnf ? ' dim' : '');
 
       node.querySelector('.tag').textContent = it.tag;
-      node.querySelector('.flagx').hidden = !bad;
+      node.querySelector('.flagx:not(.cnf)').hidden = !bad;
+      node.querySelector('.flagx.cnf').hidden = !cnf;
       node.querySelector('.freq').textContent = it.freq;
       node.querySelector('.cnum b').textContent = it.count === null ? '—' : it.count.toLocaleString();
       node.querySelector('.cnote').textContent = it.note;
@@ -353,23 +604,28 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
   groupsEl.append(frag);
 
-  /* 先把每张卡的真实高度钉进 contain-intrinsic-size，再让它们跳过渲染。
+  /* 先把卡片真实高度钉进 contain-intrinsic-size，再让它们跳过渲染。
      不这么做的话，视口外的卡只能按估值占位，滚动时逐张修正，文档高度会一路往下掉
-     （实测从 5214 掉到 4960），滚动条跟着抖。这里一次性布局，只多花几毫秒。 */
+     （实测从 5214 掉到 4960），滚动条跟着抖。这里一次性布局，只多花几毫秒。
+     展开二维码后卡片变高，所以也是同一个函数重钉一次。 */
+  function pinHeights(list) {
+    list.forEach(el => { el.style.contentVisibility = 'visible'; });
+    void groupsEl.offsetHeight;                     // 先让卡真实渲染一次
+    list.forEach(el => {
+      const cs = getComputedStyle(el);
+      // contain-intrinsic-size 量的是 content-box，rect.height 是 border-box，
+      // 直接写进去每张卡会多出 padding 与边框（38px），页面高度就一路往下掉
+      const box = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
+                + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+      el.style.containIntrinsicSize = Math.round(el.getBoundingClientRect().height - box) + 'px';
+    });
+    void groupsEl.offsetHeight;                     // 再强制一次，确保新尺寸被采纳
+    list.forEach(el => { el.style.contentVisibility = ''; });
+    void groupsEl.offsetHeight;
+  }
+
   const cards = groupsEl.querySelectorAll('.card');
-  cards.forEach(el => { el.style.contentVisibility = 'visible'; });
-  void groupsEl.offsetHeight;                       // 先让所有卡真实渲染一次
-  cards.forEach(el => {
-    const cs = getComputedStyle(el);
-    // contain-intrinsic-size 量的是 content-box，rect.height 是 border-box，
-    // 直接写进去每张卡会多出 padding 与边框（38px），页面高度就一路往下掉
-    const box = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
-              + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
-    el.style.containIntrinsicSize = Math.round(el.getBoundingClientRect().height - box) + 'px';
-  });
-  void groupsEl.offsetHeight;                       // 再强制一次，确保新尺寸被采纳
-  cards.forEach(el => { el.style.contentVisibility = ''; });
-  void groupsEl.offsetHeight;
+  pinHeights([...cards]);
 
   /* ── 复制 ─────────────────────────────────────────────────────────── */
   function reset(btn) {
@@ -414,8 +670,45 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
     }
   }
 
+  /* ── 二维码展开 ───────────────────────────────────────────────────── */
+  function closeQr(btn) {
+    const card = btn.closest('.card');
+    card.querySelector('.qrbox').hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', '显示二维码');
+    return card;
+  }
+
+  function toggleQr(btn) {
+    if (btn.getAttribute('aria-expanded') === 'true') {
+      pinHeights([closeQr(btn)]);
+      return;
+    }
+    // 同时只开一张，避免页面拉得很长
+    const closed = [...groupsEl.querySelectorAll('.qbtn[aria-expanded="true"]')].map(closeQr);
+
+    const card = btn.closest('.card');
+    const box = card.querySelector('.qrbox');
+    const canvas = box.querySelector('.qrc');
+    if (canvas && !canvas.dataset.ready) {          // 首次展开才画，滚动时不浪费一帧
+      if (!QR.draw(canvas, card.querySelector('.url').textContent)) {
+        box.querySelector('.qrtip').textContent = '链接太长，二维码装不下，用左边的按钮复制';
+        canvas.remove();
+      } else {
+        canvas.dataset.ready = '1';
+      }
+    }
+    box.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('aria-label', '收起二维码');
+    // 卡片变高了，重新钉一次占位高度，滚出屏幕后再回来不会跳
+    pinHeights([...closed, card]);
+  }
+
   // 一次委托替代 11 个 onclick：按钮点击走按钮，链接框点击走同一张卡片的按钮
   groupsEl.addEventListener('click', e => {
+    const qb = e.target.closest('.qbtn');
+    if (qb) return toggleQr(qb);
     const btn = e.target.closest('.cbtn');
     if (btn) return doCopy(btn);
     const code = e.target.closest('.url');
@@ -424,6 +717,34 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
       doCopy(card.querySelector('.cbtn'), code);
     }
   });
+
+  /* ── 明暗切换 ───────────────────────────────────────────────────────
+     没手动选过就跟着系统；选过就把 data-theme 钉在 html 上，localStorage 记住。
+     只翻 color-scheme，token 里的 light-dark() 会自动跟着换。 */
+  const mq = matchMedia('(prefers-color-scheme: dark)');
+  const root = document.documentElement;
+  const tbtn = document.getElementById('theme');
+  const effective = () => root.dataset.theme || (mq.matches ? 'dark' : 'light');
+
+  function paintTheme() {
+    const dark = effective() === 'dark';
+    tbtn.textContent = dark ? '浅色' : '深色';
+    tbtn.setAttribute('aria-pressed', String(dark));
+    tbtn.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
+      m.removeAttribute('media');
+      m.content = dark ? '#0B0C0F' : '#FAFBFC';
+    });
+  }
+
+  tbtn.addEventListener('click', () => {
+    const next = effective() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('nb-theme', next); } catch (e) { /* 隐私模式写不进去，只影响记忆 */ }
+    paintTheme();
+  });
+  mq.addEventListener('change', () => { if (!root.dataset.theme) paintTheme(); });
+  paintTheme();
 
   /* ── 顶栏状态 ─────────────────────────────────────────────────────── */
   document.getElementById('p2').textContent =

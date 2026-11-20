@@ -10,6 +10,7 @@
 用法:
     python3 collector.py            # 联网采集
     python3 collector.py --cache    # 用本地缓存(调试)
+    python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
 """
 import base64, hashlib, json, os, re, socket, sys, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -31,9 +32,9 @@ GROUPS = [
             {"tag": "推荐 · 只含可连节点", "note": "已剔除连不上的，成功率高",
              "fit": "Clash 系专用，v2rayNG 导入会报错",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net"},
-            {"tag": "带规则分流", "note": "开箱即用，不用自己配规则",
+            {"tag": "带规则分流", "note": "开箱即用，但国内直连实测常不通",
              "fit": "Clash 系专用，自带分流规则",
-             "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml"},
+             "freq": "6 小时更新", "cn": True, "url": "https://radarhub.top/clash.yaml"},
             {"tag": "全量节点", "note": "含未测速的节点，量最大",
              "fit": "Clash 系专用，节点最全",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net"},
@@ -48,9 +49,9 @@ GROUPS = [
              "fit": "v2rayNG / 小火箭直接导，Clash 不认",
              "freq": "6 小时更新",
              "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"},
-            {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布",
+            {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布，但国内直连常不通",
              "fit": "v2rayNG / 小火箭直接导，Clash 不认",
-             "freq": "6 小时更新", "url": "https://radarhub.top/v2ray.txt"},
+             "freq": "6 小时更新", "cn": True, "url": "https://radarhub.top/v2ray.txt"},
             {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性",
              "fit": "v2rayNG / 小火箭直接导，Clash 不认",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net"},
@@ -77,9 +78,9 @@ GROUPS = [
         "kern": "sing-box 内核",
         "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）",
         "items": [
-            {"tag": "推荐 · 带规则", "note": "与上面的 Clash 同源，格式不同",
+            {"tag": "带规则 · 与 Clash 同源", "note": "格式不同，国内直连实测常不通",
              "fit": "仅 Hiddify / sing-box，Clash 不认",
-             "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json"},
+             "freq": "6 小时更新", "cn": True, "url": "https://radarhub.top/sing-box.json"},
         ],
     },
 ]
@@ -455,26 +456,45 @@ def update_health(old, probes):
     return new
 
 
-def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
-               health=None):
+def _rank(item, counts, probes):
+    """排序分 = 可连率 × 条数，即「预计可用节点数」。
+    没有测速或有没条数的源返回 -1，排在最后。"""
+    p = probes.get(item["url"]) or {}
+    total = int(p.get("total") or 0)
+    ok = int(p.get("ok") or 0)
+    n = counts.get(item["url"]) or 0
+    if not total or not n:
+        return -1.0
+    return ok / total * n
+
+
+def assemble(nodes, raw_total, errors, counts, probes, delta, health):
     probes = probes or {}
     groups = []
     for g in GROUPS:
-        groups.append({
-            "title": g["title"], "kern": g["kern"], "clients": g["clients"],
-            "items": [{"tag": i["tag"], "note": i["note"], "fit": i.get("fit", ""), "freq": i["freq"],
-                       "url": i["url"], "count": counts.get(i["url"]),
-                       "probe": probes.get(i["url"]),
-                       "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0)
-                       } for i in g["items"]],
-        })
-    data = {
+        items = [{"tag": i["tag"], "note": i["note"], "fit": i.get("fit", ""),
+                  "freq": i["freq"], "url": i["url"], "count": counts.get(i["url"]),
+                  "probe": probes.get(i["url"]),
+                  "cnbad": bool(i.get("cn")),
+                  "score": round(_rank(i, counts, probes)),
+                  "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0)
+                  } for i in g["items"]]
+        # 国内直连不通的固定沉底；其余按「可连率 × 条数」降序，同分保持清单原顺序
+        items.sort(key=lambda it: (it["cnbad"], -it["score"]))
+        groups.append({"title": g["title"], "kern": g["kern"],
+                       "clients": g["clients"], "items": items})
+    return {
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
         "ts": int(time.time()),
         "raw": raw_total, "errors": errors, "groups": groups, "delta": delta,
         "nodes": [{"name": n["name"], "proto": n["proto"], "region": n["region"],
                    "addr": n["addr"], "src": n["src"], "uri": n["uri"]} for n in nodes],
     }
+
+
+def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
+               health=None):
+    data = assemble(nodes, raw_total, errors, counts, probes, delta, health)
     page = {k: v for k, v in data.items() if k != "nodes"}
     open(os.path.join(BASE, "index.html"), "w", encoding="utf-8").write(render_page(page))
     open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
@@ -482,7 +502,30 @@ def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
     return data
 
 
+def rerender():
+    """只按 data/nodes.json 重渲染 index.html：不联网、不改节点数据。
+    改模板后本地预览用，避免为了看一眼样式又跑一遍采集。"""
+    old = json.load(open(os.path.join(OUT_DATA, "nodes.json"), encoding="utf-8"))
+    counts, probes, health = {}, {}, {}
+    for g in old.get("groups", []):
+        for it in g.get("items", []):
+            counts[it["url"]] = it.get("count")
+            if it.get("probe"):
+                probes[it["url"]] = it["probe"]
+            health[it["url"]] = {"streak_bad": it.get("streak") or 0}
+    data = assemble(old.get("nodes") or [], old.get("raw") or 0, old.get("errors") or [],
+                    counts, probes, old.get("delta"), health)
+    data["updated"], data["ts"] = old.get("updated"), old.get("ts")
+    page = {k: v for k, v in data.items() if k != "nodes"}
+    out = os.path.join(BASE, "index.html")
+    open(out, "w", encoding="utf-8").write(render_page(page))
+    print(f"已重渲染 {out}（数据保持 {data['updated']}，未联网）")
+
+
 def main():
+    if "--render" in sys.argv:      # 只重渲染页面，不联网
+        rerender()
+        return
     use_cache = "--cache" in sys.argv
     print("开始采集节点...")
     nodes, stats, errors, raw = collect(use_cache)
