@@ -312,7 +312,7 @@ th:nth-child(5),td:nth-child(5){width:11%}
   <p class="sub">复制任意一条 → 粘进客户端 → 更新，就能用</p>
   <div class="pills"><span class="pill" id="p1">3 类客户端</span>
   <span class="pill" id="p2">14 条链接</span>
-  <span class="pill" id="p3">条数实时拉取</span></div>
+  <span class="pill" id="p3">数据 3 小时更新</span></div>
   <div class="mirror"><span>打不开时用备用入口</span>
     <a href="https://cdn.jsdelivr.net/gh/BOB0098/nodes@main/index.html" target="_blank" rel="noopener">① jsDelivr</a>
     <a href="https://ghproxy.net/https://raw.githubusercontent.com/BOB0098/nodes/main/index.html" target="_blank" rel="noopener">② ghproxy</a>
@@ -328,7 +328,7 @@ th:nth-child(5),td:nth-child(5){width:11%}
 
 <div id="groups"></div>
 
-<div class="foot">链接均为仓库原样发布，未做任何改写<br><b style="color:#0B57D0;font-weight:600">蓝色条数</b>为打开页面时实时读取，灰色为最近一次采集值 · 失效换个源即可</div>
+<div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为最近一次采集时统计 · 失效换个源即可</div>
 </div>
 <script>
 const DATA = __DATA__;
@@ -360,85 +360,6 @@ DATA.groups.forEach((g, gi) => {
   });
 });
 document.getElementById('p2').textContent = DATA.groups.reduce((a, g) => a + g.items.length, 0) + ' 条链接';
-
-/* ── 打开页面时从各仓库实时重算条数 ── */
-const PROTO = /^(vmess|vless|ss|ssr|trojan|hysteria2|hysteria|hy2|tuic|socks5):\/\//i;
-const SKIP_TYPE = ['direct','block','dns','selector','urltest','wireguard'];
-function uriLines(text) {
-  return text.split(/\r?\n/).map(l => l.trim()).filter(l => PROTO.test(l)).length;
-}
-function countText(raw) {
-  const t = (raw || '').trim();
-  if (!t) return null;
-  /* 1. 明文节点列表 */
-  const plain = uriLines(t);
-  if (plain >= 3) return plain;
-  /* 2. sing-box JSON */
-  if (t[0] === '{') {
-    try {
-      const j = JSON.parse(t);
-      if (Array.isArray(j.outbounds)) {
-        const n = j.outbounds.filter(o => o && o.type && SKIP_TYPE.indexOf(o.type) < 0).length;
-        if (n) return n;
-      }
-    } catch (e) {}
-  }
-  /* 3. Clash YAML */
-  if (/^proxies:/m.test(t)) {
-    const seg = t.split(/^proxies:/m)[1] || '';
-    let n = 0, started = false;
-    for (const line of seg.split('\n')) {
-      if (/^-\s/.test(line)) { n++; started = true; continue; }
-      if (/^\s+-\s/.test(line) && started) continue;
-      if (started && /^\S/.test(line) && line[0] !== '#') break;
-    }
-    if (n) return n;
-  }
-  /* 4. Base64 订阅 */
-  const body = t.replace(/\s+/g, '');
-  if (/^[A-Za-z0-9+\/=_-]+$/.test(body.slice(0, 300))) {
-    try {
-      const dec = atob(body.replace(/-/g, '+').replace(/_/g, '/').replace(/=+$/, ''));
-      const n = uriLines(dec);
-      if (n) return n;
-    } catch (e) {}
-  }
-  return plain || null;
-}
-let done = 0, ok = 0;
-const cards = [].slice.call(document.querySelectorAll('.card'));
-function mark(card, n) {
-  const num = card.querySelector('.cnum b');
-  num.textContent = n.toLocaleString();
-  card.querySelector('.cnum').classList.add('live');
-  card.title = '条数已实时拉取';
-}
-function tick() {
-  done++;
-  if (done === cards.length) {
-    document.getElementById('p3').textContent = ok
-      ? ok + '/' + cards.length + ' 条实时'
-      : '显示缓存条数';
-  }
-}
-const all = [];
-DATA.groups.forEach(g => g.items.forEach(it => all.push(it)));
-all.forEach((it, i) => {
-  const card = cards[i];
-  if (!card) return;
-  const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 9000);
-  fetch(it.url, { signal: ctl.signal, cache: 'no-store' })
-    .then(r => r.ok ? r.text() : null)
-    .then(t => {
-      clearTimeout(timer);
-      const n = t === null ? null : countText(t);
-      if (n) { ok++; mark(card, n); }
-    })
-    .catch(() => { clearTimeout(timer); })
-    .then(tick);
-});
-
 </script></body></html>"""
 
 
