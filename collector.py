@@ -9,7 +9,7 @@
     python3 collector.py            # 联网采集
     python3 collector.py --cache    # 用本地缓存(调试)
 """
-import base64, hashlib, json, os, re, sys, time, urllib.request
+import base64, hashlib, json, os, re, socket, sys, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 
@@ -291,7 +291,16 @@ border:1px solid var(--line2);padding:2px 8px;border-radius:99px;white-space:now
 .cnum b{font-size:17px;font-weight:700;letter-spacing:0;line-height:1.3;
 font-variant-numeric:tabular-nums;color:#475467}
 .cnum span{font-size:11px;color:var(--dim2)}
-.cnote{font-size:11.5px;color:var(--dim2);margin-bottom:9px}
+.cnote{font-size:11.5px;color:var(--dim2);margin-bottom:6px}
+.probe{display:flex;align-items:center;gap:7px;margin:0 0 9px;font-size:10.5px;color:#5A6B85}
+.probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
+.probe .bar{flex:1;min-width:40px;height:4px;border-radius:99px;background:#E8ECF3;overflow:hidden}
+.probe .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#34A853,#0B8A44)}
+.probe .pv{white-space:nowrap;font-weight:700;color:#0B8A44;font-variant-numeric:tabular-nums}
+.probe.warn .bar i{background:linear-gradient(90deg,#FDB022,#DC6803)}
+.probe.warn .pv{color:#B54708}
+.probe.bad .bar i{background:linear-gradient(90deg,#FDA29B,#D92D20)}
+.probe.bad .pv{color:#B42318}
 .url{display:block;max-width:100%;background:var(--surf2);border:1px solid var(--line2);border-radius:11px;
 padding:9px 10px;font:11.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#31405A;
 word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer}
@@ -328,11 +337,20 @@ th:nth-child(5),td:nth-child(5){width:11%}
 
 <div id="groups"></div>
 
-<div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为最近一次采集时统计 · 失效换个源即可</div>
+<div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 失效换个源即可</div>
 </div>
 <script>
 const DATA = __DATA__;
 const CN = ['','一','二','三','四'];
+function probeLine(p) {
+  if (!p || !p.total) return '';
+  const r = p.ok / p.total;
+  const cls = r >= 0.5 ? '' : (r >= 0.2 ? 'warn' : 'bad');
+  const pct = Math.round(r * 100);
+  const txt = p.ok === 0 ? `抽样 ${p.total} 个 · 全部不通` : `抽样 ${p.total} 个 · 可连 ${p.ok}`;
+  return `<div class="probe ${cls}"><span class="pl">${txt}</span>
+    <span class="bar"><i style="width:${Math.max(pct, 4)}%"></i></span><span class="pv">${pct}%</span></div>`;
+}
 const gEl = document.getElementById('groups');
 DATA.groups.forEach((g, gi) => {
   const head = document.createElement('div');
@@ -344,6 +362,7 @@ DATA.groups.forEach((g, gi) => {
     c.className = it.tag.indexOf('推荐') === 0 ? 'card hi' : 'card';
     c.innerHTML = `<div class="ch"><span class="tag">${it.tag}</span><span class="freq">${it.freq}</span></div>
       <div class="cnum"><b>${it.count === null ? '—' : it.count.toLocaleString()}</b><span>条节点</span></div>
+      ${probeLine(it.probe)}
       <div class="cnote">${it.note}</div>
       <code class="url">${it.url}</code>
       <button class="cbtn">复制链接</button>`;
@@ -398,32 +417,137 @@ def count_of(data):
 
 
 def measure(items, use_cache=False):
-    """逐条拉取订阅，统计真实节点条数"""
-    counts = {}
+    """逐条拉取订阅，统计真实节点条数 + 抽样测 TCP 连通性"""
+    counts, addrs, texts = {}, {}, {}
 
     def work(it):
         nm = "c_" + hashlib.md5(it["url"].encode()).hexdigest()[:10]
-        return it["url"], count_of(fetch([it["url"]], nm, use_cache))
+        data = fetch([it["url"]], nm, use_cache)
+        return it["url"], count_of(data), extract_addrs(data)
 
     with ThreadPoolExecutor(max_workers=5) as ex:
         futs = [ex.submit(work, it) for it in items]
         for fu in as_completed(futs):
             try:
-                u, n = fu.result()
+                u, n, a = fu.result()
                 counts[u] = n
-                print(f"  · {n if n else '—':>5} 条  {u[:64]}")
+                addrs[u] = a
+                print(f"  · {n if n else '—':>5} 条 / {len(a):>4} 个地址可测  {u[:56]}")
             except Exception as e:
-                print(f"  ✘ 计数失败 {str(e)[:40]}  {u if 'u' in dir() else ''}")
-    return counts
+                print(f"  ✘ 计数失败 {str(e)[:40]}")
+
+    probes = probe_all(addrs)
+    return counts, probes
 
 
-def build_html(nodes, stats, raw_total, errors, counts):
+def extract_addrs(data):
+    """从订阅内容里抽出 host:port 列表（兼容 Clash YAML / sing-box JSON / URI 明文）"""
+    t = data.decode("utf-8", "ignore")
+    out = []
+
+    # 1. Clash YAML：截取 proxies 段，按 server / port 顺序配对
+    m = re.search(r"^proxies:", t, re.M)
+    if m:
+        seg = []
+        for line in t[m.end():].splitlines():
+            if line and line[0] not in (" ", "\t", "-"):
+                break
+            seg.append(line)
+        body = "\n".join(seg)
+        servers = re.findall(r"^\s*server:\s*[\"']?([^\"'\s,}]+)", body, re.M)
+        ports = re.findall(r"^\s*port:\s*[\"']?(\d+)", body, re.M)
+        for s, p in zip(servers, ports):
+            out.append(f"{s}:{p}")
+        if out:
+            return out
+
+    # 2. sing-box JSON
+    if t.lstrip()[:1] == "{":
+        try:
+            j = json.loads(t)
+            for o in j.get("outbounds", []):
+                if not isinstance(o, dict):
+                    continue
+                s, p = o.get("server"), o.get("server_port")
+                if s and p:
+                    out.append(f"{s}:{p}")
+            if out:
+                return out
+        except Exception:
+            pass
+
+    # 3. URI 明文 / Base64
+    body = t
+    if "://" not in body:
+        try:
+            body = base64.b64decode(body.strip() + "=" * (-len(body.strip()) % 4)).decode("utf-8", "ignore")
+        except Exception:
+            return out
+    for line in body.splitlines():
+        line = line.strip()
+        if "://" not in line:
+            continue
+        proto = line.split("://")[0].lower()
+        if proto not in VALID_PROTO:
+            continue
+        # UDP 类协议（QUIC）没法用 TCP 探测，跳过，避免误判成"死节点"
+        if proto in ("hysteria", "hysteria2", "hy2", "tuic"):
+            continue
+        k = addr_key(line)
+        if k and ":" in k and not k.startswith(("ss://", "vmess://", "vless://", "trojan://")):
+            out.append(k)
+    return out
+
+
+def _tcp_ok(host, port, timeout):
+    try:
+        with socket.create_connection((host, int(port)), timeout):
+            return True
+    except Exception:
+        return False
+
+
+def probe_all(addrs, sample=24, timeout=3.0):
+    """对每条订阅抽样若干地址并发测 TCP 握手，返回 {url: {ok, total}}"""
+    jobs = []
+    for url, lst in addrs.items():
+        uniq = list(dict.fromkeys(lst))[:sample]
+        for a in uniq:
+            host, _, port = a.rpartition(":")
+            host = host.strip("[]")
+            if not host or not port.isdigit():
+                continue
+            jobs.append((url, host, port))
+    if not jobs:
+        return {}
+    tally = {}
+    with ThreadPoolExecutor(max_workers=64) as ex:
+        fmap = {ex.submit(_tcp_ok, h, p, timeout): u for u, h, p in jobs}
+        for fu in as_completed(fmap):
+            u = fmap[fu]
+            t = tally.setdefault(u, {"ok": 0, "total": 0})
+            t["total"] += 1
+            try:
+                if fu.result():
+                    t["ok"] += 1
+            except Exception:
+                pass
+    for u, t in sorted(tally.items(), key=lambda x: -x[1]["total"]):
+        rate = t["ok"] / t["total"] * 100 if t["total"] else 0
+        print(f"  ↳ 抽样 {t['total']:>2} 个，可连 {t['ok']:>2} 个（{rate:.0f}%）  {u[:56]}")
+    return tally
+
+
+
+def build_html(nodes, stats, raw_total, errors, counts, probes=None):
+    probes = probes or {}
     groups = []
     for g in GROUPS:
         groups.append({
             "title": g["title"], "kern": g["kern"], "clients": g["clients"],
             "items": [{"tag": i["tag"], "note": i["note"], "freq": i["freq"],
-                       "url": i["url"], "count": counts.get(i["url"])} for i in g["items"]],
+                       "url": i["url"], "count": counts.get(i["url"]),
+                       "probe": probes.get(i["url"])} for i in g["items"]],
         })
     data = {
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
@@ -456,9 +580,9 @@ def main():
 
     print("\n统计各条订阅的节点数...")
     items = [it for g in GROUPS for it in g["items"]]
-    counts = measure(items, use_cache)
+    counts, probes = measure(items, use_cache)
 
-    build_html(nodes, stats, raw, errors, counts)
+    build_html(nodes, stats, raw, errors, counts, probes)
     uris = [n["uri"] for n in nodes]
     with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
