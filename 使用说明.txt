@@ -34,8 +34,7 @@
    2. Settings → Actions → General → Workflow permissions 选 Read and write
    3. 内置 .github/workflows/daily.yml，每 3 小时（cron 17 */3 * * *）自动采集并提交
    4. 开启 GitHub Pages（gh-pages 分支），得到自己的网址
-   注意：GitHub 队列会延迟，页面写「约 3 小时更新」，并显示距下次采集的倒计时；
-   倒计时只是按 cron 推算，排队时会在胶囊里改口说「队列可能堵着」。想立刻刷新就手动 Run workflow。
+   注意：GitHub 队列会延迟，实际间隔常在 3 小时以上；想立刻刷新就手动 Run workflow。
 
 五、采集规则
    · 14 个源，并发拉取（每类约 5 条，只收一天内更新过、且能带来独有节点的源）

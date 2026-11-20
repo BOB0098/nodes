@@ -139,34 +139,6 @@ button.pill:active{transform:scale(.96)}
 .fcount{font-size:12px;color:var(--ink-3);margin-left:2px}
 .fempty{text-align:center;color:var(--ink-2);font-size:14px;line-height:1.8;padding:34px 16px}
 
-/* ── 导入教程 ─────────────────────────────────────────────────────────── */
-.guide{margin-top:26px;background:var(--surf);border:1px solid var(--stroke);border-radius:var(--r-card);
-  box-shadow:var(--sh-card);overflow:hidden}
-.guide>summary{list-style:none;cursor:pointer;padding:18px 22px;display:flex;align-items:center;gap:10px;
-  font-size:16px;font-weight:var(--fwh);color:var(--ink)}
-.guide>summary::-webkit-details-marker{display:none}
-.guide>summary:after{content:"展开";margin-left:auto;font-size:13px;font-weight:400;color:var(--ink-3)}
-.guide[open]>summary:after{content:"收起"}
-.guide>summary:focus-visible{outline:none;box-shadow:inset 0 0 0 2px rgba(17,19,24,.32)}
-.gitem{border-top:1px solid var(--stroke);padding:0 22px}
-.gitem>summary{list-style:none;cursor:pointer;padding:14px 0;font-size:14px;font-weight:var(--fwb);color:var(--ink);
-  display:flex;align-items:center;gap:9px}
-.gitem>summary::-webkit-details-marker{display:none}
-.gitem>summary:before{content:"›";color:var(--ink-3);font-weight:400;transition:transform .2s var(--e-out)}
-.gitem[open]>summary:before{transform:rotate(90deg)}
-.gbody{padding:0 0 16px 20px;font-size:13.5px;color:var(--ink-2);line-height:1.85}
-.gbody ol{margin:0;padding-left:18px}
-.gbody li{margin:2px 0}
-.gbody b{color:var(--ink);font-weight:var(--fwb)}
-.gtip{display:block;margin-top:8px;padding:9px 12px;border-radius:var(--r-sub);background:var(--warn-bg);
-  color:var(--warn-ink);font-size:12.5px;line-height:1.7}
-.tbtn svg{width:13px;height:13px;fill:currentColor;flex:0 0 auto}
-.mirror{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
-  font-size:13px;color:var(--ink-3)}
-.mirror a{color:var(--ink);text-decoration:none;background:var(--surf-solid);border:1px solid var(--stroke);
-  border-radius:var(--r-pill);padding:5px 12px;font-weight:var(--fwb);
-  box-shadow:var(--sh-press);transition:background .2s var(--e-out),color .2s var(--e-out),transform .18s var(--e-out)}
-.mirror a:active{transform:scale(.96);background:var(--solid);color:var(--on-solid)}
 
 /* ── 「怎么用」区块 ────────────────────────────────────────────────────── */
 .sec{background:var(--surf);border:1px solid var(--stroke);border-radius:var(--r-card);
@@ -295,8 +267,6 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 .qrc{display:block;width:auto;max-width:100%;height:auto;border-radius:6px;background:#fff;image-rendering:pixelated}
 .qrtip{font-size:12px;color:var(--ink-3);text-align:center;line-height:1.5}
 
-.foot{color:var(--ink-3);font-size:12px;text-align:center;margin-top:24px;line-height:1.85;text-wrap:pretty}
-.foot b{color:var(--warn-ink)}
 
 /* ── 动效 ──────────────────────────────────────────────────────────────── */
 /* 收尾写 filter:none 而不是 blur(0)：blur(0) 仍算滤镜，会让 23 个逐字 span
@@ -334,60 +304,6 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
 <div id="groups"></div>
 <p class="fempty" id="fempty" hidden>这个组合下没有源<br><span style="color:var(--ink-3);font-size:13px">两个条件同时开太严了，关掉一个试试</span></p>
-
-<details class="guide">
-  <summary>导入教程 · 四个客户端</summary>
-
-  <details class="gitem">
-    <summary>Clash Verge Rev<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">Windows / macOS</span></summary>
-    <div class="gbody">
-      <ol>
-        <li>首次打开会弹出「安装服务」，点安装并授权，TUN 模式要用到它</li>
-        <li>左侧「订阅」→ 顶部输入框粘贴链接 → 点「导入」</li>
-        <li>「代理」页选一个节点组，再打开右上角的「系统代理」或「TUN 模式」</li>
-      </ol>
-      <span class="gtip">导入后右键订阅卡片可以「更新」。免费源建议每次用前先更新一遍；连不上时先关掉 TUN 只用系统代理试。</span>
-    </div>
-  </details>
-
-  <details class="gitem">
-    <summary>v2rayNG<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">安卓</span></summary>
-    <div class="gbody">
-      <ol>
-        <li>右上角「＋」→「从剪贴板导入」</li>
-        <li>回主界面，右上角菜单 →「测试全部配置真连接」</li>
-        <li>点延迟最低的一条，再点右下角灰色按钮，变绿就是连上了</li>
-      </ol>
-      <span class="gtip">长按订阅可以「更新订阅」。安卓 10 以上要在系统设置里给 v2rayNG 通知权限，否则后台会被系统杀掉。</span>
-    </div>
-  </details>
-
-  <details class="gitem">
-    <summary>FlClash<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">安卓 / 电脑</span></summary>
-    <div class="gbody">
-      <ol>
-        <li>「配置」页 → 右下角「＋」→「从剪贴板」</li>
-        <li>点这张配置让它选中（边框高亮），再回首页点「启动」</li>
-        <li>首次启动会请求 VPN 权限，允许</li>
-      </ol>
-      <span class="gtip">FlClash 用的是新内核，Clash 的 yaml 和 v2ray 的 base64 都能吃。连不上时去「设置 → 网络」关掉「严格路由」再试。</span>
-    </div>
-  </details>
-
-  <details class="gitem">
-    <summary>Hiddify<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">安卓 / 电脑 / 苹果</span></summary>
-    <div class="gbody">
-      <ol>
-        <li>首页「＋」→「从剪贴板添加」</li>
-        <li>点该配置右侧「⋯」→「更新」，把节点拉下来</li>
-        <li>回首页点大按钮连接，首次会装一个 VPN 描述文件</li>
-      </ol>
-      <span class="gtip">Hiddify 能吃 v2ray 的 base64 和 sing-box 的 json，<b>吃不了 Clash 的 yaml</b>。苹果设备装完要去「设置 → 通用 → VPN 与设备管理」里信任描述文件。</span>
-    </div>
-  </details>
-</details>
-
-<footer class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>卡片按「可连率 × 条数」排序，即预计可用节点数；测不到的两项排最后<br>「源更新于」来自仓库最后一次提交，与作者自称的更新频率是两回事<br><b>测试点在美国机房，国内直连会明显偏低；标红「国内常不通」的源要先有可用代理</b><br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 三条都不通就换一批</footer>
 </div>
 
 <template id="tpl-card">
