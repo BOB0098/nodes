@@ -359,7 +359,7 @@ th:nth-child(5),td:nth-child(5){width:11%}
 
 <div id="groups"></div>
 
-<div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 测试点在美国机房，国内实连率会低一些</div>
+<div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br><b style="color:#B54708">测试点在美国机房，国内直连会明显偏低，百分比只作排序参考</b><br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 三条都不通就换一批</div>
 </div>
 <script>
 const DATA = __DATA__;
