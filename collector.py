@@ -319,7 +319,7 @@ th:nth-child(5),td:nth-child(5){width:11%}
 <header>
   <h1>节点配置链接</h1>
   <p class="sub">复制任意一条 → 粘进客户端 → 更新，就能用</p>
-  <div class="pills"><span class="pill" id="p2">14 条链接</span>
+  <div class="pills"><span class="pill" id="p2">__N__ 条链接</span>
   <span class="pill" id="p3">数据 3 小时更新</span>
   <span class="pill" id="p4" style="display:none"></span></div>
   <div class="mirror"><span>打不开时用备用入口</span>
@@ -561,7 +561,8 @@ def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None)
                    "addr": n["addr"], "src": n["src"], "uri": n["uri"]} for n in nodes],
     }
     page = {k: v for k, v in data.items() if k != "nodes"}
-    html = HTML.replace("__DATA__", json.dumps(page, ensure_ascii=False))
+    html = HTML.replace("__N__", str(sum(len(g["items"]) for g in groups)))
+    html = html.replace("__DATA__", json.dumps(page, ensure_ascii=False))
     open(os.path.join(BASE, "index.html"), "w", encoding="utf-8").write(html)
     open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
         json.dumps(data, ensure_ascii=False, indent=1))
