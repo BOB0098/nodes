@@ -27,6 +27,10 @@ filter:drop-shadow(0 2px 6px rgba(11,87,208,.18))}
 .sub{color:var(--dim);font-size:12.5px;margin-top:7px;text-align:center}
 .pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px;justify-content:center}
 .pill{background:rgba(255,255,255,.72);border:1px solid var(--line);color:#475467;font-size:11.5px;padding:3px 9px;border-radius:99px}
+.mirror{margin-top:9px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;font-size:11.5px;color:var(--dim2)}
+.mirror a{color:#0B57D0;text-decoration:none;background:rgba(255,255,255,.8);border:1px solid #C9D9F5;
+border-radius:99px;padding:2px 9px;font-weight:600;transition:.15s}
+.mirror a:active{background:#E3ECFB}
 .sec{background:linear-gradient(180deg,#fff,#FBFCFE);border:1px solid var(--line);border-radius:18px;
 padding:13px 14px 3px;box-shadow:var(--sh2);margin-bottom:20px}
 .sec-t{font-size:14.5px;font-weight:700;margin-bottom:0}
@@ -80,6 +84,10 @@ th:nth-child(5),td:nth-child(5){width:11%}
   <div class="pills"><span class="pill" id="p1">3 类客户端</span>
   <span class="pill" id="p2">14 条链接</span>
   <span class="pill" id="p3">条数实时拉取</span></div>
+  <div class="mirror"><span>打不开时用备用入口</span>
+    <a href="https://cdn.jsdelivr.net/gh/BOB0098/nodes@main/index.html" target="_blank" rel="noopener">① jsDelivr</a>
+    <a href="https://ghproxy.net/https://raw.githubusercontent.com/BOB0098/nodes/main/index.html" target="_blank" rel="noopener">② ghproxy</a>
+  </div>
 </header>
 
 <section class="sec">
