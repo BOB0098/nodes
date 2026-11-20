@@ -400,26 +400,29 @@ def probe_meta(items):
 
 def measure(items, use_cache=False):
     """逐条拉取订阅，统计真实节点条数 + 抽样测 TCP 连通性"""
-    counts, addrs, texts = {}, {}, {}
+    counts, addrs, fps = {}, {}, {}
 
     def work(it):
         nm = "c_" + hashlib.md5(it["url"].encode()).hexdigest()[:10]
         data = fetch([it["url"]], nm, use_cache)
-        return it["url"], count_of(data), extract_addrs(data)
+        # 指纹用来判断「这条源的内容到底有没有变」：
+        # 非 GitHub 的站点拿不到提交时间，只能靠它算新鲜度
+        return it["url"], count_of(data), extract_addrs(data), hashlib.md5(data).hexdigest()
 
     with ThreadPoolExecutor(max_workers=5) as ex:
         futs = [ex.submit(work, it) for it in items]
         for fu in as_completed(futs):
             try:
-                u, n, a = fu.result()
+                u, n, a, fp = fu.result()
                 counts[u] = n
                 addrs[u] = a
+                fps[u] = fp
                 print(f"  · {n if n else '—':>5} 条 / {len(a):>4} 个地址可测  {u[:56]}")
             except Exception as e:
                 print(f"  ✘ 计数失败 {str(e)[:40]}")
 
     probes = probe_all(addrs)
-    return counts, probes
+    return counts, probes, fps
 
 
 def extract_addrs(data):
@@ -531,9 +534,14 @@ def load_health():
         return {}
 
 
-def update_health(old, probes):
-    """累计每个源的连续低连通轮次；连续 2 轮 <30% 判定为不稳定"""
+def update_health(old, probes, fps=None):
+    """累计每个源的连续低连通轮次；连续 2 轮 <30% 判定为不稳定。
+
+    同时记内容指纹：内容没变就沿用上次的变化时间，变了就记现在。
+    非 GitHub 的源拿不到提交时间，这是唯一能证明「它到底更没更新」的办法。
+    """
     stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M")
+    now_ts = int(time.time())
     new = {}
     for url, p in probes.items():
         h = old.get(url) or {}
@@ -545,6 +553,14 @@ def update_health(old, probes):
             streak = streak + 1 if rate < 0.3 else 0
         new[url] = {"streak_bad": streak, "rate": round(rate * 100),
                     "total": total, "ok": ok, "seen": stamp}
+    for url, fp in (fps or {}).items():
+        prev = old.get(url) or {}
+        ts = prev.get("fp_ts") if prev.get("fp") == fp else None
+        row = new.setdefault(url, {})
+        row["fp"] = fp
+        row["fp_ts"] = ts or now_ts
+        # 第一次记录没有参照物，写 0 会被读成「刚刚更新过」，所以留空
+        row["fp_age_h"] = None if not prev.get("fp") else round((now_ts - row["fp_ts"]) / 3600, 1)
     for url, h in old.items():          # 本轮没测到的源保留旧记录
         new.setdefault(url, h)
     # 只在 CI（美国机房）里落盘：本地出口网络差异极大，会污染健康记录
@@ -554,6 +570,15 @@ def update_health(old, probes):
     else:
         print("  （本地运行，不写入健康记录）")
     return new
+
+
+def _age_of(meta, health, url):
+    """优先用仓库提交时间（权威），没有再退回内容指纹的变化时间（本地实测）。
+    两者都没有就返回 None —— 页面宁可不显示，也不拿采集时间冒充源更新时间。"""
+    m = (meta.get(url) or {}).get("age_h")
+    if m is not None:
+        return m
+    return ((health or {}).get(url) or {}).get("fp_age_h")
 
 
 def _rank(item, counts, probes):
@@ -580,7 +605,7 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "probe": probes.get(i["url"]),
                   "cnbad": bool(i.get("cn")),
                   "src_http": srcstat.get(i["url"]),
-                  "age_h": (meta.get(i["url"]) or {}).get("age_h"),
+                  "age_h": _age_of(meta, health, i["url"]),
                   "score": round(_rank(i, counts, probes)),
                   "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0)
                   } for i in g["items"]]
@@ -665,7 +690,7 @@ def main():
 
     print("\n统计各条订阅的节点数...")
     items = [it for g in GROUPS for it in g["items"]]
-    counts, probes = measure(items, use_cache)
+    counts, probes, fps = measure(items, use_cache)
 
     print("\n测各条源站自身可达性...")
     srcstat = probe_sources(items)
@@ -673,7 +698,7 @@ def main():
     print("\n查各条源最后更新时间...")
     meta = probe_meta(items)
 
-    health = update_health(load_health(), probes)
+    health = update_health(load_health(), probes, fps)
     for u, h in health.items():
         if h.get("streak_bad"):
             print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
