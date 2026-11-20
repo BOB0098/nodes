@@ -314,6 +314,13 @@ font-variant-numeric:tabular-nums;color:#475467}
 .probe.warn .pv{color:#B54708}
 .probe.bad .bar i{background:linear-gradient(90deg,#FDA29B,#D92D20)}
 .probe.bad .pv{color:#B42318}
+.card.dim{background:linear-gradient(180deg,#FDFDFE,#F8F9FB);border-color:#E4E8EF}
+.card.dim .cnum b{color:#667085}
+.flagx{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;
+  color:#B54708;background:#FFFAEB;border:1px solid #FEDF89;border-radius:5px;
+  padding:1px 5px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+#stale{display:none;margin:0 0 14px;padding:9px 12px;border-radius:10px;
+  background:#FFFAEB;border:1px solid #FEDF89;color:#B54708;font-size:11.5px;line-height:1.6}
 .url{display:block;max-width:100%;background:var(--surf2);border:1px solid var(--line2);border-radius:11px;
 padding:9px 10px;font:11.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#31405A;
 word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer}
@@ -340,6 +347,8 @@ th:nth-child(5),td:nth-child(5){width:11%}
     <a href="https://ghproxy.net/https://raw.githubusercontent.com/BOB0098/nodes/main/index.html" target="_blank" rel="noopener">② ghproxy</a>
   </div>
 </header>
+
+<div id="stale"></div>
 
 <section class="sec">
   <div class="sec-t">怎么用<span>所有客户端都这三步</span></div>
@@ -372,8 +381,9 @@ DATA.groups.forEach((g, gi) => {
   gEl.appendChild(head);
   g.items.forEach(it => {
     const c = document.createElement('div');
-    c.className = it.tag.indexOf('推荐') === 0 ? 'card hi' : 'card';
-    c.innerHTML = `<div class="ch"><span class="tag">${it.tag}</span><span class="freq">${it.freq}</span></div>
+    const bad = (it.streak || 0) >= 2;
+    c.className = (it.tag.indexOf('推荐') === 0 ? 'card hi' : 'card') + (bad ? ' dim' : '');
+    c.innerHTML = `<div class="ch"><span class="tag">${it.tag}</span>${bad ? '<span class="flagx">近期不稳</span>' : ''}<span class="freq">${it.freq}</span></div>
       <div class="cnum"><b>${it.count === null ? '—' : it.count.toLocaleString()}</b><span>条节点</span></div>
       ${probeLine(it.probe)}
       <div class="cnote">${it.note}</div>
@@ -393,6 +403,15 @@ DATA.groups.forEach((g, gi) => {
   });
 });
 document.getElementById('p2').textContent = DATA.groups.reduce((a, g) => a + g.items.length, 0) + ' 条链接';
+if (DATA.ts) {
+  const hrs = (Date.now() / 1000 - DATA.ts) / 3600;
+  if (hrs >= 12) {
+    const el = document.getElementById('stale');
+    el.style.display = 'block';
+    el.innerHTML = `这份数据已经 <b>${Math.floor(hrs)} 小时</b>没有更新了（最后一次 ${DATA.updated}）。
+      自动采集可能中断，链接大概率仍能用，但不如新鲜时可靠。`;
+  }
+}
 if (DATA.delta && (DATA.delta.add || DATA.delta.drop)) {
   const p4 = document.getElementById('p4');
   p4.textContent = `今日 +${DATA.delta.add} / −${DATA.delta.drop}`;
@@ -558,7 +577,43 @@ def probe_all(addrs, sample=24, timeout=3.0):
 
 
 
-def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None):
+HEALTH_PATH = os.path.join(OUT_DATA, "health.json")
+
+
+def load_health():
+    try:
+        return json.load(open(HEALTH_PATH, encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def update_health(old, probes):
+    """累计每个源的连续低连通轮次；连续 2 轮 <30% 判定为不稳定"""
+    stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M")
+    new = {}
+    for url, p in probes.items():
+        h = old.get(url) or {}
+        streak = int(h.get("streak_bad") or 0)
+        total = int(p.get("total") or 0)
+        ok = int(p.get("ok") or 0)
+        rate = (ok / total) if total else 0
+        if total:
+            streak = streak + 1 if rate < 0.3 else 0
+        new[url] = {"streak_bad": streak, "rate": round(rate * 100),
+                    "total": total, "ok": ok, "seen": stamp}
+    for url, h in old.items():          # 本轮没测到的源保留旧记录
+        new.setdefault(url, h)
+    # 只在 CI（美国机房）里落盘：本地出口网络差异极大，会污染健康记录
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        json.dump(new, open(HEALTH_PATH, "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=1)
+    else:
+        print("  （本地运行，不写入健康记录）")
+    return new
+
+
+def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
+               health=None):
     probes = probes or {}
     groups = []
     for g in GROUPS:
@@ -566,10 +621,13 @@ def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None)
             "title": g["title"], "kern": g["kern"], "clients": g["clients"],
             "items": [{"tag": i["tag"], "note": i["note"], "fit": i.get("fit", ""), "freq": i["freq"],
                        "url": i["url"], "count": counts.get(i["url"]),
-                       "probe": probes.get(i["url"])} for i in g["items"]],
+                       "probe": probes.get(i["url"]),
+                       "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0)
+                       } for i in g["items"]],
         })
     data = {
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
+        "ts": int(time.time()),
         "raw": raw_total, "errors": errors, "groups": groups, "delta": delta,
         "nodes": [{"name": n["name"], "proto": n["proto"], "region": n["region"],
                    "addr": n["addr"], "src": n["src"], "uri": n["uri"]} for n in nodes],
@@ -610,7 +668,12 @@ def main():
     items = [it for g in GROUPS for it in g["items"]]
     counts, probes = measure(items, use_cache)
 
-    build_html(nodes, stats, raw, errors, counts, probes, delta)
+    health = update_health(load_health(), probes)
+    for u, h in health.items():
+        if h.get("streak_bad"):
+            print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
+
+    build_html(nodes, stats, raw, errors, counts, probes, delta, health)
     uris = [n["uri"] for n in nodes]
     with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
