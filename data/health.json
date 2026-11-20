@@ -1,79 +1,79 @@
 {
  "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt": {
   "streak_bad": 0,
-  "rate": 58,
+  "rate": 54,
   "total": 24,
-  "ok": 14,
-  "seen": "11-21 05:44"
+  "ok": 13,
+  "seen": "11-21 06:44"
  },
- "https://radarhub.top/v2ray.txt": {
+ "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub": {
   "streak_bad": 0,
   "rate": 100,
-  "total": 24,
-  "ok": 24,
-  "seen": "11-21 05:44"
+  "total": 9,
+  "ok": 9,
+  "seen": "11-21 06:44"
  },
  "https://radarhub.top/clash.yaml": {
   "streak_bad": 0,
   "rate": 75,
   "total": 24,
   "ok": 18,
-  "seen": "11-21 05:44"
+  "seen": "11-21 06:44"
  },
- "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub": {
+ "https://radarhub.top/v2ray.txt": {
   "streak_bad": 0,
   "rate": 100,
-  "total": 10,
-  "ok": 10,
-  "seen": "11-21 05:44"
+  "total": 24,
+  "ok": 24,
+  "seen": "11-21 06:44"
  },
  "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub": {
   "streak_bad": 0,
-  "rate": 96,
+  "rate": 92,
   "total": 24,
-  "ok": 23,
-  "seen": "11-21 05:44"
- },
- "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt": {
-  "streak_bad": 7,
-  "rate": 27,
-  "total": 11,
-  "ok": 3,
-  "seen": "11-21 05:44"
+  "ok": 22,
+  "seen": "11-21 06:44"
  },
  "https://raw.githubusercontent.com/free18/v2ray/main/v.txt": {
   "streak_bad": 0,
   "rate": 92,
   "total": 24,
   "ok": 22,
-  "seen": "11-21 05:44"
+  "seen": "11-21 06:44"
  },
- "https://blog.ermao.net/sub/clash/ermao.net": {
-  "streak_bad": 0,
-  "rate": 92,
-  "total": 24,
-  "ok": 22,
-  "seen": "11-21 05:44"
+ "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt": {
+  "streak_bad": 8,
+  "rate": 27,
+  "total": 11,
+  "ok": 3,
+  "seen": "11-21 06:44"
  },
  "https://radarhub.top/sing-box.json": {
   "streak_bad": 0,
   "rate": 75,
   "total": 24,
   "ok": 18,
-  "seen": "11-21 05:44"
+  "seen": "11-21 06:44"
  },
  "https://blog.ermao.net/sub/reachable/clash/ermao.net": {
   "streak_bad": 0,
   "rate": 100,
   "total": 24,
   "ok": 24,
-  "seen": "11-21 05:44"
+  "seen": "11-21 06:44"
+ },
+ "https://blog.ermao.net/sub/clash/ermao.net": {
+  "streak_bad": 0,
+  "rate": 92,
+  "total": 24,
+  "ok": 22,
+  "seen": "11-21 06:44"
  },
  "https://blog.ermao.net/sub/v2ray/ermao.net": {
   "streak_bad": 0,
   "rate": 96,
   "total": 24,
   "ok": 23,
-  "seen": "11-21 05:44"
+  "seen": "11-21 06:44"
  }
 }
