@@ -128,6 +128,39 @@ button.pill{font-family:inherit;line-height:inherit;cursor:pointer;display:inlin
   transition:background .2s var(--e-out),color .2s var(--e-out),transform .18s var(--e-out)}
 button.pill:hover{color:var(--ink)}
 button.pill:active{transform:scale(.96)}
+
+/* ── 筛选 ───────────────────────────────────────────────────────────────── */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin:20px 0 2px}
+.fbtn{font-family:inherit;font-size:13px;font-weight:500;color:var(--ink-2);background:var(--surf-solid);
+  border:1px solid var(--stroke);border-radius:var(--r-pill);padding:6px 14px;cursor:pointer;
+  box-shadow:var(--sh-press);transition:background .18s var(--e-out),color .18s var(--e-out),border-color .18s var(--e-out)}
+.fbtn:hover{color:var(--ink)}
+.fbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg-a);border-color:var(--ink)}
+.fbtn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg-a),0 0 0 4.5px rgba(17,19,24,.42)}
+.fcount{font-size:12px;color:var(--ink-3);margin-left:2px}
+.fempty{text-align:center;color:var(--ink-2);font-size:14px;line-height:1.8;padding:34px 16px}
+
+/* ── 导入教程 ─────────────────────────────────────────────────────────── */
+.guide{margin-top:26px;background:var(--surf);border:1px solid var(--stroke);border-radius:var(--r-card);
+  box-shadow:var(--sh-card);overflow:hidden}
+.guide>summary{list-style:none;cursor:pointer;padding:18px 22px;display:flex;align-items:center;gap:10px;
+  font-size:16px;font-weight:var(--fwh);color:var(--ink)}
+.guide>summary::-webkit-details-marker{display:none}
+.guide>summary:after{content:"展开";margin-left:auto;font-size:13px;font-weight:400;color:var(--ink-3)}
+.guide[open]>summary:after{content:"收起"}
+.guide>summary:focus-visible{outline:none;box-shadow:inset 0 0 0 2px rgba(17,19,24,.32)}
+.gitem{border-top:1px solid var(--stroke);padding:0 22px}
+.gitem>summary{list-style:none;cursor:pointer;padding:14px 0;font-size:14px;font-weight:var(--fwb);color:var(--ink);
+  display:flex;align-items:center;gap:9px}
+.gitem>summary::-webkit-details-marker{display:none}
+.gitem>summary:before{content:"›";color:var(--ink-3);font-weight:400;transition:transform .2s var(--e-out)}
+.gitem[open]>summary:before{transform:rotate(90deg)}
+.gbody{padding:0 0 16px 20px;font-size:13.5px;color:var(--ink-2);line-height:1.85}
+.gbody ol{margin:0;padding-left:18px}
+.gbody li{margin:2px 0}
+.gbody b{color:var(--ink);font-weight:var(--fwb)}
+.gtip{display:block;margin-top:8px;padding:9px 12px;border-radius:var(--r-sub);background:var(--warn-bg);
+  color:var(--warn-ink);font-size:12.5px;line-height:1.7}
 .tbtn svg{width:13px;height:13px;fill:currentColor;flex:0 0 auto}
 .mirror{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
   font-size:13px;color:var(--ink-3)}
@@ -194,6 +227,11 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 .srcbad{display:inline-block;font-size:12px;line-height:1.5;color:var(--bad-ink);
   background:var(--bad-bg);border-radius:8px;padding:4px 10px;margin-top:8px;text-wrap:pretty}
 .srcbad[hidden]{display:none}
+
+/* 源最后一次改动：freq 是作者自己写的承诺，这行是实测，两者分开摆 */
+.age{font-size:12px;color:var(--ink-3);margin:8px 0 0;line-height:1.5;font-variant-numeric:tabular-nums}
+.age[hidden]{display:none}
+.age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
 
 /* 可连率：原生 progress，自带 progressbar 角色与 aria 数值 */
 .probe{display:flex;align-items:center;gap:10px;margin:12px 0 0;font-size:13px;color:var(--ink-3)}
@@ -283,6 +321,7 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
     <span class="pill" id="p2">__N__ 条链接</span>
     <span class="pill">数据约 3 小时更新</span>
     <span class="pill" id="p4" hidden></span>
+    <span class="pill" id="p5" hidden></span>
     <button class="pill tbtn" id="theme" type="button" aria-pressed="false">深色</button>
   </div>
   <div class="mirror"><span>打不开时用备用入口</span>
@@ -300,9 +339,68 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   <div class="gs"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中它 → 打开代理开关</p></div></div>
 </section>
 
-<div id="groups"></div>
+<div class="filters" role="group" aria-label="按可用性筛选">
+  <button class="fbtn" type="button" id="fAlive" aria-pressed="false">只看可连 ≥80%</button>
+  <button class="fbtn" type="button" id="fCn" aria-pressed="false">只看国内可直连</button>
+  <span class="fcount" id="fcount" aria-live="polite"></span>
+</div>
 
-<footer class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>卡片按「可连率 × 条数」排序，即预计可用节点数；测不到的两项排最后<br><b>测试点在美国机房，国内直连会明显偏低；标红「国内常不通」的源要先有可用代理</b><br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 三条都不通就换一批</footer>
+<div id="groups"></div>
+<p class="fempty" id="fempty" hidden>这个组合下没有源<br><span style="color:var(--ink-3);font-size:13px">两个条件同时开太严了，关掉一个试试</span></p>
+
+<details class="guide">
+  <summary>导入教程 · 四个客户端</summary>
+
+  <details class="gitem">
+    <summary>Clash Verge Rev<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">Windows / macOS</span></summary>
+    <div class="gbody">
+      <ol>
+        <li>首次打开会弹出「安装服务」，点安装并授权，TUN 模式要用到它</li>
+        <li>左侧「订阅」→ 顶部输入框粘贴链接 → 点「导入」</li>
+        <li>「代理」页选一个节点组，再打开右上角的「系统代理」或「TUN 模式」</li>
+      </ol>
+      <span class="gtip">导入后右键订阅卡片可以「更新」。免费源建议每次用前先更新一遍；连不上时先关掉 TUN 只用系统代理试。</span>
+    </div>
+  </details>
+
+  <details class="gitem">
+    <summary>v2rayNG<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">安卓</span></summary>
+    <div class="gbody">
+      <ol>
+        <li>右上角「＋」→「从剪贴板导入」</li>
+        <li>回主界面，右上角菜单 →「测试全部配置真连接」</li>
+        <li>点延迟最低的一条，再点右下角灰色按钮，变绿就是连上了</li>
+      </ol>
+      <span class="gtip">长按订阅可以「更新订阅」。安卓 10 以上要在系统设置里给 v2rayNG 通知权限，否则后台会被系统杀掉。</span>
+    </div>
+  </details>
+
+  <details class="gitem">
+    <summary>FlClash<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">安卓 / 电脑</span></summary>
+    <div class="gbody">
+      <ol>
+        <li>「配置」页 → 右下角「＋」→「从剪贴板」</li>
+        <li>点这张配置让它选中（边框高亮），再回首页点「启动」</li>
+        <li>首次启动会请求 VPN 权限，允许</li>
+      </ol>
+      <span class="gtip">FlClash 用的是新内核，Clash 的 yaml 和 v2ray 的 base64 都能吃。连不上时去「设置 → 网络」关掉「严格路由」再试。</span>
+    </div>
+  </details>
+
+  <details class="gitem">
+    <summary>Hiddify<span style="color:var(--ink-3);font-weight:400;font-size:12.5px">安卓 / 电脑 / 苹果</span></summary>
+    <div class="gbody">
+      <ol>
+        <li>首页「＋」→「从剪贴板添加」</li>
+        <li>点该配置右侧「⋯」→「更新」，把节点拉下来</li>
+        <li>回首页点大按钮连接，首次会装一个 VPN 描述文件</li>
+      </ol>
+      <span class="gtip">Hiddify 能吃 v2ray 的 base64 和 sing-box 的 json，<b>吃不了 Clash 的 yaml</b>。苹果设备装完要去「设置 → 通用 → VPN 与设备管理」里信任描述文件。</span>
+    </div>
+  </details>
+</details>
+
+<footer class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>卡片按「可连率 × 条数」排序，即预计可用节点数；测不到的两项排最后<br>「源更新于」来自仓库最后一次提交，与作者自称的更新频率是两回事<br><b>测试点在美国机房，国内直连会明显偏低；标红「国内常不通」的源要先有可用代理</b><br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 三条都不通就换一批</footer>
 </div>
 
 <template id="tpl-card">
@@ -312,6 +410,7 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
     <p class="fit"></p>
+    <p class="age" hidden></p>
     <p class="srcbad" hidden></p>
     <code class="url"></code>
     <div class="acts">
@@ -541,6 +640,8 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
   DATA.groups.forEach((g, gi) => {
     const head = document.createElement('div');
+    head.className = 'ghead';
+    head.dataset.gi = gi;
     const h2 = document.createElement('h2');
     h2.className = 'gt';
     const badge = document.createElement('span');
@@ -571,6 +672,8 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
       const cnf = !!it.cnbad;
       node.className = 'card' + (it.tag.indexOf('推荐') === 0 ? ' hi' : '') + (bad || cnf ? ' dim' : '');
 
+      node.dataset.gi = gi;
+      node._it = it;                                  // 筛选时读原始数据，不解析 DOM
       node.querySelector('.tag').textContent = it.tag;
       node.querySelector('.flagx:not(.cnf)').hidden = !bad;
       node.querySelector('.flagx.cnf').hidden = !cnf;
@@ -580,6 +683,18 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
       const fit = node.querySelector('.fit');
       if (it.fit) fit.textContent = it.fit; else fit.remove();
+
+      // 作者写的「每日更新」是承诺，这行是仓库最后一次提交，两个都摆出来才不误导
+      const ag = it.age_h;
+      const ageEl = node.querySelector('.age');
+      if (ag !== null && ag !== undefined) {
+        ageEl.textContent = ag < 0.5 ? '源刚刚更新'
+          : ag < 1 ? `源 ${Math.round(ag * 60)} 分钟前更新`
+          : ag < 30 ? `源 ${ag.toFixed(ag < 10 ? 1 : 0)} 小时前更新`
+          : `源 ${Math.floor(ag / 24)} 天没更新，可能已停更`;
+        ageEl.classList.toggle('stale', ag >= 30);
+        ageEl.hidden = false;
+      }
 
       // 源站这次没拿到内容：说清是源站这一侧的问题，别让人以为是自己客户端配错了
       const sh = it.src_http;
@@ -619,6 +734,72 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   });
 
   groupsEl.append(frag);
+
+  /* ── 筛选：两个开关都只是改 hidden，不改数据 ────────────────────────── */
+  const fAlive = document.getElementById('fAlive');
+  const fCn = document.getElementById('fCn');
+  const fcount = document.getElementById('fcount');
+  const fempty = document.getElementById('fempty');
+  const fstate = { alive: false, cn: false };
+
+  function applyFilter() {
+    const per = new Map();
+    groupsEl.querySelectorAll('.card').forEach(card => {
+      const it = card._it || {};
+      let ok = true;
+      if (fstate.alive) {
+        const p = it.probe || {};
+        ok = !!(p.total && p.ok / p.total >= 0.8);
+      }
+      if (ok && fstate.cn) ok = !it.cnbad;
+      card.hidden = !ok;
+      if (ok) per.set(card.dataset.gi, (per.get(card.dataset.gi) || 0) + 1);
+    });
+    groupsEl.querySelectorAll('.ghead').forEach(h => {
+      h.hidden = !per.get(h.dataset.gi);
+    });
+    let n = 0;
+    per.forEach(v => { n += v; });
+    const on = fstate.alive || fstate.cn;
+    fcount.textContent = on ? `筛出 ${n} 条` : '';
+    fempty.hidden = !(on && n === 0);
+    void groupsEl.offsetHeight;
+  }
+
+  [[fAlive, 'alive'], [fCn, 'cn']].forEach(([btn, key]) => {
+    btn.addEventListener('click', () => {
+      fstate[key] = !fstate[key];
+      btn.setAttribute('aria-pressed', String(fstate[key]));
+      applyFilter();
+    });
+  });
+
+  /* ── 距下次采集：cron 每 3 小时的第 17 分（UTC），换算成本地同理 ──────── */
+  const p5 = document.getElementById('p5');
+  function nextRunTs() {
+    const now = Date.now();
+    const d = new Date(now);
+    // cron 只在 UTC 的 0/3/…/21 点跑，得先把小时对齐到 3 的整数倍，
+    // 否则 23 点这种时刻会算出一个实际不会触发的 :17
+    const h = Math.floor(d.getUTCHours() / 3) * 3;
+    let t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), h, 17, 0);
+    while (t <= now) t += 3 * 3600e3;
+    return t;
+  }
+  function paintNext() {
+    const now = Date.now();
+    const ageMin = DATA.ts ? (now - DATA.ts * 1000) / 60000 : 0;
+    // 超过两个周期还没换数，八成是 GitHub 队列堵了，这时候给倒计时是骗人
+    if (ageMin > 240) {
+      p5.textContent = `上次采集 ${(ageMin / 60).toFixed(1)} 小时前，队列可能堵着`;
+    } else {
+      const left = Math.round((nextRunTs() - now) / 60000);
+      p5.textContent = left < 1 ? '下次采集马上开始' : `距下次采集约 ${left} 分钟`;
+    }
+    p5.hidden = false;
+  }
+  paintNext();
+  setInterval(paintNext, 30000);
 
   /* 先把卡片真实高度钉进 contain-intrinsic-size，再让它们跳过渲染。
      不这么做的话，视口外的卡只能按估值占位，滚动时逐张修正，文档高度会一路往下掉
