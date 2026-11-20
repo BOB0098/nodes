@@ -282,8 +282,6 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 .qr-stage{background:#fff;padding:8px;border-radius:14px;line-height:0}
 .qrc{display:block;width:auto;max-width:100%;height:auto;image-rendering:pixelated}
 .qr-tip{margin:0;font-size:12.5px;color:var(--ink-3);text-align:center;line-height:1.55}
-.qr-url{max-width:100%;font-size:11.5px;color:var(--ink-3);text-align:center;line-height:1.6;
-  word-break:break-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .qr-sheet .cbtn{margin-top:2px;width:100%}
 /* 暗色下页面底色本身就接近纯黑，面板要再抬一级，否则只剩阴影能看出边界 */
 @media (prefers-color-scheme:dark){
@@ -356,8 +354,7 @@ html.lock,html.lock body{overflow:hidden}
     <button class="qrx" id="qrmClose" type="button" aria-label="关闭二维码">✕</button>
     <div class="qr-stage"><canvas class="qrc" role="img" aria-label="订阅链接二维码"></canvas></div>
     <p class="qr-tip">手机相机扫一下，或客户端「从图片导入」</p>
-    <code class="qr-url"></code>
-    <button class="cbtn" type="button"><span class="cbtn-txt">复制链接</span></button>
+    <button class="cbtn" type="button"><span class="cbtn-txt">保存到相册</span></button>
   </div>
 </div>
 
@@ -787,8 +784,11 @@ html.lock,html.lock body{overflow:hidden}
   const qrmClose = document.getElementById('qrmClose');
   const qrmCanvas = qrm.querySelector('.qrc');
   const qrmTip = qrm.querySelector('.qr-tip');
-  const qrmUrl = qrm.querySelector('.qr-url');
   const qrmCopy = qrm.querySelector('.cbtn');
+  // 桌面没有相册，别写「保存到相册」
+  const TOUCH = matchMedia('(hover:none) and (pointer:coarse)').matches;
+  const SAVE_LABEL = TOUCH ? '保存到相册' : '保存图片';
+  qrmCopy.querySelector('.cbtn-txt').textContent = SAVE_LABEL;
   let qrBack = null;          // 记住哪个按钮打开的，关闭后把焦点还回去
 
   function closeQr() {
@@ -806,17 +806,12 @@ html.lock,html.lock body{overflow:hidden}
 
     qrBack = btn;
     qrmTitle.textContent = card.querySelector('.tag').textContent;
-    qrmUrl.textContent = url;
-    qrmUrl.title = url;
-    // 弹窗里的复制按钮走同一套复制/兜底逻辑，所以把数据挂到它身上
-    qrmCopy.dataset.url = url;
-    qrmCopy.dataset.tag = qrmTitle.textContent;
 
     // 每次重开都重画：编码几毫秒，比缓存 canvas 与失败态更省心
     qrmTip.textContent = '手机相机扫一下，或客户端「从图片导入」';
     qrmCanvas.hidden = false;
     if (!QR.draw(qrmCanvas, url)) {
-      qrmTip.textContent = '链接太长，二维码装不下，用下面的按钮复制';
+      qrmTip.textContent = '链接太长，二维码装不下，用卡片上的复制按钮';
       qrmCanvas.hidden = true;
     }
 
@@ -826,10 +821,68 @@ html.lock,html.lock body{overflow:hidden}
     qrmClose.focus({ preventScroll: true });
   }
 
+  /* 二维码存成两倍图：屏幕上 246px 够扫，但进了相册放大看会糊，
+     线性放大两倍、关掉插值，模块边缘才保持锐利。
+     这里刻意全程同步（toDataURL 而不是 toBlob）：Safari 要求 navigator.share
+     必须在用户手势的同步链里调用，等一个异步回调回来手势就失效了。 */
+  function qrToFile(name) {
+    if (!qrmCanvas.width) return null;
+    const out = document.createElement('canvas');
+    out.width = qrmCanvas.width * 2;
+    out.height = qrmCanvas.height * 2;
+    const ctx = out.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(qrmCanvas, 0, 0, out.width, out.height);
+    const bin = atob(out.toDataURL('image/png').split(',')[1]);
+    const buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return new File([buf], name, { type: 'image/png' });
+  }
+
+  let saveTimer = null;
+  function flashSave(text, ok) {
+    const el = qrmCopy.querySelector('.cbtn-txt');
+    clearTimeout(saveTimer);
+    el.textContent = text;
+    if (ok) qrmCopy.setAttribute('data-copied', ''); else qrmCopy.removeAttribute('data-copied');
+    saveTimer = setTimeout(() => {
+      el.textContent = SAVE_LABEL;
+      qrmCopy.removeAttribute('data-copied');
+    }, 2400);
+  }
+
+  async function saveQr() {
+    const tag = (qrmTitle.textContent || 'nodes').replace(/[\\/:*?"<>|\s]+/g, '_');
+    const name = `节点二维码-${tag}.png`;
+    const file = qrToFile(name);
+    if (!file) return flashSave('没画出来，重开一次', false);
+
+    // 手机上优先弹系统面板：安卓能存进相册，iOS 有「存储图像」
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: name });
+        return flashSave(TOUCH ? '已保存' : '已发送', true);
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;   // 自己取消的，不算失败
+      }
+    }
+
+    // 桌面或系统不给分享：直接下载到默认目录
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    flashSave('已下载', true);
+  }
+
   qrmClose.addEventListener('click', closeQr);
   // 只有点遮罩本身才关；点面板内部不关
   qrm.addEventListener('click', e => { if (e.target === qrm) closeQr(); });
-  qrmCopy.addEventListener('click', () => doCopy(qrmCopy, qrmUrl));
+  qrmCopy.addEventListener('click', saveQr);
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !qrm.hidden) closeQr();
   });
