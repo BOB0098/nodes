@@ -12,7 +12,7 @@
     python3 collector.py --cache    # 用本地缓存(调试)
     python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
 """
-import base64, hashlib, json, os, re, socket, sys, time, urllib.request
+import base64, hashlib, json, os, re, socket, sys, time, urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 
@@ -298,6 +298,38 @@ def count_of(data):
     return len(ls) or None
 
 
+def http_probe(url, timeout=12):
+    """源站自身可达性：只读 512 字节就断开，记录状态码与首字节耗时。
+
+    和「节点抽样可连率」是两件事：前者回答“这个源还活着吗”，
+    后者回答“它发出来的节点通不通”。源站 5xx / 超时时百分比仍是上次的值，
+    页面上必须能看出这一层，否则会拿旧数字当现状。
+    """
+    t0 = time.time()
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 v2rayN/6.0"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            r.read(512)
+            return {"code": r.status, "ms": int((time.time() - t0) * 1000)}
+    except urllib.error.HTTPError as e:
+        return {"code": e.code, "ms": int((time.time() - t0) * 1000)}
+    except Exception as e:
+        return {"code": 0, "ms": int((time.time() - t0) * 1000), "err": type(e).__name__}
+
+
+def probe_sources(items):
+    """并发测每个订阅地址本身。失败不抛，返回 code=0 + 异常类名。"""
+    urls = [i["url"] for i in items]
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        res = list(ex.map(lambda u: http_probe(u), urls))
+    out = {}
+    for u, r in zip(urls, res):
+        out[u] = r
+        flag = "✔" if r["code"] == 200 else ("✘" if not r["code"] else f"✘{r['code']}")
+        print(f"  {flag} 源站 {r['ms']:>5}ms  {u[:60]}")
+    return out
+
+
 def measure(items, use_cache=False):
     """逐条拉取订阅，统计真实节点条数 + 抽样测 TCP 连通性"""
     counts, addrs, texts = {}, {}, {}
@@ -468,14 +500,16 @@ def _rank(item, counts, probes):
     return ok / total * n
 
 
-def assemble(nodes, raw_total, errors, counts, probes, delta, health):
+def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None):
     probes = probes or {}
+    srcstat = srcstat or {}
     groups = []
     for g in GROUPS:
         items = [{"tag": i["tag"], "note": i["note"], "fit": i.get("fit", ""),
                   "freq": i["freq"], "url": i["url"], "count": counts.get(i["url"]),
                   "probe": probes.get(i["url"]),
                   "cnbad": bool(i.get("cn")),
+                  "src_http": srcstat.get(i["url"]),
                   "score": round(_rank(i, counts, probes)),
                   "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0)
                   } for i in g["items"]]
@@ -493,12 +527,18 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health):
 
 
 def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
-               health=None):
-    data = assemble(nodes, raw_total, errors, counts, probes, delta, health)
+               health=None, srcstat=None):
+    data = assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat)
     page = {k: v for k, v in data.items() if k != "nodes"}
     open(os.path.join(BASE, "index.html"), "w", encoding="utf-8").write(render_page(page))
     open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
         json.dumps(data, ensure_ascii=False, indent=1))
+    if srcstat:
+        # 给第三方/自己监控用的机器可读状态：每条源的 HTTP 码与耗时
+        json.dump({"updated": data["updated"], "ts": data["ts"],
+                   "sources": [{"url": u, **v} for u, v in srcstat.items()]},
+                  open(os.path.join(OUT_DATA, "status.json"), "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=1)
     return data
 
 
@@ -506,15 +546,17 @@ def rerender():
     """只按 data/nodes.json 重渲染 index.html：不联网、不改节点数据。
     改模板后本地预览用，避免为了看一眼样式又跑一遍采集。"""
     old = json.load(open(os.path.join(OUT_DATA, "nodes.json"), encoding="utf-8"))
-    counts, probes, health = {}, {}, {}
+    counts, probes, health, srcstat = {}, {}, {}, {}
     for g in old.get("groups", []):
         for it in g.get("items", []):
             counts[it["url"]] = it.get("count")
             if it.get("probe"):
                 probes[it["url"]] = it["probe"]
+            if it.get("src_http"):
+                srcstat[it["url"]] = it["src_http"]
             health[it["url"]] = {"streak_bad": it.get("streak") or 0}
     data = assemble(old.get("nodes") or [], old.get("raw") or 0, old.get("errors") or [],
-                    counts, probes, old.get("delta"), health)
+                    counts, probes, old.get("delta"), health, srcstat)
     data["updated"], data["ts"] = old.get("updated"), old.get("ts")
     page = {k: v for k, v in data.items() if k != "nodes"}
     out = os.path.join(BASE, "index.html")
@@ -552,12 +594,15 @@ def main():
     items = [it for g in GROUPS for it in g["items"]]
     counts, probes = measure(items, use_cache)
 
+    print("\n测各条源站自身可达性...")
+    srcstat = probe_sources(items)
+
     health = update_health(load_health(), probes)
     for u, h in health.items():
         if h.get("streak_bad"):
             print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
 
-    build_html(nodes, stats, raw, errors, counts, probes, delta, health)
+    build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat)
     uris = [n["uri"] for n in nodes]
     with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
