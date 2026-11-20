@@ -1,6 +1,6 @@
 {
- "updated": "11-21 05:37",
- "ts": 1795210624,
+ "updated": "11-21 05:44",
+ "ts": 1795211080,
  "raw": 1892,
  "errors": [],
  "groups": [
@@ -63,7 +63,7 @@
      "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
      "count": 10,
      "probe": {
-      "ok": 9,
+      "ok": 10,
       "total": 10
      },
      "streak": 0
@@ -102,7 +102,7 @@
      "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
      "count": 343,
      "probe": {
-      "ok": 13,
+      "ok": 14,
       "total": 24
      },
      "streak": 0
@@ -144,7 +144,7 @@
       "ok": 3,
       "total": 11
      },
-     "streak": 6
+     "streak": 7
     }
    ]
   },
@@ -170,8 +170,8 @@
   }
  ],
  "delta": {
-  "add": 2,
-  "drop": 1
+  "add": 0,
+  "drop": 0
  },
  "nodes": [
   {
