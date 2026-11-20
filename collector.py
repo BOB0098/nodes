@@ -38,6 +38,13 @@ GROUPS = [
             {"tag": "全量节点", "note": "含未测速的节点，量最大",
              "fit": "Clash 系专用，节点最全",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net"},
+            {"tag": "超大合集", "note": "1800 条以上，覆盖面最广，质量参差",
+             "fit": "Clash 系专用，节点多但要挑",
+             "freq": "每日更新", "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml"},
+            {"tag": "多源合并", "note": "把几个日更仓库合成一份，去掉了明显重复",
+             "fit": "Clash 系专用，导入即用",
+             "freq": "每日更新",
+             "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml"},
         ],
     },
     {
@@ -49,16 +56,13 @@ GROUPS = [
              "fit": "v2rayNG / 小火箭直接导，Clash 不认",
              "freq": "6 小时更新",
              "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"},
-            {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布，但国内直连常不通",
-             "fit": "v2rayNG / 小火箭直接导，Clash 不认",
-             "freq": "6 小时更新", "cn": True, "url": "https://radarhub.top/v2ray.txt"},
             {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性",
              "fit": "v2rayNG / 小火箭直接导，Clash 不认",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net"},
-            {"tag": "全网合并", "note": "自动聚合多个公开来源",
-             "fit": "明文节点，v2rayNG 可导，Clash 不认",
+            {"tag": "全量最大", "note": "近 3000 条，量最大也最杂，挑着用",
+             "fit": "明文节点，v2rayNG / 小火箭 / Hiddify",
              "freq": "每日更新",
-             "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"},
+             "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt"},
             {"tag": "老牌仓库", "note": "每小时更新一次",
              "fit": "Base64 订阅，v2rayNG / 小火箭",
              "freq": "每小时更新",
@@ -67,10 +71,6 @@ GROUPS = [
              "fit": "明文节点，v2rayNG / 小火箭",
              "freq": "每日更新",
              "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt"},
-            {"tag": "备用源", "note": "前面几条都失败时用这条",
-             "fit": "仓库名带 clash，实际是 v2ray 格式",
-             "freq": "每日更新",
-             "url": "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt"},
         ],
     },
     {
@@ -81,6 +81,18 @@ GROUPS = [
             {"tag": "带规则 · 与 Clash 同源", "note": "格式不同，国内直连实测常不通",
              "fit": "仅 Hiddify / sing-box，Clash 不认",
              "freq": "6 小时更新", "cn": True, "url": "https://radarhub.top/sing-box.json"},
+            {"tag": "带规则 · 半小时构建", "note": "内置 MetaCubeX 分流与广告拦截，需 sing-box 1.13 以上",
+             "fit": "仅 sing-box，Hiddify 也可导",
+             "freq": "30 分钟更新",
+             "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json"},
+            {"tag": "每日聚合", "note": "每天重抓一遍，量不多",
+             "fit": "仅 sing-box / Hiddify",
+             "freq": "每日更新",
+             "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json"},
+            {"tag": "独立小源", "note": "只有十几条，但和其它源几乎不重合",
+             "fit": "仅 sing-box / Hiddify",
+             "freq": "每日更新",
+             "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt"},
         ],
     },
 ]
@@ -94,12 +106,14 @@ SOURCES = [
     ("尔毛子",     ["https://blog.ermao.net/sub/v2ray/ermao.net"]),
     ("v2rayfree",  ["https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
                     "https://cdn.jsdelivr.net/gh/free-nodes/v2rayfree@main/sub"]),
-    ("AutoMerge",  ["https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
-                    "https://cdn.jsdelivr.net/gh/chengaopan/AutoMergePublicNodes@master/list.txt"]),
     ("free18",     ["https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
                     "https://cdn.jsdelivr.net/gh/free18/v2ray@main/v.txt"]),
-    ("marshall",   ["https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt",
-                    "https://cdn.jsdelivr.net/gh/marshall888666/free_clash_subscribe@main/subscribe/v2ray.txt"]),
+    ("anaer",      ["https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
+                    "https://cdn.jsdelivr.net/gh/anaer/Sub@main/clash.yaml"]),
+    ("Barabama",   ["https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml",
+                    "https://cdn.jsdelivr.net/gh/Barabama/FreeNodes@main/nodes/clashmeta.yaml"]),
+    ("ALIILAPRO",  ["https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
+                    "https://cdn.jsdelivr.net/gh/ALIILAPRO/v2rayNG-Config@main/server.txt"]),
     ("zhuhaiuk",   ["https://raw.githubusercontent.com/zhuhaiuk/free-nodes/main/nodes.txt",
                     "https://cdn.jsdelivr.net/gh/zhuhaiuk/free-nodes@main/nodes.txt"]),
 ]
@@ -330,6 +344,60 @@ def probe_sources(items):
     return out
 
 
+def src_meta(url, timeout=10):
+    """源最后一次改动距今多少小时。
+
+    GitHub 上的文件走 commits API（CI 里有 GITHUB_TOKEN，额度足够）；
+    其余站点读 HTTP Last-Modified。都拿不到就返回 None —— 页面不显示，
+    不拿「采集时间」冒充「源更新时间」。
+    """
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
+    m = re.match(r"https://raw\.githubusercontent\.com/([^/]+)/([^/]+)/([^/]+)/(.+)", url)
+    if m:
+        owner, repo, branch, path = m.groups()
+        api = (f"https://api.github.com/repos/{owner}/{repo}/commits"
+               f"?path={path}&sha={branch}&per_page=1")
+        hdr = {"User-Agent": "Mozilla/5.0", "Accept": "application/vnd.github+json"}
+        if token:
+            hdr["Authorization"] = "Bearer " + token
+        try:
+            req = urllib.request.Request(api, headers=hdr)
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                arr = json.loads(r.read().decode("utf-8", "ignore"))
+            if arr:
+                dt = datetime.strptime(arr[0]["commit"]["committer"]["date"],
+                                       "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+                return {"ts": int(dt.timestamp()),
+                        "age_h": round((datetime.now(timezone.utc) - dt).total_seconds() / 3600, 1)}
+        except Exception:
+            return None
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}, method="HEAD")
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            lm = r.headers.get("Last-Modified")
+        if lm:
+            dt = datetime.strptime(lm, "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
+            return {"ts": int(dt.timestamp()),
+                    "age_h": round((datetime.now(timezone.utc) - dt).total_seconds() / 3600, 1)}
+    except Exception:
+        pass
+    return None
+
+
+def probe_meta(items):
+    """并发取各源的新鲜度。失败静默——这一层是锦上添花，不能拖垮采集。"""
+    out = {}
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        res = list(ex.map(lambda i: src_meta(i["url"]), items))
+    for it, r in zip(items, res):
+        if r:
+            out[it["url"]] = r
+            print(f"  · 源更新于 {r['age_h']:>5.1f}h 前  {it['url'][:56]}")
+        else:
+            print(f"  · 源更新时间未知        {it['url'][:56]}")
+    return out
+
+
 def measure(items, use_cache=False):
     """逐条拉取订阅，统计真实节点条数 + 抽样测 TCP 连通性"""
     counts, addrs, texts = {}, {}, {}
@@ -500,9 +568,11 @@ def _rank(item, counts, probes):
     return ok / total * n
 
 
-def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None):
+def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None,
+             meta=None):
     probes = probes or {}
     srcstat = srcstat or {}
+    meta = meta or {}
     groups = []
     for g in GROUPS:
         items = [{"tag": i["tag"], "note": i["note"], "fit": i.get("fit", ""),
@@ -510,6 +580,7 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "probe": probes.get(i["url"]),
                   "cnbad": bool(i.get("cn")),
                   "src_http": srcstat.get(i["url"]),
+                  "age_h": (meta.get(i["url"]) or {}).get("age_h"),
                   "score": round(_rank(i, counts, probes)),
                   "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0)
                   } for i in g["items"]]
@@ -527,8 +598,8 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
 
 
 def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
-               health=None, srcstat=None):
-    data = assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat)
+               health=None, srcstat=None, meta=None):
+    data = assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat, meta)
     page = {k: v for k, v in data.items() if k != "nodes"}
     open(os.path.join(BASE, "index.html"), "w", encoding="utf-8").write(render_page(page))
     open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
@@ -546,7 +617,7 @@ def rerender():
     """只按 data/nodes.json 重渲染 index.html：不联网、不改节点数据。
     改模板后本地预览用，避免为了看一眼样式又跑一遍采集。"""
     old = json.load(open(os.path.join(OUT_DATA, "nodes.json"), encoding="utf-8"))
-    counts, probes, health, srcstat = {}, {}, {}, {}
+    counts, probes, health, srcstat, meta = {}, {}, {}, {}, {}
     for g in old.get("groups", []):
         for it in g.get("items", []):
             counts[it["url"]] = it.get("count")
@@ -554,9 +625,11 @@ def rerender():
                 probes[it["url"]] = it["probe"]
             if it.get("src_http"):
                 srcstat[it["url"]] = it["src_http"]
+            if it.get("age_h") is not None:
+                meta[it["url"]] = {"age_h": it["age_h"]}
             health[it["url"]] = {"streak_bad": it.get("streak") or 0}
     data = assemble(old.get("nodes") or [], old.get("raw") or 0, old.get("errors") or [],
-                    counts, probes, old.get("delta"), health, srcstat)
+                    counts, probes, old.get("delta"), health, srcstat, meta)
     data["updated"], data["ts"] = old.get("updated"), old.get("ts")
     page = {k: v for k, v in data.items() if k != "nodes"}
     out = os.path.join(BASE, "index.html")
@@ -597,12 +670,15 @@ def main():
     print("\n测各条源站自身可达性...")
     srcstat = probe_sources(items)
 
+    print("\n查各条源最后更新时间...")
+    meta = probe_meta(items)
+
     health = update_health(load_health(), probes)
     for u, h in health.items():
         if h.get("streak_bad"):
             print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
 
-    build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat)
+    build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat, meta)
     uris = [n["uri"] for n in nodes]
     with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
