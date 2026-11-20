@@ -110,7 +110,7 @@ body:before{content:"";position:absolute;top:0;left:calc(-1 * var(--sp-page));ri
 
 /* 聚焦：贴底色内环 + 近黑外环，无边框元素也能看清焦点 */
 :focus-visible{outline:none}
-a:focus-visible,.cbtn:focus-visible,.qbtn:focus-visible,.url:focus-visible,button.pill:focus-visible{
+a:focus-visible,.cbtn:focus-visible,.qbtn:focus-visible,.qrx:focus-visible,.url:focus-visible{
   box-shadow:0 0 0 2px var(--bg-a),0 0 0 4.5px rgba(17,19,24,.42)}
 
 .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;width:100%}
@@ -258,14 +258,39 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   background:var(--surf-solid);box-shadow:var(--sh-press);font-family:inherit;
   transition:background .22s var(--e-out),color .22s var(--e-out),transform .2s var(--e-spring)}
 .qbtn svg{width:22px;height:22px;fill:currentColor}
-.qbtn[aria-expanded="true"]{background:var(--solid);color:var(--on-solid);border-color:transparent}
 .qbtn:active{transform:scale(.94)}
-.qrbox{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px;padding:12px;
-  border-radius:var(--r-sub);background:var(--surf-flat);animation:rise .28s var(--e-out) both}
-.qrbox[hidden]{display:none}
+
+/* ── 二维码弹窗 ───────────────────────────────────────────────────────── */
+/* 遮罩不加 backdrop-filter：手机上整屏滤镜要额外开一层合成，
+   低端机会掉帧，纯色遮罩够用 */
+.qrm{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(10,12,16,.62);animation:qin .18s var(--e-out) both}
+.qrm[hidden]{display:none}
+.qr-sheet{position:relative;width:100%;max-width:330px;max-height:calc(100vh - 40px);overflow:auto;
+  background:var(--bg-a);border:1px solid var(--stroke);border-radius:24px;padding:20px;
+  box-shadow:0 24px 60px rgba(8,10,14,.36);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  animation:qpop .26s var(--e-spring) both}
+.qr-sheet h3{margin:0;align-self:flex-start;font-size:15px;font-weight:var(--fwh);color:var(--ink);
+  line-height:1.45;padding-right:40px;text-wrap:pretty}
+.qrx{position:absolute;top:13px;right:13px;width:32px;height:32px;padding:0;border:0;border-radius:50%;
+  background:var(--surf-solid);color:var(--ink-2);font-family:inherit;font-size:17px;line-height:1;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .2s var(--e-out),transform .18s var(--e-out)}
+.qrx:active{transform:scale(.9);background:var(--solid);color:var(--on-solid)}
 /* 二维码固定浅底深码：跟随主题反色会让相机识别率大打折扣 */
-.qrc{display:block;width:auto;max-width:100%;height:auto;border-radius:6px;background:#fff;image-rendering:pixelated}
-.qrtip{font-size:12px;color:var(--ink-3);text-align:center;line-height:1.5}
+.qr-stage{background:#fff;padding:8px;border-radius:14px;line-height:0}
+.qrc{display:block;width:auto;max-width:100%;height:auto;image-rendering:pixelated}
+.qr-tip{margin:0;font-size:12.5px;color:var(--ink-3);text-align:center;line-height:1.55}
+.qr-url{max-width:100%;font-size:11.5px;color:var(--ink-3);text-align:center;line-height:1.6;
+  word-break:break-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qr-sheet .cbtn{margin-top:2px;width:100%}
+/* 暗色下页面底色本身就接近纯黑，面板要再抬一级，否则只剩阴影能看出边界 */
+@media (prefers-color-scheme:dark){
+  .qrm{background:rgba(0,0,0,.74)}
+  .qr-sheet{background:#1E222A;border-color:rgba(255,255,255,.10)}
+}
+html.lock,html.lock body{overflow:hidden}
 
 
 /* ── 动效 ──────────────────────────────────────────────────────────────── */
@@ -273,6 +298,8 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
    各自常驻一个合成层，滚动时白背着 23 层合成 */
 @keyframes ink{from{opacity:0;filter:blur(6px);transform:translateY(.22em)}to{opacity:1;filter:none;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes qin{from{opacity:0}to{opacity:1}}
+@keyframes qpop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes pop{0%{transform:scale(1)}42%{transform:scale(1.03)}100%{transform:scale(1)}}
 .ink{display:inline-block;opacity:0;animation:ink .55s var(--e-out) both;animation-delay:calc(var(--i,0)*16ms)}
 
@@ -318,11 +345,21 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
     <code class="url"></code>
     <div class="acts">
       <button class="cbtn" type="button"><span class="cbtn-txt">复制链接</span></button>
-      <button class="qbtn" type="button" aria-label="显示二维码" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="3" height="3" rx=".7"/><rect x="18" y="14" width="3" height="3" rx=".7"/><rect x="14" y="18" width="3" height="3" rx=".7"/><rect x="18" y="18" width="3" height="3" rx=".7"/></svg></button>
+      <button class="qbtn" type="button" aria-label="显示二维码" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="3" height="3" rx=".7"/><rect x="18" y="14" width="3" height="3" rx=".7"/><rect x="14" y="18" width="3" height="3" rx=".7"/><rect x="18" y="18" width="3" height="3" rx=".7"/></svg></button>
     </div>
-    <div class="qrbox" hidden><canvas class="qrc" role="img" aria-label="订阅链接二维码"></canvas><span class="qrtip">手机相机扫一下，或客户端「从图片导入」</span></div>
   </article>
 </template>
+
+<div class="qrm" id="qrm" hidden>
+  <div class="qr-sheet" role="dialog" aria-modal="true" aria-labelledby="qrmTitle">
+    <h3 id="qrmTitle"></h3>
+    <button class="qrx" id="qrmClose" type="button" aria-label="关闭二维码">✕</button>
+    <div class="qr-stage"><canvas class="qrc" role="img" aria-label="订阅链接二维码"></canvas></div>
+    <p class="qr-tip">手机相机扫一下，或客户端「从图片导入」</p>
+    <code class="qr-url"></code>
+    <button class="cbtn" type="button"><span class="cbtn-txt">复制链接</span></button>
+  </div>
+</div>
 
 <div id="live" class="sr" role="status" aria-live="polite"></div>
 
@@ -524,7 +561,8 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
       const m = encode(text);
       if (!m) return false;
       const g = build(m), size = g.length, quiet = 4, total = size + quiet * 2;
-      const scale = Math.max(3, Math.round(216 / total));
+      // 目标 260px：弹窗里要够大才好扫；scale 取整保证每个模块是整数像素，边缘不糊
+      const scale = Math.max(3, Math.round(260 / total));
       canvas.width = canvas.height = total * scale;
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#fff';
@@ -679,8 +717,7 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
   /* 先把卡片真实高度钉进 contain-intrinsic-size，再让它们跳过渲染。
      不这么做的话，视口外的卡只能按估值占位，滚动时逐张修正，文档高度会一路往下掉
-     （实测从 5214 掉到 4960），滚动条跟着抖。这里一次性布局，只多花几毫秒。
-     展开二维码后卡片变高，所以也是同一个函数重钉一次。 */
+     （实测从 5214 掉到 4960），滚动条跟着抖。这里一次性布局，只多花几毫秒。 */
   function pinHeights(list) {
     list.forEach(el => { el.style.contentVisibility = 'visible'; });
     void groupsEl.offsetHeight;                     // 先让卡真实渲染一次
@@ -743,45 +780,64 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
     }
   }
 
-  /* ── 二维码展开 ───────────────────────────────────────────────────── */
-  function closeQr(btn) {
-    const card = btn.closest('.card');
-    card.querySelector('.qrbox').hidden = true;
-    btn.setAttribute('aria-expanded', 'false');
-    btn.setAttribute('aria-label', '显示二维码');
-    return card;
+  /* ── 二维码弹窗 ───────────────────────────────────────────────────── */
+  const qrm = document.getElementById('qrm');
+  const qrmSheet = qrm.querySelector('.qr-sheet');
+  const qrmTitle = document.getElementById('qrmTitle');
+  const qrmClose = document.getElementById('qrmClose');
+  const qrmCanvas = qrm.querySelector('.qrc');
+  const qrmTip = qrm.querySelector('.qr-tip');
+  const qrmUrl = qrm.querySelector('.qr-url');
+  const qrmCopy = qrm.querySelector('.cbtn');
+  let qrBack = null;          // 记住哪个按钮打开的，关闭后把焦点还回去
+
+  function closeQr() {
+    if (qrm.hidden) return;
+    qrm.hidden = true;
+    document.documentElement.classList.remove('lock');
+    const back = qrBack;
+    qrBack = null;
+    if (back) back.focus({ preventScroll: true });
   }
 
-  function toggleQr(btn) {
-    if (btn.getAttribute('aria-expanded') === 'true') {
-      pinHeights([closeQr(btn)]);
-      return;
-    }
-    // 同时只开一张，避免页面拉得很长
-    const closed = [...groupsEl.querySelectorAll('.qbtn[aria-expanded="true"]')].map(closeQr);
-
+  function openQr(btn) {
     const card = btn.closest('.card');
-    const box = card.querySelector('.qrbox');
-    const canvas = box.querySelector('.qrc');
-    if (canvas && !canvas.dataset.ready) {          // 首次展开才画，滚动时不浪费一帧
-      if (!QR.draw(canvas, card.querySelector('.url').textContent)) {
-        box.querySelector('.qrtip').textContent = '链接太长，二维码装不下，用左边的按钮复制';
-        canvas.remove();
-      } else {
-        canvas.dataset.ready = '1';
-      }
+    const url = card.querySelector('.url').textContent.trim();
+
+    qrBack = btn;
+    qrmTitle.textContent = card.querySelector('.tag').textContent;
+    qrmUrl.textContent = url;
+    qrmUrl.title = url;
+    // 弹窗里的复制按钮走同一套复制/兜底逻辑，所以把数据挂到它身上
+    qrmCopy.dataset.url = url;
+    qrmCopy.dataset.tag = qrmTitle.textContent;
+
+    // 每次重开都重画：编码几毫秒，比缓存 canvas 与失败态更省心
+    qrmTip.textContent = '手机相机扫一下，或客户端「从图片导入」';
+    qrmCanvas.hidden = false;
+    if (!QR.draw(qrmCanvas, url)) {
+      qrmTip.textContent = '链接太长，二维码装不下，用下面的按钮复制';
+      qrmCanvas.hidden = true;
     }
-    box.hidden = false;
-    btn.setAttribute('aria-expanded', 'true');
-    btn.setAttribute('aria-label', '收起二维码');
-    // 卡片变高了，重新钉一次占位高度，滚出屏幕后再回来不会跳
-    pinHeights([...closed, card]);
+
+    qrm.hidden = false;
+    document.documentElement.classList.add('lock');
+    qrmSheet.scrollTop = 0;
+    qrmClose.focus({ preventScroll: true });
   }
+
+  qrmClose.addEventListener('click', closeQr);
+  // 只有点遮罩本身才关；点面板内部不关
+  qrm.addEventListener('click', e => { if (e.target === qrm) closeQr(); });
+  qrmCopy.addEventListener('click', () => doCopy(qrmCopy, qrmUrl));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !qrm.hidden) closeQr();
+  });
 
   // 一次委托替代 11 个 onclick：按钮点击走按钮，链接框点击走同一张卡片的按钮
   groupsEl.addEventListener('click', e => {
     const qb = e.target.closest('.qbtn');
-    if (qb) return toggleQr(qb);
+    if (qb) return openQr(qb);
     const btn = e.target.closest('.cbtn');
     if (btn) return doCopy(btn);
     const code = e.target.closest('.url');
