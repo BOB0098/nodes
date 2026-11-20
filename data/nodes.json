@@ -1,7 +1,7 @@
 {
- "updated": "11-21 04:35",
- "ts": 1795206924,
- "raw": 1894,
+ "updated": "11-21 05:37",
+ "ts": 1795210624,
+ "raw": 1892,
  "errors": [],
  "groups": [
   {
@@ -61,10 +61,10 @@
      "fit": "v2rayNG / 小火箭直接导，Clash 不认",
      "freq": "6 小时更新",
      "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-     "count": 12,
+     "count": 10,
      "probe": {
-      "ok": 11,
-      "total": 11
+      "ok": 9,
+      "total": 10
      },
      "streak": 0
     },
@@ -102,7 +102,7 @@
      "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
      "count": 343,
      "probe": {
-      "ok": 14,
+      "ok": 13,
       "total": 24
      },
      "streak": 0
@@ -144,7 +144,7 @@
       "ok": 3,
       "total": 11
      },
-     "streak": 5
+     "streak": 6
     }
    ]
   },
@@ -170,26 +170,10 @@
   }
  ],
  "delta": {
-  "add": 73,
-  "drop": 7
+  "add": 2,
+  "drop": 1
  },
  "nodes": [
-  {
-   "name": "日本+东京Amazon数据中心",
-   "proto": "Trojan",
-   "region": "日本",
-   "addr": "sclass-c2.catcat321.com:20051",
-   "src": "Pawdroid",
-   "uri": "trojan://d9064589-74af-432a-9390-5d8a9da281bf@sclass-c2.catcat321.com:20051?security=tls&sni=hk.catxstar.com#%E6%97%A5%E6%9C%AC+%E4%B8%9C%E4%BA%ACAmazon%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83"
-  },
-  {
-   "name": "香港+葵兴数据中心",
-   "proto": "Trojan",
-   "region": "香港",
-   "addr": "sclass-01.catcat321.com:20103",
-   "src": "Pawdroid",
-   "uri": "trojan://d7563108-615c-4338-a7bd-77f359869a4a@sclass-01.catcat321.com:20103?security=tls&sni=hk.catxstar.com#%E9%A6%99%E6%B8%AF+%E8%91%B5%E5%85%B4%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83"
-  },
   {
    "name": "新西兰+V2CROSS.COM",
    "proto": "Shadowsocks",
@@ -199,28 +183,68 @@
    "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.81:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
   },
   {
-   "name": "新西兰+V2CROSS.COM",
-   "proto": "Shadowsocks",
-   "region": "罗马尼亚",
-   "addr": "202.50.253.18:19999",
+   "name": "香港+葵兴数据中心",
+   "proto": "Trojan",
+   "region": "香港",
+   "addr": "sclass-01.catcat321.com:20103",
    "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.18:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+   "uri": "trojan://d7563108-615c-4338-a7bd-77f359869a4a@sclass-01.catcat321.com:20103?security=tls&sni=hk.catxstar.com&type=tcp&headerType=none#%E9%A6%99%E6%B8%AF+%E8%91%B5%E5%85%B4%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83"
+  },
+  {
+   "name": "波兰+V2CROSS.COM",
+   "proto": "Trojan",
+   "region": "波兰",
+   "addr": "sclass-00.catcat321.com:20123",
+   "src": "Pawdroid",
+   "uri": "trojan://d9064589-74af-432a-9390-5d8a9da281bf@sclass-00.catcat321.com:20123?security=tls&sni=hk.catxstar.com#%E6%B3%A2%E5%85%B0+V2CROSS.COM"
   },
   {
    "name": "新西兰+V2CROSS.COM",
    "proto": "Shadowsocks",
    "region": "罗马尼亚",
-   "addr": "202.50.253.99:19999",
+   "addr": "202.50.253.27:19999",
    "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.99:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.27:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
   },
   {
-   "name": "塞舌尔+V2CROSS.COM",
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.63:19999",
+   "src": "Pawdroid",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.63:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+  },
+  {
+   "name": "",
+   "proto": "VMess",
+   "region": "其他",
+   "addr": "179.43.140.24:42831",
+   "src": "Pawdroid",
+   "uri": "vmess://eyJhZGQiOiAiMTc5LjQzLjE0MC4yNCIsICJhaWQiOiAiMCIsICJhbHBuIjogIiIsICJmcCI6ICIiLCAiaG9zdCI6ICJkb3duLWNkbi5kaW5ndGFsay5jb20iLCAiaWQiOiAiYTkyNWE5OGMtYWQ3YS00MGM2LTlmZGYtMTMwYTFkZTY5NDE2IiwgImluc2VjdXJlIjogIjAiLCAibmV0IjogInRjcCIsICJwYXRoIjogIi8zeCIsICJwY3MiOiAiIiwgInBvcnQiOiAiNDI4MzEiLCAicHMiOiAiXHU3NDVlXHU1OGViIFYyQ1JPU1MuQ09NIiwgInNjeSI6ICJhdXRvIiwgInNlY3VyaXR5IjogImF1dG8iLCAic25pIjogIiIsICJ0bHMiOiAiIiwgInR5cGUiOiAiaHR0cCIsICJ2IjogIjIiLCAidmNuIjogIiJ9"
+  },
+  {
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.72:19999",
+   "src": "Pawdroid",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.72:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+  },
+  {
+   "name": "美国+华盛顿州西雅图市亚马逊(Amazon)公司数据中心",
+   "proto": "Trojan",
+   "region": "美国",
+   "addr": "sclass-c2.catcat321.com:20051",
+   "src": "Pawdroid",
+   "uri": "trojan://d9064589-74af-432a-9390-5d8a9da281bf@sclass-c2.catcat321.com:20051?allowInsecure=1&insecure=1&security=tls&sni=hk.catxstar.com&type=tcp&headerType=none#%E7%BE%8E%E5%9B%BD+%E5%8D%8E%E7%9B%9B%E9%A1%BF%E5%B7%9E%E8%A5%BF%E9%9B%85%E5%9B%BE%E5%B8%82%E4%BA%9A%E9%A9%AC%E9%80%8A%28Amazon%29%E5%85%AC%E5%8F%B8%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83"
+  },
+  {
+   "name": "德国+V2CROSS.COM",
    "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "196.199.122.2:443",
+   "region": "德国",
+   "addr": "217.69.174.175:443",
    "src": "Pawdroid",
-   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@196.199.122.2:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=7aa271t.es1.h1clayd.click&fp=firefox&pbk=ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE&sid=42426c882c5fcd41&type=tcp&headerType=none#%E5%A1%9E%E8%88%8C%E5%B0%94+V2CROSS.COM"
+   "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@217.69.174.175:443?encryption=none&security=reality&sni=04535dt.us8.h1clayd.click&fp=firefox&pbk=UoS8qZ74hP_ECcncCz55lzvlcVss3R7VA0WYZE0YQCY&sid=ba2a3dce62b99092&type=tcp&headerType=none#%E5%BE%B7%E5%9B%BD+V2CROSS.COM"
   },
   {
    "name": "英国+伦敦南岸大学",
@@ -228,39 +252,7 @@
    "region": "英国",
    "addr": "136.148.208.221:443",
    "src": "Pawdroid",
-   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@136.148.208.221:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=8a2e72t.nl20.h1clayd.shop&fp=chrome&pbk=VZS639V1i-35g7VXb9EoTYL-Srm7858sxcvFAunncmA&sid=8d0d0679f42ffd98&type=tcp&headerType=none#%E8%8B%B1%E5%9B%BD+%E4%BC%A6%E6%95%A6%E5%8D%97%E5%B2%B8%E5%A4%A7%E5%AD%A6"
-  },
-  {
-   "name": "新西兰+V2CROSS.COM",
-   "proto": "Shadowsocks",
-   "region": "罗马尼亚",
-   "addr": "202.50.253.45:19999",
-   "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.45:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
-  },
-  {
-   "name": "新西兰+V2CROSS.COM",
-   "proto": "Shadowsocks",
-   "region": "罗马尼亚",
-   "addr": "202.50.253.54:19999",
-   "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.54:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
-  },
-  {
-   "name": "香港+葵兴数据中心",
-   "proto": "Trojan",
-   "region": "香港",
-   "addr": "sclass-b1.catcat321.com:20051",
-   "src": "Pawdroid",
-   "uri": "trojan://d7563108-615c-4338-a7bd-77f359869a4a@sclass-b1.catcat321.com:20051?allowInsecure=1&security=tls&sni=hk.catxstar.com#%E9%A6%99%E6%B8%AF+%E8%91%B5%E5%85%B4%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83"
-  },
-  {
-   "name": "爱沙尼亚+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "196.196.148.85:443",
-   "src": "Pawdroid",
-   "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@196.196.148.85:443?encryption=none&security=reality&sni=5d0319t.nl7.h1clayd.click&fp=firefox&pbk=l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs&sid=361d0dd59c70516f&type=tcp&headerType=none&host=5d0319t.nl7.h1clayd.click#%E7%88%B1%E6%B2%99%E5%B0%BC%E4%BA%9A+V2CROSS.COM"
+   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@136.148.208.221:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=8a2e72t.nl20.h1clayd.shop&fp=chrome&pbk=VZS639V1i-35g7VXb9EoTYL-Srm7858sxcvFAunncmA&sid=8d0d0679f42ffd98&type=tcp&headerType=none&host=8a2e72t.nl20.h1clayd.shop&path=%2F#%E8%8B%B1%E5%9B%BD+%E4%BC%A6%E6%95%A6%E5%8D%97%E5%B2%B8%E5%A4%A7%E5%AD%A6"
   },
   {
    "name": "🇩🇪 Germany 01",
@@ -607,14 +599,6 @@
    "uri": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpvWklvQTY5UTh5aGNRVjhrYTNQYTNB@82.38.31.66:8080#%F0%9F%87%B3%F0%9F%87%B1%20Netherlands%2023"
   },
   {
-   "name": "🇮🇹 Italy 01",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.63:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.63:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2001"
-  },
-  {
    "name": "🇮🇹 Italy 02",
    "proto": "Shadowsocks",
    "region": "其他",
@@ -735,6 +719,14 @@
    "uri": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpvWklvQTY5UTh5aGNRVjhrYTNQYTNB@178.83.185.156:8080#%F0%9F%87%B3%F0%9F%87%B1%20Netherlands%2033"
   },
   {
+   "name": "🇮🇹 Italy 03",
+   "proto": "Shadowsocks",
+   "region": "其他",
+   "addr": "202.50.253.18:19999",
+   "src": "nodesradar",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.18:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2003"
+  },
+  {
    "name": "🇪🇸 Spain 02",
    "proto": "Shadowsocks",
    "region": "其他",
@@ -789,6 +781,14 @@
    "addr": "193.108.119.78:443",
    "src": "nodesradar",
    "uri": "trojan://0ab6c98dae3b48e8b9c4a776b6c9c19a@193.108.119.78:443?sni=www.iloverussia2026.com&type=tcp&fp=chrome#%F0%9F%87%A9%F0%9F%87%AA%20Germany%2015"
+  },
+  {
+   "name": "🇮🇹 Italy 05",
+   "proto": "Shadowsocks",
+   "region": "其他",
+   "addr": "202.50.253.54:19999",
+   "src": "nodesradar",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.54:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2005"
   },
   {
    "name": "🇸🇪 Sweden 01",
@@ -919,6 +919,14 @@
    "uri": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTprMWRCT21PQjRvcWk3VW1wMzdhMWJR@82.38.31.182:8080#%F0%9F%87%B3%F0%9F%87%B1%20Netherlands%2042"
   },
   {
+   "name": "🇮🇹 Italy 06",
+   "proto": "Shadowsocks",
+   "region": "其他",
+   "addr": "202.50.253.99:19999",
+   "src": "nodesradar",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND1AMjAyLjUwLjI1My45OToxOTk5OQ==#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2006"
+  },
+  {
    "name": "🇩🇪 Germany 24",
    "proto": "Hysteria2",
    "region": "德国",
@@ -1021,14 +1029,6 @@
    "addr": "98.98.142.161:8080",
    "src": "nodesradar",
    "uri": "ss://cmM0LW1kNToxNGZGUHJiZXpFM0hEWnpzTU9yNg@98.98.142.161:8080#%F0%9F%87%AC%F0%9F%87%A7%20United%20Kingdom%2009"
-  },
-  {
-   "name": "🇮🇹 Italy 07",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.72:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.72:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2007"
   },
   {
    "name": "🇫🇷 France 18",
@@ -4135,12 +4135,12 @@
    "uri": "ss://YWVzLTI1Ni1nY206aXR6dnBuQDMyMQ==@57.131.27.21:8388#%F0%9F%87%AE%F0%9F%87%B9%5Bwww.v2nodes.com%5D%20ss-IT-1623..."
   },
   {
-   "name": "🇮🇹IT_3|1.2MB/s",
+   "name": "🇮🇹 意大利 | ITA #3",
    "proto": "Shadowsocks",
    "region": "意大利",
-   "addr": "202.50.253.27:19999",
+   "addr": "202.50.253.45:19999",
    "src": "尔毛子",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.27:19999#%F0%9F%87%AE%F0%9F%87%B9IT_3%7C1.2MB/s"
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.45:19999#%F0%9F%87%AE%F0%9F%87%B9%20%E6%84%8F%E5%A4%A7%E5%88%A9%20%7C%20ITA%20%233"
   },
   {
    "name": "🏳[www.v2nodes.com] ss- #10",
@@ -5389,14 +5389,6 @@
    "addr": "chess.com:443",
    "src": "AutoMerge",
    "uri": "vless://0280c276-641b-49af-b699-4931c30ac137@chess.com:443?sni=norway.xn--nlqaa425dbaab446bbabd698meae.online.&alpn=h2&fp=edge&security=tls#%F0%9F%87%A9%F0%9F%87%AADE_4%7C1.0MB/s"
-  },
-  {
-   "name": "",
-   "proto": "VMess",
-   "region": "其他",
-   "addr": "179.43.140.24:42831",
-   "src": "AutoMerge",
-   "uri": "vmess://eyJ2IjogIjIiLCAicHMiOiAi8J+HqPCfh61DSF8yfDEuMU1CL3MiLCAiYWRkIjogIjE3OS40My4xNDAuMjQiLCAicG9ydCI6IDQyODMxLCAiYWlkIjogIjAiLCAic2N5IjogImF1dG8iLCAibmV0IjogImh0dHAiLCAidHlwZSI6ICJub25lIiwgInRscyI6ICIiLCAiaWQiOiAiYTkyNWE5OGMtYWQ3YS00MGM2LTlmZGYtMTMwYTFkZTY5NDE2IiwgInNraXAtY2VydC12ZXJpZnkiOiBmYWxzZX0="
   },
   {
    "name": "",
@@ -7351,12 +7343,28 @@
    "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@8a2e72t.nl20.h1clayd.shop:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=8a2e72t.nl20.h1clayd.shop&fp=chrome&pbk=VZS639V1i-35g7VXb9EoTYL-Srm7858sxcvFAunncmA&sid=8d0d0679f42ffd98&type=tcp&headerType=none&host=8a2e72t.nl20.h1clayd.shop#%F0%9F%87%B3%F0%9F%87%B1_%E8%8D%B7%E5%85%B0%20%2858%29"
   },
   {
+   "name": "🇸🇨_塞舌尔 (5)",
+   "proto": "VLESS",
+   "region": "其他",
+   "addr": "196.199.122.2:443",
+   "src": "free18",
+   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@196.199.122.2:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=7aa271t.es1.h1clayd.click&fp=chrome&pbk=ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE&sid=42426c882c5fcd41&type=tcp&headerType=none&host=7aa271t.es1.h1clayd.click#%F0%9F%87%B8%F0%9F%87%A8_%E5%A1%9E%E8%88%8C%E5%B0%94%20%285%29"
+  },
+  {
    "name": "🇳🇱_荷兰 (59)",
    "proto": "VLESS",
    "region": "荷兰",
    "addr": "04535dt.us8.h1clayd.click:443",
    "src": "free18",
    "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@04535dt.us8.h1clayd.click:443?encryption=none&security=reality&sni=04535dt.us8.h1clayd.click&fp=ios&pbk=UoS8qZ74hP_ECcncCz55lzvlcVss3R7VA0WYZE0YQCY&sid=ba2a3dce62b99092&type=tcp&headerType=none&host=04535dt.us8.h1clayd.click#%F0%9F%87%B3%F0%9F%87%B1_%E8%8D%B7%E5%85%B0%20%2859%29"
+  },
+  {
+   "name": "🇸🇨_塞舌尔 (8)",
+   "proto": "VLESS",
+   "region": "其他",
+   "addr": "196.196.148.85:443",
+   "src": "free18",
+   "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@196.196.148.85:443?encryption=none&security=reality&sni=5d0319t.nl7.h1clayd.click&fp=firefox&pbk=l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs&sid=361d0dd59c70516f&type=tcp&headerType=none&host=5d0319t.nl7.h1clayd.click#%F0%9F%87%B8%F0%9F%87%A8_%E5%A1%9E%E8%88%8C%E5%B0%94%20%288%29"
   },
   {
    "name": "🇷🇺_俄罗斯 (22)",
