@@ -12,16 +12,16 @@
 https://<你的用户名>.github.io/nodes/
 ```
 
-## 每天自动更新
+## 每 3 小时自动更新
 
-`.github/workflows/daily.yml` 每天北京时间 06:00 跑一次 `collector.py`：
+`.github/workflows/daily.yml` 每 3 小时跑一次 `collector.py`（cron `17 */3 * * *`，避开整点排队；GitHub 仍可能延迟，所以页面写「约 3 小时」）：
 
 1. 并发拉取各仓库订阅源
 2. 统计条数、过滤掉一天内未更新的源
 3. 重建 `index.html` 与 `data/nodes.json`
 4. 自动 commit 回本仓库（Pages 随之更新）
 
-也可以手动触发：Actions → 每日更新节点数据 → Run workflow。
+带 2 小时新鲜度闸门：cron 迟到导致重复触发时直接跳过。也可以手动触发：Actions → 节点数据更新 → Run workflow。
 
 ## 客户端
 
@@ -40,6 +40,7 @@ https://<你的用户名>.github.io/nodes/
 ## 本地运行
 
 ```bash
-python3 collector.py      # 采集并重建 index.html
-open index.html           # 或直接双击
+python3 collector.py            # 采集并重建 index.html
+python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
+open index.html                 # 或直接双击
 ```
