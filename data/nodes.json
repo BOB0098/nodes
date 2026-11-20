@@ -1,5 +1,5 @@
 {
- "updated": "11-20 13:57",
+ "updated": "11-20 14:06",
  "raw": 1903,
  "errors": [],
  "groups": [
@@ -11,17 +11,19 @@
     {
      "tag": "推荐 · 只含可连节点",
      "note": "已剔除连不上的，成功率高",
+     "fit": "Clash 系专用，v2rayNG 导入会报错",
      "freq": "每日更新",
      "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
      "count": 321,
      "probe": {
-      "ok": 22,
+      "ok": 24,
       "total": 24
      }
     },
     {
      "tag": "带规则分流",
      "note": "开箱即用，不用自己配规则",
+     "fit": "Clash 系专用，自带分流规则",
      "freq": "6 小时更新",
      "url": "https://radarhub.top/clash.yaml",
      "count": 510,
@@ -33,11 +35,12 @@
     {
      "tag": "全量节点",
      "note": "含未测速的节点，量最大",
+     "fit": "Clash 系专用，节点最全",
      "freq": "每日更新",
      "url": "https://blog.ermao.net/sub/clash/ermao.net",
      "count": 428,
      "probe": {
-      "ok": 22,
+      "ok": 23,
       "total": 24
      }
     }
@@ -51,6 +54,7 @@
     {
      "tag": "推荐 · 精选稳定",
      "note": "量少质高，失效慢",
+     "fit": "v2rayNG / 小火箭直接导，Clash 不认",
      "freq": "6 小时更新",
      "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
      "count": 9,
@@ -62,6 +66,7 @@
     {
      "tag": "自动测速过",
      "note": "每 6 小时实测一遍再发布",
+     "fit": "v2rayNG / 小火箭直接导，Clash 不认",
      "freq": "6 小时更新",
      "url": "https://radarhub.top/v2ray.txt",
      "count": 500,
@@ -73,6 +78,7 @@
     {
      "tag": "每日抓取",
      "note": "每天自动抓全网机场并检测连通性",
+     "fit": "v2rayNG / 小火箭直接导，Clash 不认",
      "freq": "每日更新",
      "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
      "count": 439,
@@ -84,28 +90,31 @@
     {
      "tag": "全网合并",
      "note": "自动聚合多个公开来源",
+     "fit": "明文节点，v2rayNG 可导，Clash 不认",
      "freq": "每日更新",
      "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
      "count": 358,
      "probe": {
-      "ok": 12,
+      "ok": 14,
       "total": 24
      }
     },
     {
      "tag": "老牌仓库",
      "note": "每小时更新一次",
+     "fit": "Base64 订阅，v2rayNG / 小火箭",
      "freq": "每小时更新",
      "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
      "count": 36,
      "probe": {
-      "ok": 23,
+      "ok": 24,
       "total": 24
      }
     },
     {
      "tag": "每日分享",
      "note": "节点和机场一起发",
+     "fit": "明文节点，v2rayNG / 小火箭",
      "freq": "每日更新",
      "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
      "count": 525,
@@ -117,6 +126,7 @@
     {
      "tag": "备用源",
      "note": "前面几条都失败时用这条",
+     "fit": "仓库名带 clash，实际是 v2ray 格式",
      "freq": "每日更新",
      "url": "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt",
      "count": 26,
@@ -135,6 +145,7 @@
     {
      "tag": "推荐 · 带规则",
      "note": "与上面的 Clash 同源，格式不同",
+     "fit": "仅 Hiddify / sing-box，Clash 不认",
      "freq": "6 小时更新",
      "url": "https://radarhub.top/sing-box.json",
      "count": 496,
