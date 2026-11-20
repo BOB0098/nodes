@@ -1,79 +1,79 @@
 {
- "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub": {
+ "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt": {
   "streak_bad": 0,
-  "rate": 100,
+  "rate": 54,
   "total": 24,
-  "ok": 24,
-  "seen": "11-20 16:10"
+  "ok": 13,
+  "seen": "11-20 17:48"
  },
  "https://radarhub.top/v2ray.txt": {
   "streak_bad": 0,
   "rate": 100,
   "total": 24,
   "ok": 24,
-  "seen": "11-20 16:10"
+  "seen": "11-20 17:48"
+ },
+ "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub": {
+  "streak_bad": 0,
+  "rate": 96,
+  "total": 24,
+  "ok": 23,
+  "seen": "11-20 17:48"
  },
  "https://radarhub.top/clash.yaml": {
   "streak_bad": 0,
   "rate": 71,
   "total": 24,
   "ok": 17,
-  "seen": "11-20 16:10"
+  "seen": "11-20 17:48"
  },
  "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub": {
   "streak_bad": 0,
   "rate": 100,
-  "total": 6,
-  "ok": 6,
-  "seen": "11-20 16:10"
- },
- "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt": {
-  "streak_bad": 0,
-  "rate": 58,
-  "total": 24,
-  "ok": 14,
-  "seen": "11-20 16:10"
+  "total": 8,
+  "ok": 8,
+  "seen": "11-20 17:48"
  },
  "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt": {
-  "streak_bad": 2,
+  "streak_bad": 3,
   "rate": 27,
   "total": 11,
   "ok": 3,
-  "seen": "11-20 16:10"
+  "seen": "11-20 17:48"
  },
- "https://blog.ermao.net/sub/clash/ermao.net": {
+ "https://raw.githubusercontent.com/free18/v2ray/main/v.txt": {
   "streak_bad": 0,
-  "rate": 96,
+  "rate": 92,
   "total": 24,
-  "ok": 23,
-  "seen": "11-20 16:10"
- },
- "https://blog.ermao.net/sub/reachable/clash/ermao.net": {
-  "streak_bad": 0,
-  "rate": 96,
-  "total": 24,
-  "ok": 23,
-  "seen": "11-20 16:10"
- },
- "https://blog.ermao.net/sub/v2ray/ermao.net": {
-  "streak_bad": 0,
-  "rate": 100,
-  "total": 24,
-  "ok": 24,
-  "seen": "11-20 16:10"
+  "ok": 22,
+  "seen": "11-20 17:48"
  },
  "https://radarhub.top/sing-box.json": {
   "streak_bad": 0,
   "rate": 71,
   "total": 24,
   "ok": 17,
-  "seen": "11-20 16:10"
+  "seen": "11-20 17:48"
  },
- "https://raw.githubusercontent.com/free18/v2ray/main/v.txt": {
+ "https://blog.ermao.net/sub/reachable/clash/ermao.net": {
   "streak_bad": 0,
   "rate": 96,
   "total": 24,
   "ok": 23,
-  "seen": "11-20 16:10"
+  "seen": "11-20 17:48"
+ },
+ "https://blog.ermao.net/sub/clash/ermao.net": {
+  "streak_bad": 0,
+  "rate": 96,
+  "total": 24,
+  "ok": 23,
+  "seen": "11-20 17:48"
+ },
+ "https://blog.ermao.net/sub/v2ray/ermao.net": {
+  "streak_bad": 0,
+  "rate": 100,
+  "total": 24,
+  "ok": 24,
+  "seen": "11-20 17:48"
  }
 }

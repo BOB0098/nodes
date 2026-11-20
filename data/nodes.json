@@ -1,7 +1,7 @@
 {
- "updated": "11-20 16:10",
- "ts": 1795162209,
- "raw": 1904,
+ "updated": "11-20 17:48",
+ "ts": 1795168104,
+ "raw": 1906,
  "errors": [],
  "groups": [
   {
@@ -61,10 +61,10 @@
      "fit": "v2rayNG / 小火箭直接导，Clash 不认",
      "freq": "6 小时更新",
      "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-     "count": 6,
+     "count": 9,
      "probe": {
-      "ok": 6,
-      "total": 6
+      "ok": 8,
+      "total": 8
      },
      "streak": 0
     },
@@ -102,7 +102,7 @@
      "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
      "count": 358,
      "probe": {
-      "ok": 14,
+      "ok": 13,
       "total": 24
      },
      "streak": 0
@@ -115,7 +115,7 @@
      "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
      "count": 39,
      "probe": {
-      "ok": 24,
+      "ok": 23,
       "total": 24
      },
      "streak": 0
@@ -128,7 +128,7 @@
      "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
      "count": 525,
      "probe": {
-      "ok": 23,
+      "ok": 22,
       "total": 24
      },
      "streak": 0
@@ -144,7 +144,7 @@
       "ok": 3,
       "total": 11
      },
-     "streak": 2
+     "streak": 3
     }
    ]
   },
@@ -170,10 +170,26 @@
   }
  ],
  "delta": {
-  "add": 9,
-  "drop": 12
+  "add": 8,
+  "drop": 8
  },
  "nodes": [
+  {
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.18:19999",
+   "src": "Pawdroid",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.18:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+  },
+  {
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.63:19999",
+   "src": "Pawdroid",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.63:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+  },
   {
    "name": "新西兰+V2CROSS.COM",
    "proto": "Shadowsocks",
@@ -183,36 +199,12 @@
    "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.99:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
   },
   {
-   "name": "新西兰+V2CROSS.COM",
-   "proto": "Shadowsocks",
-   "region": "罗马尼亚",
-   "addr": "202.50.253.72:19999",
-   "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.72:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
-  },
-  {
    "name": "英国+V2CROSS.COM",
    "proto": "VLESS",
    "region": "英国",
    "addr": "2.26.251.236:443",
    "src": "Pawdroid",
-   "uri": "vless://c16e8cdb-65dd-4049-bc65-14c051b8a6c6@2.26.251.236:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=mental-deprivation.ru&fp=firefox&pbk=1iVMMhJZgXHRY7tRlR-1kypF0YeaBcB7EjcfHRsYZX4&sid=4ff31b18d1bd8227&spx=%2F5f73ebfc9ef9c37&type=tcp&headerType=none#%E8%8B%B1%E5%9B%BD+V2CROSS.COM"
-  },
-  {
-   "name": "新西兰+V2CROSS.COM",
-   "proto": "Shadowsocks",
-   "region": "罗马尼亚",
-   "addr": "202.50.253.81:19999",
-   "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.81:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
-  },
-  {
-   "name": "新西兰+V2CROSS.COM",
-   "proto": "Shadowsocks",
-   "region": "罗马尼亚",
-   "addr": "202.50.253.45:19999",
-   "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.45:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+   "uri": "vless://c16e8cdb-65dd-4049-bc65-14c051b8a6c6@2.26.251.236:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=mental-deprivation.ru&fp=chrome&pbk=1iVMMhJZgXHRY7tRlR-1kypF0YeaBcB7EjcfHRsYZX4&sid=4ff31b18d1bd8227&type=tcp&headerType=none#%E8%8B%B1%E5%9B%BD+V2CROSS.COM"
   },
   {
    "name": "新西兰+V2CROSS.COM",
@@ -221,6 +213,30 @@
    "addr": "202.50.253.36:19999",
    "src": "Pawdroid",
    "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.36:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+  },
+  {
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.90:19999",
+   "src": "Pawdroid",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.90:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+  },
+  {
+   "name": "塞舌尔+V2CROSS.COM",
+   "proto": "VLESS",
+   "region": "罗马尼亚",
+   "addr": "196.199.122.2:443",
+   "src": "Pawdroid",
+   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@196.199.122.2:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=7aa271t.es1.h1clayd.click&fp=chrome&pbk=ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE&sid=42426c882c5fcd41&type=tcp&headerType=none&host=7aa271t.es1.h1clayd.click#%E5%A1%9E%E8%88%8C%E5%B0%94+V2CROSS.COM"
+  },
+  {
+   "name": "香港+葵兴数据中心",
+   "proto": "Trojan",
+   "region": "香港",
+   "addr": "sclass-01.catcat321.com:20103",
+   "src": "Pawdroid",
+   "uri": "trojan://d7563108-615c-4338-a7bd-77f359869a4a@sclass-01.catcat321.com:20103?security=tls&sni=hk.catxstar.com#%E9%A6%99%E6%B8%AF+%E8%91%B5%E5%85%B4%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83"
   },
   {
    "name": "🇩🇪 Germany 01",
@@ -655,6 +671,14 @@
    "uri": "ss://YWVzLTI1Ni1jZmI6TjdqM3BkVFlrS21zeThDUg@217.30.10.44:9095#%F0%9F%87%B5%F0%9F%87%B1%20Poland%2001"
   },
   {
+   "name": "🇮🇹 Italy 02",
+   "proto": "Shadowsocks",
+   "region": "其他",
+   "addr": "202.50.253.72:19999",
+   "src": "nodesradar",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.72:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2002"
+  },
+  {
    "name": "",
    "proto": "VMess",
    "region": "其他",
@@ -701,14 +725,6 @@
    "addr": "82.38.31.48:8080",
    "src": "nodesradar",
    "uri": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpvWklvQTY5UTh5aGNRVjhrYTNQYTNB@82.38.31.48:8080#%F0%9F%87%B3%F0%9F%87%B1%20Netherlands%2014"
-  },
-  {
-   "name": "🇮🇹 Italy 03",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.90:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.90:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2003"
   },
   {
    "name": "🇫🇷 France 16",
@@ -839,14 +855,6 @@
    "uri": "vmess://eyJ2IjogIjIiLCAicHMiOiAi8J+Hs/Cfh7EgTmV0aGVybGFuZHMgMTUiLCAiYWRkIjogIjIwOS4zOC40Mi4yMzgiLCAicG9ydCI6ICIxMjcwIiwgImlkIjogIjVjMDQwZjFkLTQ1ZGItNDNiZC04ZDQ2LWU0OTUwZTQzMzczNSIsICJhaWQiOiAiMCIsICJzY3kiOiAiYXV0byIsICJuZXQiOiAidGNwIiwgInR5cGUiOiAiIiwgInRscyI6ICJ0bHMiLCAic25pIjogInhtZmhscHkuY29tIn0="
   },
   {
-   "name": "🇮🇹 Italy 06",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.63:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.63:19999?#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2006"
-  },
-  {
    "name": "🇱🇹 Lithuania 01",
    "proto": "Shadowsocks",
    "region": "其他",
@@ -951,14 +959,6 @@
    "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@23.157.88.43:19999#%F0%9F%87%A9%F0%9F%87%AA%20Germany%2041"
   },
   {
-   "name": "🇮🇹 Italy 08",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.18:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.18:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2008"
-  },
-  {
    "name": "",
    "proto": "VMess",
    "region": "其他",
@@ -1037,6 +1037,14 @@
    "addr": "82.38.31.204:8080",
    "src": "nodesradar",
    "uri": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTprMWRCT21PQjRvcWk3VW1wMzdhMWJR@82.38.31.204:8080#%F0%9F%87%B3%F0%9F%87%B1%20Netherlands%2018"
+  },
+  {
+   "name": "🇮🇹 Italy 09",
+   "proto": "Shadowsocks",
+   "region": "其他",
+   "addr": "202.50.253.81:19999",
+   "src": "nodesradar",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.81:19999?#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2009"
   },
   {
    "name": "🇳🇱 Netherlands 19",
@@ -1245,6 +1253,14 @@
    "addr": "167.17.67.171:19999",
    "src": "nodesradar",
    "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@167.17.67.171:19999#%F0%9F%87%BA%F0%9F%87%B8%20United%20States%20024"
+  },
+  {
+   "name": "🇮🇹 Italy 11",
+   "proto": "Shadowsocks",
+   "region": "其他",
+   "addr": "202.50.253.45:19999",
+   "src": "nodesradar",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.45:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2011"
   },
   {
    "name": "🇹🇼 Taiwan 01",
@@ -4287,14 +4303,6 @@
    "uri": "trojan://5931134d1cde66bf83a54acdfebe7ab2@47.250.84.25:443?#%F0%9F%87%B2%F0%9F%87%BE%5Bwww.v2nodes.com%5D%20trojan-MY-..."
   },
   {
-   "name": "🇳🇬[www.v2nodes.com] trojan-NG-... #1",
-   "proto": "Trojan",
-   "region": "其他",
-   "addr": "sclass-01.catcat321.com:20103",
-   "src": "尔毛子",
-   "uri": "trojan://d7563108-615c-4338-a7bd-77f359869a4a@sclass-01.catcat321.com:20103?sni=hk.catxstar.com#%F0%9F%87%B3%F0%9F%87%AC%5Bwww.v2nodes.com%5D%20trojan-NG-...%20%231"
-  },
-  {
    "name": "🇳🇱[www.v2nodes.com] trojan-NL-... #3",
    "proto": "Trojan",
    "region": "荷兰",
@@ -7135,14 +7143,6 @@
    "uri": "vless://Fluffy_VPN-Oth8rOq3@104.171.135.229:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=absolute-disaster.org&fp=chrome&pbk=mpo4BIcoWiMXAQGt5a8IJ4MFkPJQyLC50dO_bXzC7z0&type=tcp&headerType=none&host=absolute-disaster.org#%F0%9F%87%B7%F0%9F%87%BA_%E4%BF%84%E7%BD%97%E6%96%AF%20%2819%29"
   },
   {
-   "name": "🇸🇨_塞舌尔 (5)",
-   "proto": "VLESS",
-   "region": "其他",
-   "addr": "196.199.122.2:443",
-   "src": "free18",
-   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@196.199.122.2:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=7aa271t.es1.h1clayd.click&fp=chrome&pbk=ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE&sid=42426c882c5fcd41&type=tcp&headerType=none&host=7aa271t.es1.h1clayd.click#%F0%9F%87%B8%F0%9F%87%A8_%E5%A1%9E%E8%88%8C%E5%B0%94%20%285%29"
-  },
-  {
    "name": "🇳🇱_荷兰 (59)",
    "proto": "VLESS",
    "region": "荷兰",
@@ -8279,68 +8279,68 @@
    "uri": "vless://11d29ec6-be66-4f59-97c6-7cff836ea318@138.2.50.155:44073?&security=tls&flow=xtls-rprx-vision&pbk=Z3ZGnAOdKkzJ07gR_7_0k9_iTTFP6paDOrqx1rN2LU4&fp=chrome&sni=www.icloud.com&type=tcp&headerType=none&host=www.icloud.com&path=%2F#%F0%9F%87%BA%F0%9F%87%B8_US_%E7%BE%8E%E5%9B%BD"
   },
   {
-   "name": "NL - zhuhai.uk",
-   "proto": "Shadowsocks",
-   "region": "荷兰",
-   "addr": "141.148.243.126:45819",
-   "src": "zhuhaiuk",
-   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6N214TFZtMC9xcjZGcTFQN0lYQnZDSjlQVXpkTmt1VUlRa2lCV256OEVwQT0=@141.148.243.126:45819#NL%20-%20zhuhai.uk"
-  },
-  {
    "name": "TH - zhuhai.uk",
    "proto": "Socks5",
    "region": "泰国",
-   "addr": "87.84.49.245:62000",
+   "addr": "87.81.70.254:42000",
    "src": "zhuhaiuk",
-   "uri": "socks5://ks878449260d:YlRoWvE0dL_cUqS94wPeKnA4@87.84.49.245:62000#TH%20-%20zhuhai.uk"
+   "uri": "socks5://user2523:Ksnervw2@87.81.70.254:42000#TH%20-%20zhuhai.uk"
   },
   {
-   "name": "PH - zhuhai.uk",
-   "proto": "Socks5",
-   "region": "菲律宾",
-   "addr": "103.18.230.88:42000",
+   "name": "NL - zhuhai.uk",
+   "proto": "Shadowsocks",
+   "region": "荷兰",
+   "addr": "141.148.242.33:45819",
    "src": "zhuhaiuk",
-   "uri": "socks5://uv4oakg5:s6a1j38q@103.18.230.88:42000#PH%20-%20zhuhai.uk"
-  },
-  {
-   "name": "MX - zhuhai.uk",
-   "proto": "Socks5",
-   "region": "墨西哥",
-   "addr": "72.57.228.30:62000",
-   "src": "zhuhaiuk",
-   "uri": "socks5://UBXich0K:VvUAFi2E@72.57.228.30:62000#MX%20-%20zhuhai.uk"
-  },
-  {
-   "name": "US - zhuhai.uk 02",
-   "proto": "Socks5",
-   "region": "美国",
-   "addr": "23.230.200.249:62000",
-   "src": "zhuhaiuk",
-   "uri": "socks5://kingstar123:kingstar123%2B%2B@23.230.200.249:62000#US%20-%20zhuhai.uk%2002"
+   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6N2ZLd3IzKzFVem05Y0pGcTUxK2ZzdlArTDVoRTB3MVBoTHNPL3Z1dW93WT0=@141.148.242.33:45819#NL%20-%20zhuhai.uk"
   },
   {
    "name": "TH - zhuhai.uk 02",
    "proto": "Socks5",
    "region": "泰国",
-   "addr": "109.66.136.242:62000",
+   "addr": "109.66.136.35:62000",
    "src": "zhuhaiuk",
-   "uri": "socks5://r3ZzP8WW:zdnivBaI@109.66.136.242:62000#TH%20-%20zhuhai.uk%2002"
+   "uri": "socks5://r3ZzP8WW:zdnivBaI@109.66.136.35:62000#TH%20-%20zhuhai.uk%2002"
   },
   {
-   "name": "SG - zhuhai.uk 02",
+   "name": "DE - zhuhai.uk 02",
    "proto": "Shadowsocks",
-   "region": "新加坡",
-   "addr": "129.221.246.25:56927",
+   "region": "德国",
+   "addr": "92.5.98.240:59924",
    "src": "zhuhaiuk",
-   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6WWFVeHFuMUQ1bG5WbXdKTzFVdmRVaDBzZDc5aUhSeVZRWFF5SUFGVTI4ND0=@129.221.246.25:56927#SG%20-%20zhuhai.uk%2002"
+   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6ZndJYnp3Z1BiR3MwcUdneUJtRng1dWVtSGIzSENPNjBtTnhVU1l5ZnNGTT0=@92.5.98.240:59924#DE%20-%20zhuhai.uk%2002"
   },
   {
-   "name": "MX - zhuhai.uk 02",
+   "name": "US - zhuhai.uk 05",
    "proto": "Socks5",
-   "region": "墨西哥",
-   "addr": "94.194.164.147:62000",
+   "region": "美国",
+   "addr": "216.132.114.194:62000",
    "src": "zhuhaiuk",
-   "uri": "socks5://rVkkraqT:2j7CCZQb@94.194.164.147:62000#MX%20-%20zhuhai.uk%2002"
+   "uri": "socks5://utdr8wvs:7i1dheg6@216.132.114.194:62000#US%20-%20zhuhai.uk%2005"
+  },
+  {
+   "name": "US - zhuhai.uk 06",
+   "proto": "Socks5",
+   "region": "美国",
+   "addr": "23.230.200.176:62000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://u1f0cijj:ppyefe3k@23.230.200.176:62000#US%20-%20zhuhai.uk%2006"
+  },
+  {
+   "name": "JP - zhuhai.uk 02",
+   "proto": "Socks5",
+   "region": "日本",
+   "addr": "103.248.150.238:42000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://tB4vN7qP:J5rM2xL9@103.248.150.238:42000#JP%20-%20zhuhai.uk%2002"
+  },
+  {
+   "name": "DE - zhuhai.uk 03",
+   "proto": "Shadowsocks",
+   "region": "德国",
+   "addr": "92.5.114.103:59924",
+   "src": "zhuhaiuk",
+   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6R21BbjBmWGFyeit4QjNidzJhQ3p3blp4Y051RHg4eHBxSSt2R3VmSTNqST0=@92.5.114.103:59924#DE%20-%20zhuhai.uk%2003"
   },
   {
    "name": "US - zhuhai.uk 06",
