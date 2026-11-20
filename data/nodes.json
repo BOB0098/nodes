@@ -1,7 +1,7 @@
 {
- "updated": "11-20 14:14",
- "ts": 1795155250,
- "raw": 1903,
+ "updated": "11-20 16:10",
+ "ts": 1795162209,
+ "raw": 1904,
  "errors": [],
  "groups": [
   {
@@ -17,7 +17,7 @@
      "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
      "count": 321,
      "probe": {
-      "ok": 24,
+      "ok": 23,
       "total": 24
      },
      "streak": 0
@@ -61,10 +61,10 @@
      "fit": "v2rayNG / 小火箭直接导，Clash 不认",
      "freq": "6 小时更新",
      "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-     "count": 9,
+     "count": 6,
      "probe": {
-      "ok": 8,
-      "total": 9
+      "ok": 6,
+      "total": 6
      },
      "streak": 0
     },
@@ -113,7 +113,7 @@
      "fit": "Base64 订阅，v2rayNG / 小火箭",
      "freq": "每小时更新",
      "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
-     "count": 36,
+     "count": 39,
      "probe": {
       "ok": 24,
       "total": 24
@@ -144,7 +144,7 @@
       "ok": 3,
       "total": 11
      },
-     "streak": 1
+     "streak": 2
     }
    ]
   },
@@ -170,25 +170,41 @@
   }
  ],
  "delta": {
-  "add": 0,
-  "drop": 1
+  "add": 9,
+  "drop": 12
  },
  "nodes": [
   {
-   "name": "香港+葵兴数据中心",
-   "proto": "Trojan",
-   "region": "香港",
-   "addr": "sclass-b1.catcat321.com:20051",
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.99:19999",
    "src": "Pawdroid",
-   "uri": "trojan://d7563108-615c-4338-a7bd-77f359869a4a@sclass-b1.catcat321.com:20051?allowInsecure=1&security=tls&sni=hk.catxstar.com#%E9%A6%99%E6%B8%AF+%E8%91%B5%E5%85%B4%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83"
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.99:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
   },
   {
-   "name": "英国+伦敦南岸大学",
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.72:19999",
+   "src": "Pawdroid",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.72:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
+  },
+  {
+   "name": "英国+V2CROSS.COM",
    "proto": "VLESS",
    "region": "英国",
-   "addr": "136.148.208.221:443",
+   "addr": "2.26.251.236:443",
    "src": "Pawdroid",
-   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@136.148.208.221:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=8a2e72t.nl20.h1clayd.shop&fp=chrome&pbk=VZS639V1i-35g7VXb9EoTYL-Srm7858sxcvFAunncmA&sid=8d0d0679f42ffd98&type=tcp&headerType=none&host=8a2e72t.nl20.h1clayd.shop&path=%2F#%E8%8B%B1%E5%9B%BD+%E4%BC%A6%E6%95%A6%E5%8D%97%E5%B2%B8%E5%A4%A7%E5%AD%A6"
+   "uri": "vless://c16e8cdb-65dd-4049-bc65-14c051b8a6c6@2.26.251.236:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=mental-deprivation.ru&fp=firefox&pbk=1iVMMhJZgXHRY7tRlR-1kypF0YeaBcB7EjcfHRsYZX4&sid=4ff31b18d1bd8227&spx=%2F5f73ebfc9ef9c37&type=tcp&headerType=none#%E8%8B%B1%E5%9B%BD+V2CROSS.COM"
+  },
+  {
+   "name": "新西兰+V2CROSS.COM",
+   "proto": "Shadowsocks",
+   "region": "罗马尼亚",
+   "addr": "202.50.253.81:19999",
+   "src": "Pawdroid",
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.81:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
   },
   {
    "name": "新西兰+V2CROSS.COM",
@@ -202,49 +218,9 @@
    "name": "新西兰+V2CROSS.COM",
    "proto": "Shadowsocks",
    "region": "罗马尼亚",
-   "addr": "202.50.253.99:19999",
+   "addr": "202.50.253.36:19999",
    "src": "Pawdroid",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.99:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
-  },
-  {
-   "name": "香港+阿里云",
-   "proto": "Shadowsocks",
-   "region": "香港",
-   "addr": "47.85.162.44:443",
-   "src": "Pawdroid",
-   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6M05Cc25CTGFuUGZHNmkzUzJHVEhpbmVzd3I2RWVTSlBiMFBDZU1Rb0dvQT0@47.85.162.44:443#%E9%A6%99%E6%B8%AF+%E9%98%BF%E9%87%8C%E4%BA%91"
-  },
-  {
-   "name": "",
-   "proto": "VMess",
-   "region": "其他",
-   "addr": "179.43.140.24:42831",
-   "src": "Pawdroid",
-   "uri": "vmess://eyJhZGQiOiAiMTc5LjQzLjE0MC4yNCIsICJhaWQiOiAiMCIsICJhbHBuIjogIiIsICJmcCI6ICIiLCAiaG9zdCI6ICJkb3duLWNkbi5kaW5ndGFsay5jb20iLCAiaWQiOiAiYTkyNWE5OGMtYWQ3YS00MGM2LTlmZGYtMTMwYTFkZTY5NDE2IiwgImluc2VjdXJlIjogIjAiLCAibmV0IjogInRjcCIsICJwYXRoIjogIi8zeCIsICJwY3MiOiAiIiwgInBvcnQiOiAiNDI4MzEiLCAicHMiOiAiXHU3NDVlXHU1OGViIFYyQ1JPU1MuQ09NIiwgInNjeSI6ICJhdXRvIiwgInNlY3VyaXR5IjogImF1dG8iLCAic25pIjogIiIsICJ0bHMiOiAiIiwgInR5cGUiOiAiaHR0cCIsICJ2IjogIjIiLCAidmNuIjogIiJ9"
-  },
-  {
-   "name": "爱沙尼亚+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "196.196.148.85:443",
-   "src": "Pawdroid",
-   "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@196.196.148.85:443?encryption=none&security=reality&sni=5d0319t.nl7.h1clayd.click&fp=chrome&pbk=l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs&sid=361d0dd59c70516f&type=tcp&headerType=none#%E7%88%B1%E6%B2%99%E5%B0%BC%E4%BA%9A+V2CROSS.COM"
-  },
-  {
-   "name": "塞舌尔+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "196.199.122.2:443",
-   "src": "Pawdroid",
-   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@196.199.122.2:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=7aa271t.es1.h1clayd.click&fp=chrome&pbk=ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE&sid=42426c882c5fcd41&type=tcp&headerType=none&host=7aa271t.es1.h1clayd.click#%E5%A1%9E%E8%88%8C%E5%B0%94+V2CROSS.COM"
-  },
-  {
-   "name": "英国+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "英国",
-   "addr": "2.26.251.236:443",
-   "src": "Pawdroid",
-   "uri": "vless://c16e8cdb-65dd-4049-bc65-14c051b8a6c6@2.26.251.236:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=mental-deprivation.ru&fp=firefox&pbk=1iVMMhJZgXHRY7tRlR-1kypF0YeaBcB7EjcfHRsYZX4&sid=4ff31b18d1bd8227&spx=%2F5f73ebfc9ef9c37&type=tcp&headerType=none#%E8%8B%B1%E5%9B%BD+V2CROSS.COM"
+   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.36:19999#%E6%96%B0%E8%A5%BF%E5%85%B0+V2CROSS.COM"
   },
   {
    "name": "🇩🇪 Germany 01",
@@ -679,14 +655,6 @@
    "uri": "ss://YWVzLTI1Ni1jZmI6TjdqM3BkVFlrS21zeThDUg@217.30.10.44:9095#%F0%9F%87%B5%F0%9F%87%B1%20Poland%2001"
   },
   {
-   "name": "🇮🇹 Italy 02",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.72:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.72:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2002"
-  },
-  {
    "name": "",
    "proto": "VMess",
    "region": "其他",
@@ -1071,14 +1039,6 @@
    "uri": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTprMWRCT21PQjRvcWk3VW1wMzdhMWJR@82.38.31.204:8080#%F0%9F%87%B3%F0%9F%87%B1%20Netherlands%2018"
   },
   {
-   "name": "🇮🇹 Italy 09",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.81:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0@202.50.253.81:19999?#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2009"
-  },
-  {
    "name": "🇳🇱 Netherlands 19",
    "proto": "Shadowsocks",
    "region": "其他",
@@ -1413,14 +1373,6 @@
    "addr": "66.163.122.7:443",
    "src": "nodesradar",
    "uri": "trojan://0ab6c98dae3b48e8b9c4a776b6c9c19a@66.163.122.7:443?allowInsecure=1&sni=66.163.122.7&type=tcp#%F0%9F%87%BA%F0%9F%87%B8%20United%20States%20035"
-  },
-  {
-   "name": "🇮🇹 Italy 12",
-   "proto": "Shadowsocks",
-   "region": "其他",
-   "addr": "202.50.253.36:19999",
-   "src": "nodesradar",
-   "uri": "ss://YWVzLTI1Ni1nY206WlJwZ2FCZUd4dEVOSVhndmhwa1pCS3o5R25XUlMyZFljeDlPK2EyaXdOND0=@202.50.253.36:19999#%F0%9F%87%AE%F0%9F%87%B9%20Italy%2012"
   },
   {
    "name": "🇭🇰 Hong Kong 02",
@@ -2509,6 +2461,14 @@
    "addr": "198.13.53.39:443",
    "src": "尔毛子",
    "uri": "vless://8f21c635-ef0a-4b05-8356-f44d463b6e34@198.13.53.39:443?encryption=none&security=reality&sni=itunes.apple.com&fp=chrome&pbk=xxPVgbxguyYuVIml6Eh6ZGcDLO1z0OWKZXfDdUGFv1k&sid=7a7cc838&type=ws&host=itunes.apple.com&path=%2Fws&insecure=0#%F0%9F%87%AF%F0%9F%87%B5_JP_%E6%97%A5%E6%9C%AC_IPV4%20(2)"
+  },
+  {
+   "name": "🇺🇸_US_美国_IPV4",
+   "proto": "Shadowsocks",
+   "region": "美国",
+   "addr": "47.85.162.44:443",
+   "src": "尔毛子",
+   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6M05Cc25CTGFuUGZHNmkzUzJHVEhpbmVzd3I2RWVTSlBiMFBDZU1Rb0dvQT0=@47.85.162.44:443#%F0%9F%87%BA%F0%9F%87%B8_US_%E7%BE%8E%E5%9B%BD_IPV4"
   },
   {
    "name": "🇩🇪_DE_德国->🇫🇷_FR_法国_IPV4",
@@ -5135,6 +5095,14 @@
    "uri": "vless://c3dd06bc-7c9e-4716-beb2-dde88bd31d7f@latvia.nyanners.ir:666?&security=tls&fp=edge&alpn=http%2F1.1&sni=latvia.nyanners.ir&type=ws&headerType=none&host=latvia.nyanners.ir&path=%2F#%F0%9F%87%B1%F0%9F%87%BB%20%E6%8B%89%E8%84%B1%E7%BB%B4%E4%BA%9A%20%7C%20LVA"
   },
   {
+   "name": "🇳🇬 尼日利亚 | NGA",
+   "proto": "Trojan",
+   "region": "其他",
+   "addr": "sclass-b1.catcat321.com:20051",
+   "src": "尔毛子",
+   "uri": "trojan://d7563108-615c-4338-a7bd-77f359869a4a@sclass-b1.catcat321.com:20051?allowInsecure=1&sni=hk.catxstar.com#%F0%9F%87%B3%F0%9F%87%AC%20%E5%B0%BC%E6%97%A5%E5%88%A9%E4%BA%9A%20%7C%20NGA"
+  },
+  {
    "name": "🇳🇱 荷兰 | NLD",
    "proto": "VLESS",
    "region": "荷兰",
@@ -5173,6 +5141,14 @@
    "addr": "193.58.179.197:443",
    "src": "尔毛子",
    "uri": "vless://a6142d9d-3f9f-47b7-b7e9-1245dd6a15d6@193.58.179.197:443?&security=tls&fp=firefox&alpn=http%2F1.1&sni=geoplan-krd.pro&type=ws&headerType=none&host=geoplan-krd.pro&path=%2Fcheckout%2Fstep%2FwjZAlhnxAy9g#%F0%9F%87%B3%F0%9F%87%B1%20%E8%8D%B7%E5%85%B0%20%7C%20NLD"
+  },
+  {
+   "name": "🇳🇱 荷兰 | NLD",
+   "proto": "VLESS",
+   "region": "荷兰",
+   "addr": "136.148.208.221:443",
+   "src": "尔毛子",
+   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@136.148.208.221:443?&security=reality&flow=xtls-rprx-vision&pbk=VZS639V1i-35g7VXb9EoTYL-Srm7858sxcvFAunncmA&sid=8d0d0679f42ffd98&fp=chrome&sni=8a2e72t.nl20.h1clayd.shop&type=tcp&headerType=none&host=8a2e72t.nl20.h1clayd.shop&path=%2F#%F0%9F%87%B3%F0%9F%87%B1%20%E8%8D%B7%E5%85%B0%20%7C%20NLD"
   },
   {
    "name": "🇳🇱 荷兰 | NLD",
@@ -5247,124 +5223,100 @@
    "uri": "vless://0259e5aa-c188-4334-b204-32cd5ea859f6@199.242.185.178:443?&security=reality&flow=xtls-rprx-vision&pbk=6acrgYsF7FqZ0sNi5fc8wFGmapz_h5N3zA72zpp_EHY&sid=2251f9f7843ac533&fp=firefox&sni=go-obsh-drun.keno.su&type=tcp&headerType=none&host=go-obsh-drun.keno.su&path=%2F#%F0%9F%87%BA%F0%9F%87%B8%20%E7%BE%8E%E5%9B%BD%20%7C%20USA"
   },
   {
-   "name": "DE VLESS-06 | free-nodes",
+   "name": "未知 VLESS-16 | free-nodes",
    "proto": "VLESS",
-   "region": "德国",
-   "addr": "104.18.138.67:443",
-   "src": "v2rayfree",
-   "uri": "vless://0280c276-641b-49af-b699-4931c30ac137@104.18.138.67:443?security=tls&type=xhttp&path=%2Fapi&host=norway.xn--nlqaa425dbaab446bbabd698meae.online&packetEncoding=xudp&alpn=h2&sni=norway.xn--nlqaa425dbaab446bbabd698meae.online.&fp=chrome&mode=auto&encryption=none#DE%20VLESS-06%20%7C%20free-nodes"
-  },
-  {
-   "name": "",
-   "proto": "VMess",
-   "region": "其他",
-   "addr": "dp8yk.xiaoyan.io:16616",
-   "src": "v2rayfree",
-   "uri": "vmess://eyJ2IjoiMiIsInBzIjoiVFcgVk1FU1MtMDggfCBmcmVlLW5vZGVzIiwiYWRkIjoiZHA4eWsueGlhb3lhbi5pbyIsInBvcnQiOiIxNjYxNiIsImlkIjoiOTA0ZjA1NjktODY5NS00NjZmLTk3Y2YtMGRlMmZhY2UxYjQ2IiwiYWlkIjoiMCIsInNjeSI6ImF1dG8iLCJuZXQiOiJ3cyIsInR5cGUiOiIiLCJ0bHMiOiIiLCJwYXRoIjoiLyIsImhvc3QiOiJmOTMwOWNjODg2MzdjMjZmNTUyYTFhNjRmYjMxMWNhZS5tb2Jnc2xiLnRiY2FjaGUuY29tIn0="
-  },
-  {
-   "name": "FR VLESS-09 | free-nodes",
-   "proto": "VLESS",
-   "region": "法国",
+   "region": "西班牙",
    "addr": "167.82.76.31:443",
    "src": "v2rayfree",
-   "uri": "vless://c2de4998-c75d-49fa-9413-66d1f9aed9c4@167.82.76.31:443?security=tls&type=xhttp&path=%2Fsetare&host=okojiudddsaa.global.ssl.fastly.net&packetEncoding=xudp&pcs=CD6E838B9BFE31CAB8B3D5C858B0D6223FE84ECE236C1FDB281BE93C302E1E6E&sni=cdn.akamai.steamstatic.com&fp=chrome&mode=auto&extra=%7B%22xPaddingBytes%22%3A%22100-1000%22%2C%22xmux%22%3A%7B%22maxConcurrency%22%3A%2216-32%22%2C%22hMaxRequestTimes%22%3A%22300-500%22%2C%22hMaxReusableSecs%22%3A%22300-480%22%2C%22hKeepAlivePeriod%22%3A20%7D%7D&encryption=none#FR%20VLESS-09%20%7C%20free-nodes"
+   "uri": "vless://c2de4998-c75d-49fa-9413-66d1f9aed9c4@167.82.76.31:443?security=tls&type=xhttp&path=%2Fsetare&host=canoenkd.global.ssl.fastly.net&packetEncoding=xudp&pcs=CD6E838B9BFE31CAB8B3D5C858B0D6223FE84ECE236C1FDB281BE93C302E1E6E&sni=cdn.akamai.steamstatic.com&fp=chrome&mode=auto&extra=%7B%22xPaddingBytes%22%3A%22100-1000%22%2C%22xmux%22%3A%7B%22maxConcurrency%22%3A%2216-32%22%2C%22hMaxRequestTimes%22%3A%22300-500%22%2C%22hMaxReusableSecs%22%3A%22300-480%22%2C%22hKeepAlivePeriod%22%3A20%7D%7D&encryption=none#%E6%9C%AA%E7%9F%A5%20VLESS-16%20%7C%20free-nodes"
   },
   {
-   "name": "GB VLESS-10 | free-nodes",
+   "name": "DE VLESS-17 | free-nodes",
+   "proto": "VLESS",
+   "region": "德国",
+   "addr": "176.108.245.73:443",
+   "src": "v2rayfree",
+   "uri": "vless://1b7ee703-fa08-4305-8469-ae3e30e61e44@176.108.245.73:443?security=reality&type=tcp&packetEncoding=xudp&sni=pawuk.belka.tv&fp=chrome&flow=xtls-rprx-vision&sid=a9dc98a7dc87a7dc&pbk=_qSbW4JL4Ffqvj25vX-6a2ul9Qlj6PBdlF0ghsf_0RQ&encryption=none#DE%20VLESS-17%20%7C%20free-nodes"
+  },
+  {
+   "name": "GB VLESS-18 | free-nodes",
    "proto": "VLESS",
    "region": "英国",
    "addr": "api.ferrin.uk:443",
    "src": "v2rayfree",
-   "uri": "vless://7d1a74fd-8a38-4a29-863f-5da53a9e557e@api.ferrin.uk:443?security=tls&type=xhttp&path=%2Fes&packetEncoding=xudp&alpn=h2&sni=7d1a74fd.ferrin.uk&fp=chrome&mode=stream-one&encryption=none#GB%20VLESS-10%20%7C%20free-nodes"
+   "uri": "vless://7d1a74fd-8a38-4a29-863f-5da53a9e557e@api.ferrin.uk:443?security=tls&type=xhttp&path=%2Fes&packetEncoding=xudp&alpn=h2&sni=7d1a74fd.ferrin.uk&fp=chrome&mode=stream-one&encryption=none#GB%20VLESS-18%20%7C%20free-nodes"
   },
   {
-   "name": "未知 VLESS-11 | free-nodes",
+   "name": "US VLESS-21 | free-nodes",
    "proto": "VLESS",
-   "region": "西班牙",
-   "addr": "websaitiran.zorfel.ir:443",
+   "region": "美国",
+   "addr": "104.18.15.19:8443",
    "src": "v2rayfree",
-   "uri": "vless://45c09bef-41ee-49af-8152-4b45d2d7d91f@websaitiran.zorfel.ir:443?security=tls&type=xhttp&path=%2F&host=Finspeed.global.ssl.fastly.net&packetEncoding=xudp&pcs=CD6E838B9BFE31CAB8B3D5C858B0D6223FE84ECE236C1FDB281BE93C302E1E6E&sni=cdn.akamai.steamstatic.com&fp=chrome&mode=auto&encryption=none#%E6%9C%AA%E7%9F%A5%20VLESS-11%20%7C%20free-nodes"
+   "uri": "vless://226279dd-28b2-4b61-96be-a2a0b1afd522@104.18.15.19:8443?security=tls&type=ws&path=%2F%3FTELEGRAM--MARAMBASHI--MARAMBASHI--MARAMBASHI--MARAMBASHI%3Fed%3D2560&host=hk.zhaoqing.city&packetEncoding=xudp&sni=hk.zhaoqing.city&fp=random#US%20VLESS-21%20%7C%20free-nodes"
   },
   {
-   "name": "未知 VLESS-12 | free-nodes",
-   "proto": "VLESS",
-   "region": "西班牙",
-   "addr": "88.216.60.73:443",
-   "src": "v2rayfree",
-   "uri": "vless://a30903dc-1bf0-4be5-8b1b-603a3a56211c@88.216.60.73:443?security=reality&type=tcp&packetEncoding=xudp&sni=ns-api-gw.galioncc.com&fp=chrome&sid=a7c92e4b10d6f835&pbk=drl7nndYdfzZY1aQ0eUAWmNV0nsHig2uDnu9siy9biQ&encryption=none#%E6%9C%AA%E7%9F%A5%20VLESS-12%20%7C%20free-nodes"
-  },
-  {
-   "name": "未知 VLESS-16 | free-nodes",
-   "proto": "VLESS",
-   "region": "西班牙",
-   "addr": "31.6.1.115:443",
-   "src": "v2rayfree",
-   "uri": "vless://0f2dc4af-951f-4690-922e-07c6e8bab26a@31.6.1.115:443?security=tls&type=xhttp&path=%2Fxh&host=cdn.winter-jam.site&packetEncoding=xudp&sni=cdn.winter-jam.site&fp=firefox&mode=auto&encryption=none#%E6%9C%AA%E7%9F%A5%20VLESS-16%20%7C%20free-nodes"
-  },
-  {
-   "name": "未知 VLESS-19 | free-nodes",
-   "proto": "VLESS",
-   "region": "西班牙",
-   "addr": "31.77.144.255:8444",
-   "src": "v2rayfree",
-   "uri": "vless://95580a09-cce7-4b62-af74-a514083ba9e4@31.77.144.255:8444?security=reality&type=xhttp&path=%2Fxh&packetEncoding=xudp&sni=www.amd.com&fp=qq&sid=635a76c25a4b1820&pbk=jgf0wWpgkEJZzu9wu45Ms33SNZpibtx507rpvzfz3mQ&mode=stream-one&encryption=none#%E6%9C%AA%E7%9F%A5%20VLESS-19%20%7C%20free-nodes"
-  },
-  {
-   "name": "未知 VLESS-20 | free-nodes",
-   "proto": "VLESS",
-   "region": "西班牙",
-   "addr": "80.47.13.188:443",
-   "src": "v2rayfree",
-   "uri": "vless://b384d216-9efa-4fd0-a5ef-bd3c37475e4d@80.47.13.188:443?security=reality&type=tcp&packetEncoding=xudp&sni=pl-api.videoland.stream&fp=firefox&flow=xtls-rprx-vision&sid=82ee61781c16c6ad&pbk=cRRAuyAuAo7lE5cBjD3cI0LzGA0y9MCxqWpVJY_kQQI#%E6%9C%AA%E7%9F%A5%20VLESS-20%20%7C%20free-nodes"
-  },
-  {
-   "name": "DE VLESS-21 | free-nodes",
-   "proto": "VLESS",
+   "name": "DE TROJAN-22 | free-nodes",
+   "proto": "Trojan",
    "region": "德国",
-   "addr": "104.18.140.67:443",
+   "addr": "russia.com:443",
    "src": "v2rayfree",
-   "uri": "vless://0280c276-641b-49af-b699-4931c30ac137@104.18.140.67:443?security=tls&type=xhttp&path=%2Fapi&host=norway.xn--nlqaa425dbaab446bbabd698meae.online&packetEncoding=xudp&alpn=h2&sni=norway.xn--nlqaa425dbaab446bbabd698meae.online.&fp=firefox#DE%20VLESS-21%20%7C%20free-nodes"
+   "uri": "trojan://bpb-trojan@russia.com:443?sni=kargar001.pages.dev&type=ws&path=%2Ftr%3Fed%3D2560&alpn=h3&fp=chrome#DE%20TROJAN-22%20%7C%20free-nodes"
   },
   {
-   "name": "US VLESS-32 | free-nodes",
+   "name": "未知 VLESS-23 | free-nodes",
    "proto": "VLESS",
-   "region": "美国",
-   "addr": "104.160.44.254:443",
+   "region": "西班牙",
+   "addr": "193.111.204.84:8443",
    "src": "v2rayfree",
-   "uri": "vless://0a3432cd-74b8-413a-896d-f51492b030bc@104.160.44.254:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=portal.citygrainla.com&fp=firefox&pbk=BlSccfT5tvDIOS7v9VaPd0ulUNhUdvlMjGiNzDNDUHE&sid=051f20c2344a2dfd&type=tcp&headerType=none&host=portal.citygrainla.com&path=%2F#US%20VLESS-32%20%7C%20free-nodes"
+   "uri": "vless://f8d52ece-fad4-478d-875d-df6eed3befa7@193.111.204.84:8443?security=reality&type=xhttp&packetEncoding=xudp&sni=assets.study.golangwikito.cfd&fp=firefox&sid=40a4b9403abe554c&pbk=QrNs0ew7snHqLfpVXS9RAhlRzgAzzGZK9fXmDcx9xHI&mode=packet-up&extra=%7B%22xPaddingBytes%22%3A%22100-500%22%2C%22xmux%22%3A%7B%22maxConnections%22%3A%223%22%7D%7D&encryption=none#%E6%9C%AA%E7%9F%A5%20VLESS-23%20%7C%20free-nodes"
   },
   {
-   "name": "US VLESS-33 | free-nodes",
+   "name": "未知 VLESS-24 | free-nodes",
    "proto": "VLESS",
-   "region": "美国",
-   "addr": "107.172.214.195:443",
+   "region": "西班牙",
+   "addr": "4.232.64.201:443",
    "src": "v2rayfree",
-   "uri": "vless://2af77824-f83d-4f50-9dd0-560bb6e7cd45@107.172.214.195:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=academy.nvidia.com&fp=firefox&pbk=jK8yu9AMtNQ4J_uKE1inAzJr6V5J4GNK3sAN6nZBbUo&type=tcp&headerType=none&host=academy.nvidia.com&path=%2F#US%20VLESS-33%20%7C%20free-nodes"
-  },
-  {
-   "name": "HK VLESS-34 | free-nodes",
-   "proto": "VLESS",
-   "region": "香港",
-   "addr": "152.175.6.229:31884",
-   "src": "v2rayfree",
-   "uri": "vless://e9a8144e-5237-488a-afb1-9ca3d8d54c80@152.175.6.229:31884?encryption=none&security=tls&sni=hk010.zestapp778.com&fp=chrome&type=tcp&headerType=none#HK%20VLESS-34%20%7C%20free-nodes"
+   "uri": "vless://5e610f80-fc6a-479d-8621-b672355b96a1@4.232.64.201:443?security=tls&type=ws&path=%2F&host=cf-1rm.pages.dev&packetEncoding=xudp&sni=cf-1rm.pages.dev&fp=chrome#%E6%9C%AA%E7%9F%A5%20VLESS-24%20%7C%20free-nodes"
   },
   {
    "name": "US VLESS-35 | free-nodes",
    "proto": "VLESS",
    "region": "美国",
-   "addr": "swedenafteraventura.space:443",
+   "addr": "104.160.44.254:443",
    "src": "v2rayfree",
-   "uri": "vless://50a87e21-f0e2-4b53-a787-91adfe748f63@swedenafteraventura.space:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=swedenafteraventura.space&fp=chrome&pbk=TyuIIquHoesD9YwMQJHda0YZ3Hy9Dh123dQ00iGK0QY&type=tcp&headerType=none#US%20VLESS-35%20%7C%20free-nodes"
+   "uri": "vless://0a3432cd-74b8-413a-896d-f51492b030bc@104.160.44.254:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=portal.citygrainla.com&fp=firefox&pbk=BlSccfT5tvDIOS7v9VaPd0ulUNhUdvlMjGiNzDNDUHE&sid=051f20c2344a2dfd&type=tcp&headerType=none&host=portal.citygrainla.com&path=%2F#US%20VLESS-35%20%7C%20free-nodes"
   },
   {
-   "name": "SG VLESS-36 | free-nodes",
+   "name": "US VLESS-36 | free-nodes",
+   "proto": "VLESS",
+   "region": "美国",
+   "addr": "107.172.214.195:443",
+   "src": "v2rayfree",
+   "uri": "vless://2af77824-f83d-4f50-9dd0-560bb6e7cd45@107.172.214.195:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=academy.nvidia.com&fp=firefox&pbk=jK8yu9AMtNQ4J_uKE1inAzJr6V5J4GNK3sAN6nZBbUo&type=tcp&headerType=none&host=academy.nvidia.com&path=%2F#US%20VLESS-36%20%7C%20free-nodes"
+  },
+  {
+   "name": "HK VLESS-37 | free-nodes",
+   "proto": "VLESS",
+   "region": "香港",
+   "addr": "152.175.6.229:31884",
+   "src": "v2rayfree",
+   "uri": "vless://e9a8144e-5237-488a-afb1-9ca3d8d54c80@152.175.6.229:31884?encryption=none&security=tls&sni=hk010.zestapp778.com&fp=chrome&type=tcp&headerType=none#HK%20VLESS-37%20%7C%20free-nodes"
+  },
+  {
+   "name": "US VLESS-38 | free-nodes",
+   "proto": "VLESS",
+   "region": "美国",
+   "addr": "swedenafteraventura.space:443",
+   "src": "v2rayfree",
+   "uri": "vless://50a87e21-f0e2-4b53-a787-91adfe748f63@swedenafteraventura.space:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=swedenafteraventura.space&fp=chrome&pbk=TyuIIquHoesD9YwMQJHda0YZ3Hy9Dh123dQ00iGK0QY&type=tcp&headerType=none#US%20VLESS-38%20%7C%20free-nodes"
+  },
+  {
+   "name": "SG VLESS-39 | free-nodes",
    "proto": "VLESS",
    "region": "新加坡",
    "addr": "43.163.112.174:443",
    "src": "v2rayfree",
-   "uri": "vless://0dedd47d-47b9-4ed1-9c9f-cbeecad57a68@43.163.112.174:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.cloudflare.com&fp=chrome&pbk=mXQudYHNu0pebcdk1_qn-UgcmwhjaV7y9UrYu3HX7Rg&sid=0123456789abcdef&type=tcp&headerType=none#SG%20VLESS-36%20%7C%20free-nodes"
+   "uri": "vless://0dedd47d-47b9-4ed1-9c9f-cbeecad57a68@43.163.112.174:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.cloudflare.com&fp=chrome&pbk=mXQudYHNu0pebcdk1_qn-UgcmwhjaV7y9UrYu3HX7Rg&sid=0123456789abcdef&type=tcp&headerType=none#SG%20VLESS-39%20%7C%20free-nodes"
   },
   {
    "name": "🔵93@oneclickvpnkeys",
@@ -5439,14 +5391,6 @@
    "uri": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTprMWRCT21PQjRvcWk3VW1wMzdhMWJR@82.38.31.181:8080#%F0%9F%87%B3%F0%9F%87%B1%5Bwww.v2nodes.com%5D%20ss-NL-1452..."
   },
   {
-   "name": "🇩🇪DE_3|3.9MB/s",
-   "proto": "VLESS",
-   "region": "德国",
-   "addr": "176.108.245.73:443",
-   "src": "AutoMerge",
-   "uri": "vless://1b7ee703-fa08-4305-8469-ae3e30e61e44@176.108.245.73:443?sni=pawuk.belka.tv&flow=xtls-rprx-vision-udp443&fp=chrome&security=tls#%F0%9F%87%A9%F0%9F%87%AADE_3%7C3.9MB/s"
-  },
-  {
    "name": "",
    "proto": "Socks5",
    "region": "其他",
@@ -5471,44 +5415,12 @@
    "uri": "socks5://103.248.228.166:5555"
   },
   {
-   "name": "🇺🇸US_5|1003KB/s",
-   "proto": "VLESS",
-   "region": "美国",
-   "addr": "104.18.15.19:8443",
-   "src": "AutoMerge",
-   "uri": "vless://226279dd-28b2-4b61-96be-a2a0b1afd522@104.18.15.19:8443?sni=hk.zhaoqing.city&type=ws&host=hk.zhaoqing.city&path=/?TELEGRAM--MARAMBASHI--MARAMBASHI--MARAMBASHI--MARAMBASHI?ed=2560fp=random&security=tls#%F0%9F%87%BA%F0%9F%87%B8US_5%7C1003KB/s"
-  },
-  {
-   "name": "🇩🇪DE_9|2.6MB/s",
-   "proto": "Trojan",
-   "region": "德国",
-   "addr": "russia.com:443",
-   "src": "AutoMerge",
-   "uri": "trojan://bpb-trojan@russia.com:443?allowInsecure=0&sni=kargar001.pages.dev&alpn=h3&type=ws&path=/tr?ed=2560#%F0%9F%87%A9%F0%9F%87%AADE_9%7C2.6MB/s"
-  },
-  {
    "name": "",
    "proto": "Socks5",
    "region": "其他",
    "addr": "92.5.68.29:1080",
    "src": "AutoMerge",
    "uri": "socks5://92.5.68.29:1080"
-  },
-  {
-   "name": "🇳🇱NL_9|1.9MB/s",
-   "proto": "VLESS",
-   "region": "荷兰",
-   "addr": "193.111.204.84:8443",
-   "src": "AutoMerge",
-   "uri": "vless://f8d52ece-fad4-478d-875d-df6eed3befa7@193.111.204.84:8443?sni=assets.study.golangwikito.cfd&fp=firefox&security=tls#%F0%9F%87%B3%F0%9F%87%B1NL_9%7C1.9MB/s"
-  },
-  {
-   "name": "🇮🇹IT_9|2.7MB/s",
-   "proto": "VLESS",
-   "region": "意大利",
-   "addr": "4.232.64.201:443",
-   "src": "AutoMerge",
-   "uri": "vless://5e610f80-fc6a-479d-8621-b672355b96a1@4.232.64.201:443?type=ws&host=cf-1rm.pages.dev&path=fp=chrome&security=tls#%F0%9F%87%AE%F0%9F%87%B9IT_9%7C2.7MB/s"
   },
   {
    "name": "日期：11-20",
@@ -7223,12 +7135,28 @@
    "uri": "vless://Fluffy_VPN-Oth8rOq3@104.171.135.229:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=absolute-disaster.org&fp=chrome&pbk=mpo4BIcoWiMXAQGt5a8IJ4MFkPJQyLC50dO_bXzC7z0&type=tcp&headerType=none&host=absolute-disaster.org#%F0%9F%87%B7%F0%9F%87%BA_%E4%BF%84%E7%BD%97%E6%96%AF%20%2819%29"
   },
   {
+   "name": "🇸🇨_塞舌尔 (5)",
+   "proto": "VLESS",
+   "region": "其他",
+   "addr": "196.199.122.2:443",
+   "src": "free18",
+   "uri": "vless://4201786b-d99b-4147-a5f0-20d47acddb81@196.199.122.2:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=7aa271t.es1.h1clayd.click&fp=chrome&pbk=ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE&sid=42426c882c5fcd41&type=tcp&headerType=none&host=7aa271t.es1.h1clayd.click#%F0%9F%87%B8%F0%9F%87%A8_%E5%A1%9E%E8%88%8C%E5%B0%94%20%285%29"
+  },
+  {
    "name": "🇳🇱_荷兰 (59)",
    "proto": "VLESS",
    "region": "荷兰",
    "addr": "04535dt.us8.h1clayd.click:443",
    "src": "free18",
    "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@04535dt.us8.h1clayd.click:443?encryption=none&security=reality&sni=04535dt.us8.h1clayd.click&fp=ios&pbk=UoS8qZ74hP_ECcncCz55lzvlcVss3R7VA0WYZE0YQCY&sid=ba2a3dce62b99092&type=tcp&headerType=none&host=04535dt.us8.h1clayd.click#%F0%9F%87%B3%F0%9F%87%B1_%E8%8D%B7%E5%85%B0%20%2859%29"
+  },
+  {
+   "name": "🇸🇨_塞舌尔 (8)",
+   "proto": "VLESS",
+   "region": "其他",
+   "addr": "196.196.148.85:443",
+   "src": "free18",
+   "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@196.196.148.85:443?encryption=none&security=reality&sni=5d0319t.nl7.h1clayd.click&fp=firefox&pbk=l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs&sid=361d0dd59c70516f&type=tcp&headerType=none&host=5d0319t.nl7.h1clayd.click#%F0%9F%87%B8%F0%9F%87%A8_%E5%A1%9E%E8%88%8C%E5%B0%94%20%288%29"
   },
   {
    "name": "🇷🇺_俄罗斯 (22)",
@@ -8351,28 +8279,76 @@
    "uri": "vless://11d29ec6-be66-4f59-97c6-7cff836ea318@138.2.50.155:44073?&security=tls&flow=xtls-rprx-vision&pbk=Z3ZGnAOdKkzJ07gR_7_0k9_iTTFP6paDOrqx1rN2LU4&fp=chrome&sni=www.icloud.com&type=tcp&headerType=none&host=www.icloud.com&path=%2F#%F0%9F%87%BA%F0%9F%87%B8_US_%E7%BE%8E%E5%9B%BD"
   },
   {
-   "name": "HK - zhuhai.uk",
-   "proto": "Hysteria2",
-   "region": "香港",
-   "addr": "43.103.2.53:443",
-   "src": "zhuhaiuk",
-   "uri": "hysteria2://hAUdd15a7YGHUSgiPOUz@43.103.2.53:443?obfs=salamander&obfs-password=9veAh9pTbrAfDwM1fIYI&insecure=1#HK%20-%20zhuhai.uk"
-  },
-  {
-   "name": "DE - zhuhai.uk 03",
+   "name": "NL - zhuhai.uk",
    "proto": "Shadowsocks",
-   "region": "德国",
-   "addr": "92.5.95.68:59924",
+   "region": "荷兰",
+   "addr": "141.148.243.126:45819",
    "src": "zhuhaiuk",
-   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6RmhWYXhLYWI0aHhDalYxbkFxcmhlcDVleHNraXhhbmlCU2E0c1IwQVFBMD0=@92.5.95.68:59924#DE%20-%20zhuhai.uk%2003"
+   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6N214TFZtMC9xcjZGcTFQN0lYQnZDSjlQVXpkTmt1VUlRa2lCV256OEVwQT0=@141.148.243.126:45819#NL%20-%20zhuhai.uk"
   },
   {
-   "name": "US - zhuhai.uk 04",
+   "name": "TH - zhuhai.uk",
+   "proto": "Socks5",
+   "region": "泰国",
+   "addr": "87.84.49.245:62000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://ks878449260d:YlRoWvE0dL_cUqS94wPeKnA4@87.84.49.245:62000#TH%20-%20zhuhai.uk"
+  },
+  {
+   "name": "PH - zhuhai.uk",
+   "proto": "Socks5",
+   "region": "菲律宾",
+   "addr": "103.18.230.88:42000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://uv4oakg5:s6a1j38q@103.18.230.88:42000#PH%20-%20zhuhai.uk"
+  },
+  {
+   "name": "MX - zhuhai.uk",
+   "proto": "Socks5",
+   "region": "墨西哥",
+   "addr": "72.57.228.30:62000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://UBXich0K:VvUAFi2E@72.57.228.30:62000#MX%20-%20zhuhai.uk"
+  },
+  {
+   "name": "US - zhuhai.uk 02",
+   "proto": "Socks5",
+   "region": "美国",
+   "addr": "23.230.200.249:62000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://kingstar123:kingstar123%2B%2B@23.230.200.249:62000#US%20-%20zhuhai.uk%2002"
+  },
+  {
+   "name": "TH - zhuhai.uk 02",
+   "proto": "Socks5",
+   "region": "泰国",
+   "addr": "109.66.136.242:62000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://r3ZzP8WW:zdnivBaI@109.66.136.242:62000#TH%20-%20zhuhai.uk%2002"
+  },
+  {
+   "name": "SG - zhuhai.uk 02",
+   "proto": "Shadowsocks",
+   "region": "新加坡",
+   "addr": "129.221.246.25:56927",
+   "src": "zhuhaiuk",
+   "uri": "ss://MjAyMi1ibGFrZTMtY2hhY2hhMjAtcG9seTEzMDU6WWFVeHFuMUQ1bG5WbXdKTzFVdmRVaDBzZDc5aUhSeVZRWFF5SUFGVTI4ND0=@129.221.246.25:56927#SG%20-%20zhuhai.uk%2002"
+  },
+  {
+   "name": "MX - zhuhai.uk 02",
+   "proto": "Socks5",
+   "region": "墨西哥",
+   "addr": "94.194.164.147:62000",
+   "src": "zhuhaiuk",
+   "uri": "socks5://rVkkraqT:2j7CCZQb@94.194.164.147:62000#MX%20-%20zhuhai.uk%2002"
+  },
+  {
+   "name": "US - zhuhai.uk 06",
    "proto": "VLESS",
    "region": "美国",
-   "addr": "217.69.174.175:443",
+   "addr": "104.16.205.65:2083",
    "src": "zhuhaiuk",
-   "uri": "vless://cda0862a-0f87-4be9-8ed8-1d0c9e382839@217.69.174.175:443?type=tcp&security=reality&sni=04535dt.us8.h1clayd.click&pbk=UoS8qZ74hP_ECcncCz55lzvlcVss3R7VA0WYZE0YQCY&sid=ba2a3dce62b99092&fp=firefox#US%20-%20zhuhai.uk%2004"
+   "uri": "vless://51a0af77-a60c-4d9b-81a4-f50e1b38d90b@104.16.205.65:2083?security=tls&type=ws&path=%2F&host=ahmad99hoseini.pages.dev&sni=ahmad99hoseini.pages.dev&fp=chrome#US%20-%20zhuhai.uk%2006"
   }
  ]
 }
