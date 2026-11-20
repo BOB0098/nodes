@@ -190,6 +190,11 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 .fit:before{content:"↳";content:"↳"/"";color:var(--ink-2);display:inline-block;
   vertical-align:-.125em;margin-right:6px}
 
+/* 源站自身异常：和节点可连率是两层事，只在源站超时 / 4xx / 5xx 时出现 */
+.srcbad{display:inline-block;font-size:12px;line-height:1.5;color:var(--bad-ink);
+  background:var(--bad-bg);border-radius:8px;padding:4px 10px;margin-top:8px;text-wrap:pretty}
+.srcbad[hidden]{display:none}
+
 /* 可连率：原生 progress，自带 progressbar 角色与 aria 数值 */
 .probe{display:flex;align-items:center;gap:10px;margin:12px 0 0;font-size:13px;color:var(--ink-3)}
 .probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -307,6 +312,7 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
     <p class="fit"></p>
+    <p class="srcbad" hidden></p>
     <code class="url"></code>
     <div class="acts">
       <button class="cbtn" type="button"><span class="cbtn-txt">复制链接</span></button>
@@ -574,6 +580,16 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 
       const fit = node.querySelector('.fit');
       if (it.fit) fit.textContent = it.fit; else fit.remove();
+
+      // 源站这次没拿到内容：说清是源站这一侧的问题，别让人以为是自己客户端配错了
+      const sh = it.src_http;
+      const sb = node.querySelector('.srcbad');
+      if (sh && (sh.code === 0 || sh.code >= 400)) {
+        sb.textContent = sh.code === 0
+          ? `源站本次探测${sh.err === 'TimeoutError' ? '超时' : '失败'} · ${(sh.ms / 1000).toFixed(1)}s，链接可能暂时打不开`
+          : `源站返回 ${sh.code}，链接可能暂时打不开`;
+        sb.hidden = false;
+      }
 
       const p = it.probe;
       const probe = node.querySelector('.probe');
