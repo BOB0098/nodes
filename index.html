@@ -62,7 +62,16 @@ border:1px solid var(--line2);padding:2px 8px;border-radius:99px;white-space:now
 .cnum b{font-size:17px;font-weight:700;letter-spacing:0;line-height:1.3;
 font-variant-numeric:tabular-nums;color:#475467}
 .cnum span{font-size:11px;color:var(--dim2)}
-.cnote{font-size:11.5px;color:var(--dim2);margin-bottom:9px}
+.cnote{font-size:11.5px;color:var(--dim2);margin-bottom:6px}
+.probe{display:flex;align-items:center;gap:7px;margin:0 0 9px;font-size:10.5px;color:#5A6B85}
+.probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
+.probe .bar{flex:1;min-width:40px;height:4px;border-radius:99px;background:#E8ECF3;overflow:hidden}
+.probe .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#34A853,#0B8A44)}
+.probe .pv{white-space:nowrap;font-weight:700;color:#0B8A44;font-variant-numeric:tabular-nums}
+.probe.warn .bar i{background:linear-gradient(90deg,#FDB022,#DC6803)}
+.probe.warn .pv{color:#B54708}
+.probe.bad .bar i{background:linear-gradient(90deg,#FDA29B,#D92D20)}
+.probe.bad .pv{color:#B42318}
 .url{display:block;max-width:100%;background:var(--surf2);border:1px solid var(--line2);border-radius:11px;
 padding:9px 10px;font:11.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#31405A;
 word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer}
@@ -99,11 +108,20 @@ th:nth-child(5),td:nth-child(5){width:11%}
 
 <div id="groups"></div>
 
-<div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为最近一次采集时统计 · 失效换个源即可</div>
+<div class="foot">链接均为仓库原样发布，未做任何改写<br>条数为采集时统计 · 百分比 = 从该源抽 24 个节点测 TCP 连通的比例<br>只测 TCP 类节点（hy2 / tuic 走 UDP，不计入）· 失效换个源即可</div>
 </div>
 <script>
-const DATA = {"updated": "11-20 13:30", "raw": 1903, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "推荐 · 只含可连节点", "note": "已剔除连不上的，成功率高", "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 321}, {"tag": "带规则分流", "note": "开箱即用，不用自己配规则", "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 510}, {"tag": "全量节点", "note": "含未测速的节点，量最大", "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 428}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 9}, {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布", "freq": "6 小时更新", "url": "https://radarhub.top/v2ray.txt", "count": 500}, {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性", "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 439}, {"tag": "全网合并", "note": "自动聚合多个公开来源", "freq": "每日更新", "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt", "count": 358}, {"tag": "老牌仓库", "note": "每小时更新一次", "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 36}, {"tag": "每日分享", "note": "节点和机场一起发", "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 525}, {"tag": "备用源", "note": "前面几条都失败时用这条", "freq": "每日更新", "url": "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt", "count": 26}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "推荐 · 带规则", "note": "与上面的 Clash 同源，格式不同", "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 496}]}]};
+const DATA = {"updated": "11-20 13:49", "raw": 1903, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "推荐 · 只含可连节点", "note": "已剔除连不上的，成功率高", "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 321, "probe": {"ok": 24, "total": 24}}, {"tag": "带规则分流", "note": "开箱即用，不用自己配规则", "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 510, "probe": {"ok": 0, "total": 24}}, {"tag": "全量节点", "note": "含未测速的节点，量最大", "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 428, "probe": {"ok": 23, "total": 24}}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 9, "probe": {"ok": 8, "total": 9}}, {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布", "freq": "6 小时更新", "url": "https://radarhub.top/v2ray.txt", "count": 500, "probe": {"ok": 0, "total": 24}}, {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性", "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 439, "probe": {"ok": 23, "total": 24}}, {"tag": "全网合并", "note": "自动聚合多个公开来源", "freq": "每日更新", "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt", "count": 358, "probe": {"ok": 4, "total": 24}}, {"tag": "老牌仓库", "note": "每小时更新一次", "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 36, "probe": {"ok": 20, "total": 24}}, {"tag": "每日分享", "note": "节点和机场一起发", "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 525, "probe": {"ok": 0, "total": 24}}, {"tag": "备用源", "note": "前面几条都失败时用这条", "freq": "每日更新", "url": "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt", "count": 26, "probe": {"ok": 3, "total": 11}}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "推荐 · 带规则", "note": "与上面的 Clash 同源，格式不同", "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 496, "probe": {"ok": 0, "total": 24}}]}]};
 const CN = ['','一','二','三','四'];
+function probeLine(p) {
+  if (!p || !p.total) return '';
+  const r = p.ok / p.total;
+  const cls = r >= 0.5 ? '' : (r >= 0.2 ? 'warn' : 'bad');
+  const pct = Math.round(r * 100);
+  const txt = p.ok === 0 ? `抽样 ${p.total} 个 · 全部不通` : `抽样 ${p.total} 个 · 可连 ${p.ok}`;
+  return `<div class="probe ${cls}"><span class="pl">${txt}</span>
+    <span class="bar"><i style="width:${Math.max(pct, 4)}%"></i></span><span class="pv">${pct}%</span></div>`;
+}
 const gEl = document.getElementById('groups');
 DATA.groups.forEach((g, gi) => {
   const head = document.createElement('div');
@@ -115,6 +133,7 @@ DATA.groups.forEach((g, gi) => {
     c.className = it.tag.indexOf('推荐') === 0 ? 'card hi' : 'card';
     c.innerHTML = `<div class="ch"><span class="tag">${it.tag}</span><span class="freq">${it.freq}</span></div>
       <div class="cnum"><b>${it.count === null ? '—' : it.count.toLocaleString()}</b><span>条节点</span></div>
+      ${probeLine(it.probe)}
       <div class="cnote">${it.note}</div>
       <code class="url">${it.url}</code>
       <button class="cbtn">复制链接</button>`;
