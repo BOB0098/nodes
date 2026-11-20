@@ -28,10 +28,13 @@ GROUPS = [
         "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android",
         "items": [
             {"tag": "推荐 · 只含可连节点", "note": "已剔除连不上的，成功率高",
+             "fit": "Clash 系专用，v2rayNG 导入会报错",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net"},
             {"tag": "带规则分流", "note": "开箱即用，不用自己配规则",
+             "fit": "Clash 系专用，自带分流规则",
              "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml"},
             {"tag": "全量节点", "note": "含未测速的节点，量最大",
+             "fit": "Clash 系专用，节点最全",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net"},
         ],
     },
@@ -41,22 +44,29 @@ GROUPS = [
         "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing",
         "items": [
             {"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢",
+             "fit": "v2rayNG / 小火箭直接导，Clash 不认",
              "freq": "6 小时更新",
              "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"},
             {"tag": "自动测速过", "note": "每 6 小时实测一遍再发布",
+             "fit": "v2rayNG / 小火箭直接导，Clash 不认",
              "freq": "6 小时更新", "url": "https://radarhub.top/v2ray.txt"},
             {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性",
+             "fit": "v2rayNG / 小火箭直接导，Clash 不认",
              "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net"},
             {"tag": "全网合并", "note": "自动聚合多个公开来源",
+             "fit": "明文节点，v2rayNG 可导，Clash 不认",
              "freq": "每日更新",
              "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"},
             {"tag": "老牌仓库", "note": "每小时更新一次",
+             "fit": "Base64 订阅，v2rayNG / 小火箭",
              "freq": "每小时更新",
              "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub"},
             {"tag": "每日分享", "note": "节点和机场一起发",
+             "fit": "明文节点，v2rayNG / 小火箭",
              "freq": "每日更新",
              "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt"},
             {"tag": "备用源", "note": "前面几条都失败时用这条",
+             "fit": "仓库名带 clash，实际是 v2ray 格式",
              "freq": "每日更新",
              "url": "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt"},
         ],
@@ -67,6 +77,7 @@ GROUPS = [
         "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）",
         "items": [
             {"tag": "推荐 · 带规则", "note": "与上面的 Clash 同源，格式不同",
+             "fit": "仅 Hiddify / sing-box，Clash 不认",
              "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json"},
         ],
     },
@@ -292,6 +303,8 @@ border:1px solid var(--line2);padding:2px 8px;border-radius:99px;white-space:now
 font-variant-numeric:tabular-nums;color:#475467}
 .cnum span{font-size:11px;color:var(--dim2)}
 .cnote{font-size:11.5px;color:var(--dim2);margin-bottom:6px}
+.fit{display:flex;gap:5px;align-items:baseline;font-size:10.5px;color:#6B7A90;margin:-3px 0 9px;line-height:1.45}
+.fit:before{content:"↳";color:#A8B3C4;flex:0 0 auto}
 .probe{display:flex;align-items:center;gap:7px;margin:0 0 9px;font-size:10.5px;color:#5A6B85}
 .probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
 .probe .bar{flex:1;min-width:40px;height:4px;border-radius:99px;background:#E8ECF3;overflow:hidden}
@@ -364,6 +377,7 @@ DATA.groups.forEach((g, gi) => {
       <div class="cnum"><b>${it.count === null ? '—' : it.count.toLocaleString()}</b><span>条节点</span></div>
       ${probeLine(it.probe)}
       <div class="cnote">${it.note}</div>
+      ${it.fit ? `<div class="fit">${it.fit}</div>` : ''}
       <code class="url">${it.url}</code>
       <button class="cbtn">复制链接</button>`;
     const btn = c.querySelector('.cbtn'), url = c.querySelector('.url');
@@ -550,7 +564,7 @@ def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None)
     for g in GROUPS:
         groups.append({
             "title": g["title"], "kern": g["kern"], "clients": g["clients"],
-            "items": [{"tag": i["tag"], "note": i["note"], "freq": i["freq"],
+            "items": [{"tag": i["tag"], "note": i["note"], "fit": i.get("fit", ""), "freq": i["freq"],
                        "url": i["url"], "count": counts.get(i["url"]),
                        "probe": probes.get(i["url"])} for i in g["items"]],
         })
