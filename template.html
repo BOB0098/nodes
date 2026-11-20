@@ -47,8 +47,8 @@
   --e-press:cubic-bezier(.3,0,.5,1);
 
   /* 阴影：近黑低透明度，两层——贴地一层 + 远处一层 */
-  --sh-1:0 1px 2px rgba(15,23,42,.05),0 12px 30px rgba(15,23,42,.065);
-  --sh-2:0 1px 2px rgba(15,23,42,.04),0 10px 26px rgba(15,23,42,.06);
+  --sh-1:0 1px 2px rgba(15,23,42,.05),0 6px 16px rgba(15,23,42,.055);
+  --sh-2:0 1px 2px rgba(15,23,42,.04),0 4px 12px rgba(15,23,42,.05);
   --sh-press:0 1px 2px rgba(15,23,42,.06);
 
   --fwh:700;--fwb:600;
@@ -71,8 +71,8 @@
     --bad:light-dark(#DC2626,#EF4444);--bad-ink:light-dark(#B91C1C,#FCA5A5);
     --warn-bg:light-dark(rgba(217,119,6,.09),rgba(245,158,11,.12));
     --track:light-dark(#E8EAEE,rgba(255,255,255,.1));
-    --sh-1:0 1px 2px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.3)),0 12px 30px light-dark(rgba(15,23,42,.065),rgba(0,0,0,.5));
-    --sh-2:0 1px 2px light-dark(rgba(15,23,42,.04),rgba(0,0,0,.26)),0 10px 26px light-dark(rgba(15,23,42,.06),rgba(0,0,0,.42));
+    --sh-1:0 1px 2px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.3)),0 6px 16px light-dark(rgba(15,23,42,.055),rgba(0,0,0,.45));
+    --sh-2:0 1px 2px light-dark(rgba(15,23,42,.04),rgba(0,0,0,.26)),0 4px 12px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.38));
     --sh-press:0 1px 2px light-dark(rgba(15,23,42,.06),rgba(0,0,0,.3));
   }
   /* 黑底白字视觉上更粗，字重降一档抵消 */
@@ -85,17 +85,19 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 /* clip 只裁剪、不新建滚动容器，不会关掉快速滚动；老浏览器退回 hidden */
 html,body{overflow-x:hidden;overflow-x:clip}
-/* 背景两层写在同一处，不用 fixed 附着：fixed 背景在移动端会关掉快速滚动路径，
-   每帧重绘整个视口，是滚动卡顿的头号原因 */
-body{min-height:100vh;color:var(--ink);padding:0 var(--sp-page) 40px;
-  background:
-    radial-gradient(900px 520px at 0% -60px,var(--glow) 0%,transparent 72%),
-    linear-gradient(180deg,var(--bg-a) 0%,var(--bg-b) 58%,var(--bg-c) 100%);
-  background-repeat:no-repeat;
+/* 背景只留单层线性渐变：两层渐变会让 Chromium 为整个文档高度生成一张位图，
+   页面 5000px 高时这张图近 200 万像素。高光抽成 560px 高的独立层，只在顶部画 */
+body{position:relative;min-height:100vh;color:var(--ink);padding:0 var(--sp-page) 40px;
+  background:linear-gradient(180deg,var(--bg-a) 0%,var(--bg-b) 58%,var(--bg-c) 100%);
+  background-repeat:no-repeat;background-color:var(--bg-c);
   -webkit-font-smoothing:antialiased;
   font:15px/1.6 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
   transition:color .3s var(--e-out)}
+/* 左上角高光：贴在文档顶部 560px，滚出视口即消失，不参与后续重绘 */
+body:before{content:"";position:absolute;top:0;left:calc(-1 * var(--sp-page));right:calc(-1 * var(--sp-page));
+  height:560px;pointer-events:none;z-index:0;
+  background:radial-gradient(760px 520px at 0% -80px,var(--glow) 0%,transparent 70%)}
 .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 
 /* 聚焦：贴底色内环 + 近黑外环，无边框元素也能看清焦点 */
@@ -145,6 +147,9 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 /* ── 卡片 ──────────────────────────────────────────────────────────────── */
 .card{background:var(--surf);border:1px solid var(--stroke);border-radius:var(--r-card);padding:var(--sp-card);margin-bottom:var(--sp-gap);
   box-shadow:var(--sh-2);position:relative;
+  /* 屏幕外的卡片整块跳过渲染：11 张卡首屏只看得见 1–2 张，其余不做布局、绘制、光栅化。
+     实测卡片高 329–370px（均值 348），估值偏差压在 ±20px 内，滚动条不会跳 */
+  content-visibility:auto;contain-intrinsic-size:310px;
   transition:box-shadow .26s var(--e-out),transform .26s var(--e-out),background .3s var(--e-out)}
 @media (hover:hover){
   .card:hover{transform:translateY(-2px);box-shadow:var(--sh-1)}
@@ -175,9 +180,9 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   height:6px;border-radius:var(--r-pill);background:var(--track)}
 .probe .bar::-webkit-progress-bar{background:transparent}
 .probe .bar::-webkit-progress-value{background:var(--ok);
-  border-radius:var(--r-pill);transition:inline-size .9s var(--e-out)}
+  border-radius:var(--r-pill)}
 .probe .bar::-moz-progress-bar{background:var(--ok);
-  border-radius:var(--r-pill);transition:inline-size .9s var(--e-out)}
+  border-radius:var(--r-pill)}
 .probe .pv{white-space:nowrap;font-weight:var(--fwb);color:var(--ok-ink);font-variant-numeric:tabular-nums}
 .probe.warn .bar::-webkit-progress-value{background:var(--warn)}
 .probe.warn .bar::-moz-progress-bar{background:var(--warn)}
@@ -217,7 +222,9 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
 .foot b{color:var(--warn-ink)}
 
 /* ── 动效 ──────────────────────────────────────────────────────────────── */
-@keyframes ink{from{opacity:0;filter:blur(6px);transform:translateY(.22em)}to{opacity:1;filter:blur(0);transform:none}}
+/* 收尾写 filter:none 而不是 blur(0)：blur(0) 仍算滤镜，会让 23 个逐字 span
+   各自常驻一个合成层，滚动时白背着 23 层合成 */
+@keyframes ink{from{opacity:0;filter:blur(6px);transform:translateY(.22em)}to{opacity:1;filter:none;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes pop{0%{transform:scale(1)}42%{transform:scale(1.03)}100%{transform:scale(1)}}
 .ink{display:inline-block;opacity:0;animation:ink .55s var(--e-out) both;animation-delay:calc(var(--i,0)*16ms)}
@@ -345,6 +352,24 @@ h2.gt{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:var(--
   });
 
   groupsEl.append(frag);
+
+  /* 先把每张卡的真实高度钉进 contain-intrinsic-size，再让它们跳过渲染。
+     不这么做的话，视口外的卡只能按估值占位，滚动时逐张修正，文档高度会一路往下掉
+     （实测从 5214 掉到 4960），滚动条跟着抖。这里一次性布局，只多花几毫秒。 */
+  const cards = groupsEl.querySelectorAll('.card');
+  cards.forEach(el => { el.style.contentVisibility = 'visible'; });
+  void groupsEl.offsetHeight;                       // 先让所有卡真实渲染一次
+  cards.forEach(el => {
+    const cs = getComputedStyle(el);
+    // contain-intrinsic-size 量的是 content-box，rect.height 是 border-box，
+    // 直接写进去每张卡会多出 padding 与边框（38px），页面高度就一路往下掉
+    const box = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
+              + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    el.style.containIntrinsicSize = Math.round(el.getBoundingClientRect().height - box) + 'px';
+  });
+  void groupsEl.offsetHeight;                       // 再强制一次，确保新尺寸被采纳
+  cards.forEach(el => { el.style.contentVisibility = ''; });
+  void groupsEl.offsetHeight;
 
   /* ── 复制 ─────────────────────────────────────────────────────────── */
   function reset(btn) {
