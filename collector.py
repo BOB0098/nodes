@@ -319,9 +319,9 @@ th:nth-child(5),td:nth-child(5){width:11%}
 <header>
   <h1>节点配置链接</h1>
   <p class="sub">复制任意一条 → 粘进客户端 → 更新，就能用</p>
-  <div class="pills"><span class="pill" id="p1">3 类客户端</span>
-  <span class="pill" id="p2">14 条链接</span>
-  <span class="pill" id="p3">数据 3 小时更新</span></div>
+  <div class="pills"><span class="pill" id="p2">14 条链接</span>
+  <span class="pill" id="p3">数据 3 小时更新</span>
+  <span class="pill" id="p4" style="display:none"></span></div>
   <div class="mirror"><span>打不开时用备用入口</span>
     <a href="https://cdn.jsdelivr.net/gh/BOB0098/nodes@main/index.html" target="_blank" rel="noopener">① jsDelivr</a>
     <a href="https://ghproxy.net/https://raw.githubusercontent.com/BOB0098/nodes/main/index.html" target="_blank" rel="noopener">② ghproxy</a>
@@ -379,6 +379,11 @@ DATA.groups.forEach((g, gi) => {
   });
 });
 document.getElementById('p2').textContent = DATA.groups.reduce((a, g) => a + g.items.length, 0) + ' 条链接';
+if (DATA.delta && (DATA.delta.add || DATA.delta.drop)) {
+  const p4 = document.getElementById('p4');
+  p4.textContent = `今日 +${DATA.delta.add} / −${DATA.delta.drop}`;
+  p4.style.display = '';
+}
 </script></body></html>"""
 
 
@@ -539,7 +544,7 @@ def probe_all(addrs, sample=24, timeout=3.0):
 
 
 
-def build_html(nodes, stats, raw_total, errors, counts, probes=None):
+def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None):
     probes = probes or {}
     groups = []
     for g in GROUPS:
@@ -551,7 +556,7 @@ def build_html(nodes, stats, raw_total, errors, counts, probes=None):
         })
     data = {
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
-        "raw": raw_total, "errors": errors, "groups": groups,
+        "raw": raw_total, "errors": errors, "groups": groups, "delta": delta,
         "nodes": [{"name": n["name"], "proto": n["proto"], "region": n["region"],
                    "addr": n["addr"], "src": n["src"], "uri": n["uri"]} for n in nodes],
     }
@@ -569,12 +574,20 @@ def main():
     nodes, stats, errors, raw = collect(use_cache)
 
     old_json = os.path.join(OUT_DATA, "nodes.json")
+    delta = None
     if os.path.exists(old_json):
         try:
-            old_n = len(json.load(open(old_json, encoding="utf-8")).get("nodes", []))
+            old = json.load(open(old_json, encoding="utf-8"))
+            old_nodes = old.get("nodes", [])
+            old_n = len(old_nodes)
             if old_n >= 50 and len(nodes) < old_n * 0.6:
                 print(f"\n⚠ 本次仅 {len(nodes)} 条，低于上次 {old_n} 条的 60%，判定采集不完整，保留旧数据")
                 return
+            old_set = {n["addr"] for n in old_nodes if n.get("addr") not in (None, "", "—")}
+            new_set = {n["addr"] for n in nodes if n.get("addr") not in (None, "", "—")}
+            if old_set and new_set:
+                delta = {"add": len(new_set - old_set), "drop": len(old_set - new_set)}
+                print(f"  对比上次：新增 {delta['add']} 个地址，消失 {delta['drop']} 个")
         except Exception:
             pass
 
@@ -582,7 +595,7 @@ def main():
     items = [it for g in GROUPS for it in g["items"]]
     counts, probes = measure(items, use_cache)
 
-    build_html(nodes, stats, raw, errors, counts, probes)
+    build_html(nodes, stats, raw, errors, counts, probes, delta)
     uris = [n["uri"] for n in nodes]
     with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
