@@ -4,76 +4,76 @@
   "rate": 58,
   "total": 24,
   "ok": 14,
-  "seen": "11-20 23:27"
- },
- "https://radarhub.top/clash.yaml": {
-  "streak_bad": 0,
-  "rate": 75,
-  "total": 24,
-  "ok": 18,
-  "seen": "11-20 23:27"
+  "seen": "11-21 04:35"
  },
  "https://radarhub.top/v2ray.txt": {
   "streak_bad": 0,
   "rate": 100,
   "total": 24,
   "ok": 24,
-  "seen": "11-20 23:27"
+  "seen": "11-21 04:35"
+ },
+ "https://radarhub.top/clash.yaml": {
+  "streak_bad": 0,
+  "rate": 75,
+  "total": 24,
+  "ok": 18,
+  "seen": "11-21 04:35"
+ },
+ "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub": {
+  "streak_bad": 0,
+  "rate": 100,
+  "total": 11,
+  "ok": 11,
+  "seen": "11-21 04:35"
  },
  "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub": {
   "streak_bad": 0,
   "rate": 96,
   "total": 24,
   "ok": 23,
-  "seen": "11-20 23:27"
+  "seen": "11-21 04:35"
  },
  "https://raw.githubusercontent.com/marshall888666/free_clash_subscribe/main/subscribe/v2ray.txt": {
-  "streak_bad": 4,
+  "streak_bad": 5,
   "rate": 27,
   "total": 11,
   "ok": 3,
-  "seen": "11-20 23:27"
- },
- "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub": {
-  "streak_bad": 0,
-  "rate": 86,
-  "total": 7,
-  "ok": 6,
-  "seen": "11-20 23:27"
+  "seen": "11-21 04:35"
  },
  "https://raw.githubusercontent.com/free18/v2ray/main/v.txt": {
   "streak_bad": 0,
-  "rate": 96,
+  "rate": 92,
   "total": 24,
-  "ok": 23,
-  "seen": "11-20 23:27"
- },
- "https://radarhub.top/sing-box.json": {
-  "streak_bad": 0,
-  "rate": 75,
-  "total": 24,
-  "ok": 18,
-  "seen": "11-20 23:27"
- },
- "https://blog.ermao.net/sub/v2ray/ermao.net": {
-  "streak_bad": 0,
-  "rate": 100,
-  "total": 24,
-  "ok": 24,
-  "seen": "11-20 23:27"
- },
- "https://blog.ermao.net/sub/reachable/clash/ermao.net": {
-  "streak_bad": 0,
-  "rate": 100,
-  "total": 24,
-  "ok": 24,
-  "seen": "11-20 23:27"
+  "ok": 22,
+  "seen": "11-21 04:35"
  },
  "https://blog.ermao.net/sub/clash/ermao.net": {
   "streak_bad": 0,
   "rate": 92,
   "total": 24,
   "ok": 22,
-  "seen": "11-20 23:27"
+  "seen": "11-21 04:35"
+ },
+ "https://radarhub.top/sing-box.json": {
+  "streak_bad": 0,
+  "rate": 75,
+  "total": 24,
+  "ok": 18,
+  "seen": "11-21 04:35"
+ },
+ "https://blog.ermao.net/sub/reachable/clash/ermao.net": {
+  "streak_bad": 0,
+  "rate": 100,
+  "total": 24,
+  "ok": 24,
+  "seen": "11-21 04:35"
+ },
+ "https://blog.ermao.net/sub/v2ray/ermao.net": {
+  "streak_bad": 0,
+  "rate": 96,
+  "total": 24,
+  "ok": 23,
+  "seen": "11-21 04:35"
  }
 }
