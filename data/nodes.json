@@ -1,5 +1,5 @@
 {
- "updated": "11-20 13:51",
+ "updated": "11-20 13:55",
  "raw": 1903,
  "errors": [],
  "groups": [
@@ -55,7 +55,7 @@
      "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
      "count": 9,
      "probe": {
-      "ok": 8,
+      "ok": 9,
       "total": 9
      }
     },
@@ -99,7 +99,7 @@
      "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
      "count": 36,
      "probe": {
-      "ok": 23,
+      "ok": 24,
       "total": 24
      }
     },
@@ -146,6 +146,10 @@
    ]
   }
  ],
+ "delta": {
+  "add": 0,
+  "drop": 0
+ },
  "nodes": [
   {
    "name": "爱沙尼亚+V2CROSS.COM",
