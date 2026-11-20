@@ -1,46 +1,46 @@
 {
- "updated": "11-21 07:16",
- "ts": 1795216581,
+ "updated": "11-21 07:18",
+ "ts": 1795216738,
  "sources": [
   {
    "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
    "code": 200,
-   "ms": 271
+   "ms": 229
   },
   {
    "url": "https://radarhub.top/clash.yaml",
    "code": 200,
-   "ms": 62
+   "ms": 72
   },
   {
    "url": "https://blog.ermao.net/sub/clash/ermao.net",
    "code": 200,
-   "ms": 263
+   "ms": 267
   },
   {
    "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
    "code": 200,
-   "ms": 18
+   "ms": 39
   },
   {
    "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml",
    "code": 200,
-   "ms": 26
+   "ms": 38
   },
   {
    "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
    "code": 200,
-   "ms": 23
+   "ms": 32
   },
   {
    "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
    "code": 200,
-   "ms": 237
+   "ms": 322
   },
   {
    "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
    "code": 200,
-   "ms": 20
+   "ms": 32
   },
   {
    "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
@@ -50,27 +50,27 @@
   {
    "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
    "code": 200,
-   "ms": 75
+   "ms": 34
   },
   {
    "url": "https://radarhub.top/sing-box.json",
    "code": 200,
-   "ms": 74
+   "ms": 88
   },
   {
    "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json",
    "code": 200,
-   "ms": 157
+   "ms": 30
   },
   {
    "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json",
    "code": 200,
-   "ms": 14
+   "ms": 38
   },
   {
    "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt",
    "code": 200,
-   "ms": 81
+   "ms": 33
   }
  ]
 }
