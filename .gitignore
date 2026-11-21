@@ -1,0 +1,14 @@
+node_modules
+dist
+*.local
+.DS_Store
+npm-debug.log*
+__pycache__/
+*.pyc
+*.tsbuildinfo
+
+# WorkBuddy / Genie 环境目录（不属于项目源码）
+.codebuddy/
+.genie/
+.templates/
+docs/

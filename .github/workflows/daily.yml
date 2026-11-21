@@ -1,0 +1,90 @@
+name: 采集与部署
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 每 3 小时一次，取第 17 分（避开整点拥堵）
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 定时触发且数据足够新时，整条流水线跳过；代码推送只构建部署、不采集
+      - name: 新鲜度闸门
+        id: gate
+        run: |
+          collect=true
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            last=$(git log -1 --format=%ct -- data/nodes.json 2>/dev/null || echo 0)
+            now=$(date +%s)
+            if [ -n "$last" ] && [ "$last" != "0" ] && [ $((now - last)) -lt 7200 ]; then
+              echo "数据够新（<120 分钟），跳过本次"
+              echo "skip_all=true" >> "$GITHUB_OUTPUT"
+            fi
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            collect=false
+          fi
+          echo "collect=$collect" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip_all != 'true' && steps.gate.outputs.collect == 'true'
+        with:
+          python-version: '3.11'
+
+      - name: 采集数据
+        if: steps.gate.outputs.skip_all != 'true' && steps.gate.outputs.collect == 'true'
+        env:
+          # 查「源最后提交时间」要打多次 GitHub API：带 token 5000/小时，不带只有 60
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 collector.py
+
+      - name: 裁剪展示数据
+        if: steps.gate.outputs.skip_all != 'true' && steps.gate.outputs.collect == 'true'
+        run: python3 scripts/trim_data.py
+
+      - name: 提交数据
+        if: steps.gate.outputs.skip_all != 'true' && steps.gate.outputs.collect == 'true'
+        run: |
+          git config user.name "node-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/ public/data/display.json "订阅 全部节点 base64.txt" "订阅 全部节点 明文.txt"
+          if git diff --cached --quiet; then
+            echo "内容无变化，不提交"
+          else
+            git commit -m "chore: 更新节点 $(date '+%Y-%m-%d %H:%M')"
+            git push
+          fi
+
+      - name: 启用 pnpm
+        if: steps.gate.outputs.skip_all != 'true'
+        run: corepack enable
+
+      - name: 安装依赖
+        if: steps.gate.outputs.skip_all != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: 构建站点
+        if: steps.gate.outputs.skip_all != 'true'
+        run: pnpm build
+
+      - name: 部署到 GitHub Pages
+        if: steps.gate.outputs.skip_all != 'true'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
