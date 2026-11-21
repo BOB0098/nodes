@@ -8,6 +8,10 @@
 <meta name="theme-color" content="#0B0C0F" media="(prefers-color-scheme: dark)">
 <title>节点配置链接</title>
 <style>
+
+/* ── 免责声明 ─────────────────────────────────────────────────────── */
+.disc{margin:16px 0 0;font-size:11px;line-height:1.75;color:var(--ink-3);text-align:center}
+.disc-a{padding:12px 8px 0;opacity:.8;letter-spacing:.02em}
 /* ── 设计 token ───────────────────────────────────────────────────────────
    亮色为基准。颜色 / 圆角 / 间距 / 字号全部集中在这里，改版只动这一段。  */
 :root{
@@ -154,6 +158,7 @@ button.pill:active{transform:scale(.96)}
   padding:12px 13px 10px;box-shadow:var(--sh-1);margin-bottom:10px}
 .sec-t{margin:0 0 7px}
 /* 标题小框：iOS 蓝描边浅蓝底，压在玻璃面板上做视觉锚点 */
+.sec-t-c{text-align:center}
 .sec-tag{display:inline-block;font-size:12.5px;font-weight:var(--fwb);color:var(--accent);
   background:light-dark(rgba(0,122,255,.1),rgba(10,132,255,.18));
   border:1px solid light-dark(rgba(0,122,255,.3),rgba(10,132,255,.42));
@@ -163,6 +168,13 @@ button.pill:active{transform:scale(.96)}
   display:flex;align-items:center;justify-content:center;background:var(--accent);align-self:flex-start;margin-top:1px}
 .gs div b{display:block;font-size:12.5px;font-weight:var(--fwb);color:var(--ink)}
 .gs div p{font-size:11.5px;color:var(--ink-2);line-height:1.55;margin-top:2px;text-wrap:pretty}
+
+/* ── 主流客户端：系统名定宽左轴 + 纯链接行，零装饰靠对齐 ────────────────── */
+.cl-row{display:flex;align-items:baseline;gap:4px 14px;flex-wrap:wrap;padding:5px 0}
+.cl-k{flex:0 0 44px;font-size:11.5px;font-weight:var(--fwb);color:var(--ink-2);white-space:nowrap}
+.clink{font-size:12.5px;font-weight:500;color:var(--accent);text-decoration:none;
+  white-space:nowrap;transition:opacity .16s var(--e-out)}
+.clink:active{opacity:.55}
 
 /* ── 分组标题 ──────────────────────────────────────────────────────────── */
 h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--fwh);margin:14px 0 3px;
@@ -251,8 +263,6 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
 .flagx[hidden]{display:none}
 .flagx.cnf{color:var(--bad-ink);background:var(--bad-bg)}
 
-#stale{margin:0 0 16px;padding:12px 14px;border-radius:var(--r-sub);background:var(--warn-bg);color:var(--warn-ink);
-  font-size:13px;line-height:1.65;text-wrap:pretty;border:1px solid var(--stroke)}
 
 /* ── 链接框与复制按钮 ──────────────────────────────────────────────────── */
 .url{display:block;max-width:100%;background:var(--surf-flat);border-radius:var(--r-sub);padding:9px 12px;
@@ -334,7 +344,6 @@ html.lock,html.lock body{overflow:hidden}
   <h1>节点配置链接</h1>
 </header>
 
-<div id="stale" hidden></div>
 
 <section class="sec">
   <div class="sec-t"><span class="sec-tag">订阅流程</span></div>
@@ -350,6 +359,28 @@ html.lock,html.lock body{overflow:hidden}
 </div>
 
 <div id="groups"></div>
+
+<section class="sec">
+  <div class="sec-t sec-t-c"><span class="sec-tag">主流客户端下载</span></div>
+  <div class="cl-row"><span class="cl-k">电脑</span>
+    <a class="clink" href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank" rel="noopener">Clash Verge Rev</a>
+    <a class="clink" href="https://github.com/2dust/v2rayN" target="_blank" rel="noopener">v2rayN</a>
+    <a class="clink" href="https://github.com/MetaCubeX/ClashX.Meta" target="_blank" rel="noopener">ClashX.Meta</a>
+  </div>
+  <div class="cl-row"><span class="cl-k">安卓</span>
+    <a class="clink" href="https://github.com/2dust/v2rayNG" target="_blank" rel="noopener">v2rayNG</a>
+    <a class="clink" href="https://github.com/chen08209/FlClash" target="_blank" rel="noopener">FlClash</a>
+  </div>
+  <div class="cl-row"><span class="cl-k">iOS</span>
+    <a class="clink" href="https://github.com/SagerNet/sing-box" target="_blank" rel="noopener">sing-box</a>
+  </div>
+  <div class="cl-row"><span class="cl-k">全平台</span>
+    <a class="clink" href="https://github.com/hiddify/hiddify-app" target="_blank" rel="noopener">Hiddify</a>
+    <a class="clink" href="https://github.com/KaringX/karing" target="_blank" rel="noopener">Karing</a>
+  </div>
+</section>
+
+<p class="disc disc-a">本站仅收录第三方公开发布的订阅链接，不存储、不托管任何节点资源。请遵守当地法律法规，违规使用后果自负。</p>
 <p class="fempty" id="fempty" hidden>这个组合下没有源<br><span style="color:var(--ink-3);font-size:13px">两个条件同时开太严了，关掉一个试试</span></p>
 </div>
 
@@ -894,17 +925,6 @@ html.lock,html.lock body{overflow:hidden}
 
   mq.addEventListener('change', () => { if (!root.dataset.theme) paintTheme(); });
   paintTheme();
-
-  if (DATA.ts) {
-    const hrs = (Date.now() / 1000 - DATA.ts) / 3600;
-    if (hrs >= 12) {
-      const el = document.getElementById('stale');
-      const b = document.createElement('b');
-      b.textContent = `${Math.floor(hrs)} 小时`;
-      el.append('这份数据已经 ', b, ` 没有更新了（最后一次 ${DATA.updated}）。自动采集可能中断，链接大概率仍能用，但不如新鲜时可靠。`);
-      el.hidden = false;
-    }
-  }
 
   /* ── 入场 ─────────────────────────────────────────────────────────── */
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
