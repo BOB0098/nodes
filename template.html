@@ -34,6 +34,7 @@
   --warn:#D97706;--warn-ink:#B45309;
   --bad:#DC2626;--bad-ink:#B91C1C;
   --warn-bg:rgba(217,119,6,.09);
+  --ok-bg:rgba(22,163,74,.085);--ok-line:rgba(22,163,74,.26);
   --bad-bg:rgba(220,38,38,.08);
   --track:#E8EAEE;
 
@@ -73,6 +74,8 @@
     --warn:light-dark(#D97706,#F59E0B);--warn-ink:light-dark(#B45309,#FBBF24);
     --bad:light-dark(#DC2626,#EF4444);--bad-ink:light-dark(#B91C1C,#FCA5A5);
     --warn-bg:light-dark(rgba(217,119,6,.09),rgba(245,158,11,.12));
+    --ok-bg:light-dark(rgba(22,163,74,.085),rgba(52,211,153,.13));
+    --ok-line:light-dark(rgba(22,163,74,.26),rgba(52,211,153,.34));
     --bad-bg:light-dark(rgba(220,38,38,.08),rgba(239,68,68,.14));
     --track:light-dark(#E8EAEE,rgba(255,255,255,.1));
     --sh-1:0 1px 2px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.3)),0 6px 16px light-dark(rgba(15,23,42,.055),rgba(0,0,0,.45));
@@ -180,11 +183,12 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
 /* 推荐位：底色更实，靠纯明度抬起来 */
 .card.hi{background:var(--surf-solid)}
 /* 卡头：三列网格。标题长了会在中列内部换行，右侧更新时间钉在第一行，不会掉到下一行去 */
-.ch{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:7px;align-items:start}
-.chl{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;padding-top:1px}
+.ch{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:start}
+/* 序号进这一行，和标题首行同轴对齐；标题换了行，序号也不会飘到中间去 */
+.chl{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
 /* 序号：滑到第几条一眼能看到，筛选后重排 */
-.idx{flex:0 0 auto;font-size:10px;font-weight:var(--fwb);line-height:1.5;color:var(--ink-3);
-  background:var(--surf-flat);border-radius:5px;padding:1px 5px;letter-spacing:.02em;
+.idx{flex:0 0 auto;font-size:10.5px;font-weight:var(--fwb);line-height:1.55;color:var(--ink-3);
+  background:var(--surf-flat);border-radius:5px;padding:0 5px;letter-spacing:.02em;
   font-variant-numeric:tabular-nums}
 .tag{font-size:15px;font-weight:var(--fwb);color:var(--ink);letter-spacing:-.01em}
 .card.hi .tag:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
@@ -192,18 +196,15 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
 .freq{font-size:11px;color:var(--ink-3);background:var(--surf-flat);
   padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap;margin-top:1px}
 /* 节点数：辅助信息，压到标题之下——比正文略大、比标题明显小，且用次级墨色 */
-.cnum{display:flex;align-items:baseline;gap:4px;margin:6px 0 0}
-.cnum b{font-size:24px;font-weight:var(--fwb);line-height:1.15;letter-spacing:-.01em;
+.cnum{display:flex;align-items:baseline;gap:5px;margin:7px 0 0}
+.cnum b{font-size:19px;font-weight:var(--fwb);line-height:1.25;letter-spacing:-.005em;
   font-variant-numeric:tabular-nums;color:var(--ink-2)}
-.cnum span{font-size:11.5px;color:var(--ink-3)}
-.cnote{font-size:12px;color:var(--ink-2);margin:4px 0 0;text-wrap:pretty;line-height:1.55}
-/* 客户端适配：磨砂小标签。能用的实底，不能用的虚线加删除线，扫一眼就分好类 */
-.cls{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0 0;align-items:center}
-.cc{font-size:10.5px;font-weight:var(--fwb);line-height:1.7;padding:0 7px;border-radius:6px;
-  background:var(--frost);border:1px solid var(--stroke);color:var(--ink-2);white-space:nowrap;
-  -webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%)}
-.cc.no{background:transparent;border-style:dashed;border-color:var(--track);color:var(--ink-3);
-  text-decoration:line-through;text-decoration-thickness:1px;opacity:.72}
+.cnum span{font-size:12px;color:var(--ink-3)}
+.cnote{font-size:12.5px;color:var(--ink-2);margin:6px 0 0;text-wrap:pretty;line-height:1.6}
+/* 客户端适配：淡绿细框小标签，只列能用的 */
+.cls{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0;align-items:center}
+.cc{font-size:11px;font-weight:500;line-height:1.75;padding:0 8px;border-radius:6px;
+  color:var(--ok-ink);background:var(--ok-bg);border:1px solid var(--ok-line);white-space:nowrap}
 
 /* 源站自身异常：和节点可连率是两层事，只在源站超时 / 4xx / 5xx 时出现 */
 .srcbad{display:inline-block;font-size:11.5px;line-height:1.5;color:var(--bad-ink);
@@ -211,12 +212,12 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
 .srcbad[hidden]{display:none}
 
 /* 源最后一次改动：freq 是作者自己写的承诺，这行是实测，两者分开摆 */
-.age{font-size:11px;color:var(--ink-3);margin:5px 0 0;line-height:1.45;font-variant-numeric:tabular-nums}
+.age{font-size:11.5px;color:var(--ink-3);margin:6px 0 0;line-height:1.5;font-variant-numeric:tabular-nums}
 .age[hidden]{display:none}
 .age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
 
 /* 可连率：原生 progress，自带 progressbar 角色与 aria 数值 */
-.probe{display:flex;align-items:center;gap:8px;margin:8px 0 0;font-size:11.5px;color:var(--ink-3)}
+.probe{display:flex;align-items:center;gap:8px;margin:9px 0 0;font-size:12px;color:var(--ink-3)}
 .probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
 .probe .bar{appearance:none;border:0 solid;overflow:clip;display:block;flex:1;min-width:40px;
   height:5px;border-radius:var(--r-pill);background:var(--track)}
@@ -246,8 +247,8 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
   font-size:13px;line-height:1.65;text-wrap:pretty;border:1px solid var(--stroke)}
 
 /* ── 链接框与复制按钮 ──────────────────────────────────────────────────── */
-.url{display:block;max-width:100%;background:var(--surf-flat);border-radius:var(--r-sub);padding:8px 11px;
-  font:11.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-url);
+.url{display:block;max-width:100%;background:var(--surf-flat);border-radius:var(--r-sub);padding:9px 12px;
+  font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-url);
   word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer;
   margin-top:10px;transition:background .2s var(--e-out)}
 .url:active{background:var(--surf-solid)}
@@ -346,7 +347,7 @@ html.lock,html.lock body{overflow:hidden}
 
 <template id="tpl-card">
   <article class="card">
-    <div class="ch"><span class="idx"></span><div class="chl"><h3 class="tag"></h3><span class="flagx" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span></div><span class="freq"></span></div>
+    <div class="ch"><div class="chl"><span class="idx"></span><h3 class="tag"></h3><span class="flagx" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span></div><span class="freq"></span></div>
     <p class="cnum"><b></b><span>条节点</span></p>
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
@@ -638,13 +639,6 @@ html.lock,html.lock body{overflow:hidden}
         const b = document.createElement('span');
         b.className = 'cc';
         b.textContent = name;
-        cls.append(b);
-      });
-      (it.no || []).forEach(name => {
-        const b = document.createElement('span');
-        b.className = 'cc no';
-        b.textContent = name;
-        b.title = `${name} 用不了这条`;
         cls.append(b);
       });
       if (!cls.childNodes.length) cls.remove();
