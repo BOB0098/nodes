@@ -19,6 +19,7 @@
   --surf:rgba(255,255,255,.68);
   --surf-solid:rgba(255,255,255,.86);
   --surf-flat:rgba(17,19,24,.045);
+  --frost:rgba(255,255,255,.6);
   --stroke:rgba(255,255,255,.92);
 
   /* 字 */
@@ -37,10 +38,10 @@
   --track:#E8EAEE;
 
   /* 圆角 */
-  --r-card:20px;--r-sq:8px;--r-sub:11px;--r-pill:999px;
+  --r-card:19px;--r-sq:8px;--r-sub:10px;--r-pill:999px;
 
   /* 间距：8 的倍数，收紧一档让一屏多露内容 */
-  --sp-page:14px;--sp-card:14px;--sp-gap:10px;
+  --sp-page:13px;--sp-card:13px;--sp-gap:9px;
 
   /* 动效 */
   --e-out:cubic-bezier(.22,.61,.36,1);
@@ -63,6 +64,7 @@
     --surf:light-dark(rgba(255,255,255,.68),rgba(255,255,255,.06));
     --surf-solid:light-dark(rgba(255,255,255,.86),rgba(255,255,255,.095));
     --surf-flat:light-dark(rgba(17,19,24,.045),rgba(0,0,0,.26));
+    --frost:light-dark(rgba(255,255,255,.6),rgba(255,255,255,.11));
     --stroke:light-dark(rgba(255,255,255,.92),rgba(255,255,255,.09));
     --ink:light-dark(#111318,#F2F4F7);--ink-2:light-dark(#4B5260,#A5ADBB);--ink-3:light-dark(#656B78,#868E9C);
     --ink-url:light-dark(#2B3038,#C9CFD9);
@@ -99,7 +101,7 @@ body{position:relative;min-height:100vh;color:var(--ink);padding:0 var(--sp-page
   background:linear-gradient(180deg,var(--bg-a) 0%,var(--bg-b) 58%,var(--bg-c) 100%);
   background-repeat:no-repeat;background-color:var(--bg-c);
   -webkit-font-smoothing:antialiased;
-  font:14px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  font:13.5px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
   transition:color .3s var(--e-out)}
 /* 左上角高光：贴在文档顶部 560px，滚出视口即消失，不参与后续重绘 */
@@ -116,8 +118,8 @@ a:focus-visible,.cbtn:focus-visible,.qbtn:focus-visible,.qrx:focus-visible,.url:
 .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;width:100%}
 
 /* ── 头部 ──────────────────────────────────────────────────────────────── */
-header{padding:20px 2px 12px}
-h1{font-size:26px;font-weight:var(--fwh);letter-spacing:-.01em;line-height:1.2;text-align:center;color:var(--ink);text-wrap:balance}
+header{padding:16px 2px 10px}
+h1{font-size:24px;font-weight:var(--fwh);letter-spacing:-.01em;line-height:1.2;text-align:center;color:var(--ink);text-wrap:balance}
 .sub{color:var(--ink-2);font-size:17px;line-height:1.55;margin-top:8px;text-align:center;text-wrap:pretty}
 .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
 .pill{background:var(--surf-solid);color:var(--ink-2);font-size:13px;font-weight:500;padding:5px 12px;
@@ -129,9 +131,9 @@ button.pill:hover{color:var(--ink)}
 button.pill:active{transform:scale(.96)}
 
 /* ── 筛选 ───────────────────────────────────────────────────────────────── */
-.filters{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:center;margin:14px 0 2px}
-.fbtn{font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink-2);background:var(--surf-solid);
-  border:1px solid var(--stroke);border-radius:var(--r-pill);padding:5px 12px;cursor:pointer;
+.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:center;margin:12px 0 2px}
+.fbtn{font-family:inherit;font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surf-solid);
+  border:1px solid var(--stroke);border-radius:var(--r-pill);padding:4px 11px;cursor:pointer;
   box-shadow:var(--sh-press);transition:background .18s var(--e-out),color .18s var(--e-out),border-color .18s var(--e-out)}
 .fbtn:hover{color:var(--ink)}
 .fbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg-a);border-color:var(--ink)}
@@ -142,10 +144,10 @@ button.pill:active{transform:scale(.96)}
 
 /* ── 「怎么用」区块 ────────────────────────────────────────────────────── */
 .sec{background:var(--surf);border:1px solid var(--stroke);border-radius:var(--r-card);
-  padding:13px 14px 6px;box-shadow:var(--sh-1);margin-bottom:12px}
-.sec-t{font-size:14.5px;font-weight:var(--fwh);color:var(--ink)}
-.sec-t span{display:block;font-size:12px;color:var(--ink-3);font-weight:400;margin-top:1px}
-.gs{display:flex;gap:10px;padding:7px 0;position:relative}
+  padding:12px 13px 5px;box-shadow:var(--sh-1);margin-bottom:11px}
+.sec-t{font-size:14px;font-weight:var(--fwh);color:var(--ink)}
+.sec-t span{display:block;font-size:11.5px;color:var(--ink-3);font-weight:400;margin-top:1px}
+.gs{display:flex;gap:9px;padding:6px 0;position:relative}
 .gs+.gs:before{content:"";position:absolute;left:32px;right:0;top:0;height:1px;
   background:linear-gradient(90deg,var(--surf-flat),transparent)}
 .gs .i{flex:0 0 22px;height:22px;border-radius:7px;color:var(--on-solid);font-size:11.5px;font-weight:var(--fwb);
@@ -154,13 +156,13 @@ button.pill:active{transform:scale(.96)}
 .gs p{font-size:12.5px;color:var(--ink-2);line-height:1.5;text-wrap:pretty}
 
 /* ── 分组标题 ──────────────────────────────────────────────────────────── */
-h2.gt{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:var(--fwh);margin:16px 0 4px;
+h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--fwh);margin:14px 0 3px;
   color:var(--ink);letter-spacing:-.015em;text-wrap:balance}
 .badge{flex:0 0 24px;height:24px;border-radius:8px;color:var(--on-solid);font-size:12.5px;font-weight:var(--fwb);
   display:flex;align-items:center;justify-content:center;background:var(--solid);font-variant-numeric:tabular-nums}
 .kern{margin-left:auto;font-size:11px;font-weight:var(--fwb);color:var(--ink-2);background:var(--surf-solid);
   border:1px solid var(--stroke);padding:3px 8px;border-radius:var(--r-pill);white-space:nowrap}
-.gdesc{font-size:12.5px;color:var(--ink-2);margin:0 0 10px 32px;line-height:1.6;text-wrap:pretty}
+.gdesc{font-size:12px;color:var(--ink-2);margin:0 0 9px 32px;line-height:1.55;text-wrap:pretty}
 /* 客户端名整体不拆行：不然「Clash Meta for Android」换行会把 Android 甩到下一行 */
 .gdesc .cl{display:inline-block;white-space:nowrap}
 
@@ -177,22 +179,31 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:var(--f
 }
 /* 推荐位：底色更实，靠纯明度抬起来 */
 .card.hi{background:var(--surf-solid)}
-.ch{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+/* 卡头：三列网格。标题长了会在中列内部换行，右侧更新时间钉在第一行，不会掉到下一行去 */
+.ch{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:7px;align-items:start}
+.chl{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;padding-top:1px}
+/* 序号：滑到第几条一眼能看到，筛选后重排 */
+.idx{flex:0 0 auto;font-size:10px;font-weight:var(--fwb);line-height:1.5;color:var(--ink-3);
+  background:var(--surf-flat);border-radius:5px;padding:1px 5px;letter-spacing:.02em;
+  font-variant-numeric:tabular-nums}
 .tag{font-size:15px;font-weight:var(--fwb);color:var(--ink);letter-spacing:-.01em}
 .card.hi .tag:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
-  background:var(--solid);margin-right:7px;vertical-align:1px;box-shadow:0 0 0 3px var(--surf-flat)}
-.freq{margin-left:auto;font-size:11px;color:var(--ink-3);background:var(--surf-flat);
-  padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap}
+  background:var(--solid);margin-right:6px;vertical-align:1px;box-shadow:0 0 0 3px var(--surf-flat)}
+.freq{font-size:11px;color:var(--ink-3);background:var(--surf-flat);
+  padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap;margin-top:1px}
 /* 节点数：辅助信息，压到标题之下——比正文略大、比标题明显小，且用次级墨色 */
-.cnum{display:flex;align-items:baseline;gap:4px;margin:7px 0 0}
-.cnum b{font-size:26px;font-weight:var(--fwb);line-height:1.15;letter-spacing:-.01em;
+.cnum{display:flex;align-items:baseline;gap:4px;margin:6px 0 0}
+.cnum b{font-size:24px;font-weight:var(--fwb);line-height:1.15;letter-spacing:-.01em;
   font-variant-numeric:tabular-nums;color:var(--ink-2)}
 .cnum span{font-size:11.5px;color:var(--ink-3)}
-.cnote{font-size:12.5px;color:var(--ink-2);margin:5px 0 0;text-wrap:pretty;line-height:1.55}
-/* 行内图标与基线错开 1/8 em，落在文字视觉中线 */
-.fit{font-size:12px;color:var(--ink-3);margin:5px 0 0;line-height:1.5;text-wrap:pretty}
-.fit:before{content:"↳";content:"↳"/"";color:var(--ink-2);display:inline-block;
-  vertical-align:-.125em;margin-right:6px}
+.cnote{font-size:12px;color:var(--ink-2);margin:4px 0 0;text-wrap:pretty;line-height:1.55}
+/* 客户端适配：磨砂小标签。能用的实底，不能用的虚线加删除线，扫一眼就分好类 */
+.cls{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0 0;align-items:center}
+.cc{font-size:10.5px;font-weight:var(--fwb);line-height:1.7;padding:0 7px;border-radius:6px;
+  background:var(--frost);border:1px solid var(--stroke);color:var(--ink-2);white-space:nowrap;
+  -webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%)}
+.cc.no{background:transparent;border-style:dashed;border-color:var(--track);color:var(--ink-3);
+  text-decoration:line-through;text-decoration-thickness:1px;opacity:.72}
 
 /* 源站自身异常：和节点可连率是两层事，只在源站超时 / 4xx / 5xx 时出现 */
 .srcbad{display:inline-block;font-size:11.5px;line-height:1.5;color:var(--bad-ink);
@@ -200,12 +211,12 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:var(--f
 .srcbad[hidden]{display:none}
 
 /* 源最后一次改动：freq 是作者自己写的承诺，这行是实测，两者分开摆 */
-.age{font-size:11.5px;color:var(--ink-3);margin:6px 0 0;line-height:1.45;font-variant-numeric:tabular-nums}
+.age{font-size:11px;color:var(--ink-3);margin:5px 0 0;line-height:1.45;font-variant-numeric:tabular-nums}
 .age[hidden]{display:none}
 .age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
 
 /* 可连率：原生 progress，自带 progressbar 角色与 aria 数值 */
-.probe{display:flex;align-items:center;gap:8px;margin:9px 0 0;font-size:12px;color:var(--ink-3)}
+.probe{display:flex;align-items:center;gap:8px;margin:8px 0 0;font-size:11.5px;color:var(--ink-3)}
 .probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
 .probe .bar{appearance:none;border:0 solid;overflow:clip;display:block;flex:1;min-width:40px;
   height:5px;border-radius:var(--r-pill);background:var(--track)}
@@ -225,8 +236,8 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:var(--f
 
 .card.dim{background:var(--surf);opacity:.86}
 .card.dim .cnum b{color:var(--ink-3)}
-.flagx{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:var(--fwb);
-  color:var(--warn-ink);background:var(--warn-bg);border-radius:8px;padding:2px 8px;
+.flagx{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:var(--fwb);
+  color:var(--warn-ink);background:var(--warn-bg);border-radius:6px;padding:1px 7px;
   vertical-align:1px;white-space:nowrap}
 .flagx[hidden]{display:none}
 .flagx.cnf{color:var(--bad-ink);background:var(--bad-bg)}
@@ -235,13 +246,13 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:var(--f
   font-size:13px;line-height:1.65;text-wrap:pretty;border:1px solid var(--stroke)}
 
 /* ── 链接框与复制按钮 ──────────────────────────────────────────────────── */
-.url{display:block;max-width:100%;background:var(--surf-flat);border-radius:var(--r-sub);padding:9px 12px;
-  font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-url);
+.url{display:block;max-width:100%;background:var(--surf-flat);border-radius:var(--r-sub);padding:8px 11px;
+  font:11.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-url);
   word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer;
-  margin-top:11px;transition:background .2s var(--e-out)}
+  margin-top:10px;transition:background .2s var(--e-out)}
 .url:active{background:var(--surf-solid)}
 /* 主按钮：近黑实底，44px 胶囊 */
-.cbtn{width:100%;margin-top:10px;border:0;border-radius:var(--r-pill);height:44px;padding:0 18px;
+.cbtn{width:100%;margin-top:9px;border:0;border-radius:var(--r-pill);height:42px;padding:0 16px;
   font-family:inherit;font-size:14px;font-weight:var(--fwb);line-height:normal;color:var(--on-solid);cursor:pointer;
   background:var(--solid);box-shadow:var(--sh-press);
   transition:background .3s var(--e-out),box-shadow .3s var(--e-out),transform .34s var(--e-spring),opacity .26s var(--e-out)}
@@ -251,11 +262,11 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:var(--f
 .cbtn-txt{pointer-events:none}
 
 /* ── 复制 + 二维码 ─────────────────────────────────────────────────────── */
-.acts{display:flex;gap:8px;margin-top:10px}
+.acts{display:flex;gap:7px;margin-top:9px}
 .acts .cbtn{margin-top:0;flex:1;min-width:0}
 /* 二维码按钮：原来是白底，跟半透明白的卡片贴在一起就消失了。
    改成和主按钮同一块近黑实底，只有图标反白，视觉上是一组、又各自清楚 */
-.qbtn{flex:0 0 44px;height:44px;padding:0;border:1px solid var(--solid);border-radius:var(--r-pill);
+.qbtn{flex:0 0 42px;height:42px;padding:0;border:1px solid var(--solid);border-radius:var(--r-pill);
   display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--on-solid);
   background:var(--solid);box-shadow:var(--sh-press);font-family:inherit;
   transition:background .22s var(--e-out),color .22s var(--e-out),transform .2s var(--e-spring)}
@@ -335,11 +346,11 @@ html.lock,html.lock body{overflow:hidden}
 
 <template id="tpl-card">
   <article class="card">
-    <div class="ch"><h3 class="tag"></h3><span class="flagx" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span><span class="freq"></span></div>
+    <div class="ch"><span class="idx"></span><div class="chl"><h3 class="tag"></h3><span class="flagx" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span></div><span class="freq"></span></div>
     <p class="cnum"><b></b><span>条节点</span></p>
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
-    <p class="fit"></p>
+    <div class="cls"></div>
     <p class="age" hidden></p>
     <p class="srcbad" hidden></p>
     <code class="url"></code>
@@ -364,7 +375,7 @@ html.lock,html.lock body{overflow:hidden}
 <script>
 (() => {
   'use strict';
-  const DATA = {"updated": "11-21 07:18", "ts": 1795216738, "raw": 6344, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "超大合集", "note": "1800 条以上，覆盖面最广，质量参差", "fit": "Clash 系专用，节点多但要挑", "freq": "每日更新", "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml", "count": 1817, "probe": {"ok": 16, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 39}, "age_h": 4.9, "score": 1211, "streak": 0}, {"tag": "多源合并", "note": "把几个日更仓库合成一份，去掉了明显重复", "fit": "Clash 系专用，导入即用", "freq": "每日更新", "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml", "count": 623, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 38}, "age_h": 10.9, "score": 519, "streak": 0}, {"tag": "全量节点", "note": "含未测速的节点，量最大", "fit": "Clash 系专用，节点最全", "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 395, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 267}, "age_h": null, "score": 362, "streak": 0}, {"tag": "推荐 · 只含可连节点", "note": "已剔除连不上的，成功率高", "fit": "Clash 系专用，v2rayNG 导入会报错", "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 302, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 229}, "age_h": null, "score": 302, "streak": 0}, {"tag": "带规则分流", "note": "开箱即用，但国内直连实测常不通", "fit": "Clash 系专用，自带分流规则", "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 506, "probe": {"ok": 17, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 72}, "age_h": null, "score": 358, "streak": 0}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "全量最大", "note": "近 3000 条，量最大也最杂，挑着用", "fit": "明文节点，v2rayNG / 小火箭 / Hiddify", "freq": "每日更新", "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt", "count": 4820, "probe": {"ok": 12, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 32}, "age_h": 0.2, "score": 2410, "streak": 0}, {"tag": "每日分享", "note": "节点和机场一起发", "fit": "明文节点，v2rayNG / 小火箭", "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 525, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 34}, "age_h": 19.3, "score": 481, "streak": 0}, {"tag": "每日抓取", "note": "每天自动抓全网机场并检测连通性", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 442, "probe": {"ok": 23, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 322}, "age_h": null, "score": 424, "streak": 0}, {"tag": "老牌仓库", "note": "每小时更新一次", "fit": "Base64 订阅，v2rayNG / 小火箭", "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 39, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 32}, "age_h": 16.8, "score": 36, "streak": 0}, {"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "fit": "v2rayNG / 小火箭直接导，Clash 不认", "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 11, "probe": {"ok": 6, "total": 9}, "cnbad": false, "src_http": {"code": 200, "ms": 32}, "age_h": 0.2, "score": 7, "streak": 0}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "带规则 · 半小时构建", "note": "内置 MetaCubeX 分流与广告拦截，需 sing-box 1.13 以上", "fit": "仅 sing-box，Hiddify 也可导", "freq": "30 分钟更新", "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json", "count": 442, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 30}, "age_h": 6.0, "score": 442, "streak": 0}, {"tag": "每日聚合", "note": "每天重抓一遍，量不多", "fit": "仅 sing-box / Hiddify", "freq": "每日更新", "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json", "count": 35, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 38}, "age_h": 18.2, "score": 35, "streak": 0}, {"tag": "独立小源", "note": "只有十几条，但和其它源几乎不重合", "fit": "仅 sing-box / Hiddify", "freq": "每日更新", "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt", "count": 20, "probe": {"ok": 18, "total": 18}, "cnbad": false, "src_http": {"code": 200, "ms": 33}, "age_h": 0.0, "score": 20, "streak": 0}, {"tag": "带规则 · 与 Clash 同源", "note": "格式不同，国内直连实测常不通", "fit": "仅 Hiddify / sing-box，Clash 不认", "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 496, "probe": {"ok": 17, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 88}, "age_h": null, "score": 351, "streak": 0}]}], "delta": {"add": 0, "drop": 0}};
+  const DATA = {"updated": "11-21 07:18", "ts": 1795216738, "raw": 6344, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "超大合集", "note": "1800 条以上，最全也最杂", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml", "count": 1817, "probe": {"ok": 16, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 39}, "age_h": 4.9, "score": 1211, "streak": 0}, {"tag": "多源合并", "note": "几个日更仓库合成，已去重", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml", "count": 623, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 38}, "age_h": 10.9, "score": 519, "streak": 0}, {"tag": "全量节点", "note": "含未测速节点，量最大", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 395, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 267}, "age_h": null, "score": 362, "streak": 0}, {"tag": "推荐 · 只含可连节点", "note": "只留连得上的，成功率高", "ok": ["Clash"], "no": ["v2rayNG"], "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 302, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 229}, "age_h": null, "score": 302, "streak": 0}, {"tag": "带规则分流", "note": "自带分流规则，开箱即用", "ok": ["Clash"], "no": [], "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 506, "probe": {"ok": 17, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 72}, "age_h": null, "score": 358, "streak": 0}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "全量最大", "note": "近 3000 条，最多也最杂", "ok": ["v2rayNG", "小火箭", "Hiddify"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt", "count": 4820, "probe": {"ok": 12, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 32}, "age_h": 0.2, "score": 2410, "streak": 0}, {"tag": "每日分享", "note": "节点和机场一起发", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 525, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 34}, "age_h": 19.3, "score": 481, "streak": 0}, {"tag": "每日抓取", "note": "每天抓全网机场并测连通", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 442, "probe": {"ok": 23, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 322}, "age_h": null, "score": 424, "streak": 0}, {"tag": "老牌仓库", "note": "每小时更新一次", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 39, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 32}, "age_h": 16.8, "score": 36, "streak": 0}, {"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 11, "probe": {"ok": 6, "total": 9}, "cnbad": false, "src_http": {"code": 200, "ms": 32}, "age_h": 0.2, "score": 7, "streak": 0}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "带规则 · 半小时构建", "note": "内置分流和去广告，需 1.13+", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "30 分钟更新", "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json", "count": 442, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 30}, "age_h": 6.0, "score": 442, "streak": 0}, {"tag": "每日聚合", "note": "每天重抓一遍，量不多", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json", "count": 35, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 38}, "age_h": 18.2, "score": 35, "streak": 0}, {"tag": "独立小源", "note": "十几条，几乎不撞车", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt", "count": 20, "probe": {"ok": 18, "total": 18}, "cnbad": false, "src_http": {"code": 200, "ms": 33}, "age_h": 0.0, "score": 20, "streak": 0}, {"tag": "带规则 · 与 Clash 同源", "note": "同 Clash 源，只是换成 json", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 496, "probe": {"ok": 17, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 88}, "age_h": null, "score": 351, "streak": 0}]}], "delta": {"add": 0, "drop": 0}};
   const groupsEl = document.getElementById('groups');
   const liveEl = document.getElementById('live');
   const tpl = document.getElementById('tpl-card');
@@ -622,8 +633,21 @@ html.lock,html.lock body{overflow:hidden}
       node.querySelector('.cnum b').textContent = it.count === null ? '—' : it.count.toLocaleString();
       node.querySelector('.cnote').textContent = it.note;
 
-      const fit = node.querySelector('.fit');
-      if (it.fit) fit.textContent = it.fit; else fit.remove();
+      const cls = node.querySelector('.cls');
+      (it.ok || []).forEach(name => {
+        const b = document.createElement('span');
+        b.className = 'cc';
+        b.textContent = name;
+        cls.append(b);
+      });
+      (it.no || []).forEach(name => {
+        const b = document.createElement('span');
+        b.className = 'cc no';
+        b.textContent = name;
+        b.title = `${name} 用不了这条`;
+        cls.append(b);
+      });
+      if (!cls.childNodes.length) cls.remove();
 
       // 作者写的「每日更新」是承诺，这行是仓库最后一次提交，两个都摆出来才不误导
       const ag = it.age_h;
@@ -683,6 +707,17 @@ html.lock,html.lock body{overflow:hidden}
   const fempty = document.getElementById('fempty');
   const fstate = { alive: false, cn: false };
 
+  /* 卡片序号：筛选后重排，滑到哪张都清楚是第几条 */
+  function renumber() {
+    let n = 0;
+    groupsEl.querySelectorAll('.card').forEach(c => {
+      if (c.hidden) { c.querySelector('.idx').textContent = ''; return; }
+      n += 1;
+      c.querySelector('.idx').textContent = String(n).padStart(2, '0');
+    });
+    return n;
+  }
+
   function applyFilter() {
     const per = new Map();
     groupsEl.querySelectorAll('.card').forEach(card => {
@@ -701,6 +736,7 @@ html.lock,html.lock body{overflow:hidden}
     });
     let n = 0;
     per.forEach(v => { n += v; });
+    renumber();
     const on = fstate.alive || fstate.cn;
     fcount.textContent = on ? `筛出 ${n} 条` : '';
     fempty.hidden = !(on && n === 0);
@@ -735,6 +771,7 @@ html.lock,html.lock body{overflow:hidden}
   }
 
   const cards = groupsEl.querySelectorAll('.card');
+  renumber();
   pinHeights([...cards]);
 
   /* ── 复制 ─────────────────────────────────────────────────────────── */
