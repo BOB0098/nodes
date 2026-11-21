@@ -197,9 +197,9 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
   padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap;margin-top:1px}
 /* 节点数：辅助信息，压到标题之下——比正文略大、比标题明显小，且用次级墨色 */
 .cnum{display:flex;align-items:baseline;gap:5px;margin:7px 0 0}
-.cnum b{font-size:19px;font-weight:var(--fwb);line-height:1.25;letter-spacing:-.005em;
+.cnum b{font-size:16px;font-weight:var(--fwb);line-height:1.3;letter-spacing:0;
   font-variant-numeric:tabular-nums;color:var(--ink-2)}
-.cnum span{font-size:12px;color:var(--ink-3)}
+.cnum span{font-size:11.5px;color:var(--ink-3)}
 .cnote{font-size:12.5px;color:var(--ink-2);margin:6px 0 0;text-wrap:pretty;line-height:1.6}
 /* 客户端适配：淡绿细框小标签，只列能用的 */
 /* 客户端标签与更新时间同行：标签靠左，时间靠右，省一行 */
@@ -632,7 +632,7 @@ html.lock,html.lock body{overflow:hidden}
       node.querySelector('.flagx:not(.cnf)').hidden = !bad;
       node.querySelector('.flagx.cnf').hidden = !cnf;
       node.querySelector('.freq').textContent = it.freq;
-      node.querySelector('.cnum b').textContent = it.count === null ? '—' : it.count.toLocaleString();
+      node.querySelector('.cnum b').textContent = it.count === null ? '—' : String(it.count);
       node.querySelector('.cnote').textContent = it.note;
 
       const cls = node.querySelector('.cls');
