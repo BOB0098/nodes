@@ -12,37 +12,39 @@
    亮色为基准。颜色 / 圆角 / 间距 / 字号全部集中在这里，改版只动这一段。  */
 :root{
   /* 底色：纸白 → 浅灰，左上角一层白色径向高光，无点阵无彩色光斑 */
-  --bg-a:#FAFBFC;--bg-b:#F1F3F6;--bg-c:#EDEFF3;
+  --bg-a:#F2F2F7;--bg-b:#F2F2F7;--bg-c:#F2F2F7;
   --glow:rgba(255,255,255,.96);
 
   /* 面：半透明白 + 背景模糊，靠明度差分层，不靠边框 */
-  --surf:rgba(255,255,255,.68);
-  --surf-solid:rgba(255,255,255,.86);
-  --surf-flat:rgba(17,19,24,.045);
-  --frost:rgba(255,255,255,.6);
-  --stroke:rgba(255,255,255,.92);
+  --surf:#FFFFFF;
+  --surf-solid:#FFFFFF;
+  --surf-flat:#F2F2F7;
+  --card-bg:#FFFFFF;--card-line:#FFFFFF;
+  --frost:#FFFFFF;
+  --stroke:rgba(60,60,67,.12);
 
   /* 字 */
-  --ink:#111318;--ink-2:#4B5260;--ink-3:#656B78;
-  --ink-url:#2B3038;
+  --ink:#1C1C1E;--ink-2:#3C3C43;--ink-3:#8E8E93;
+  --ink-url:#1C1C1E;
 
   /* 强调：近黑。编号方块、选中入口、主按钮共用 */
-  --solid:#111318;--solid-press:#000000;--on-solid:#FFFFFF;
+  --solid:#000000;--solid-press:#1C1C1E;--on-solid:#FFFFFF;
+  --accent:#007AFF;
 
   /* 语义：图形用标准色，文字用深一档保证 4.5:1 */
-  --ok:#16A34A;--ok-ink:#15803D;
-  --warn:#D97706;--warn-ink:#B45309;
-  --bad:#DC2626;--bad-ink:#B91C1C;
-  --warn-bg:rgba(217,119,6,.09);
-  --ok-bg:rgba(22,163,74,.085);--ok-line:rgba(22,163,74,.26);
-  --bad-bg:rgba(220,38,38,.08);
-  --track:#E8EAEE;
+  --ok:#34C759;--ok-ink:#248A3D;
+  --warn:#FF9500;--warn-ink:#C93400;
+  --bad:#FF3B30;--bad-ink:#D70015;
+  --warn-bg:rgba(255,149,0,.12);
+  --ok-bg:rgba(52,199,89,.12);--ok-line:rgba(52,199,89,.32);
+  --bad-bg:rgba(255,59,48,.1);
+  --track:#E5E5EA;
 
   /* 圆角 */
-  --r-card:19px;--r-sq:8px;--r-sub:10px;--r-pill:999px;
+  --r-card:12px;--r-sq:8px;--r-sub:9px;--r-pill:999px;
 
   /* 间距：8 的倍数，收紧一档让一屏多露内容 */
-  --sp-page:13px;--sp-card:13px;--sp-gap:9px;
+  --sp-page:13px;--sp-card:12px;--sp-gap:8px;
 
   /* 动效 */
   --e-out:cubic-bezier(.22,.61,.36,1);
@@ -60,26 +62,29 @@
 @supports (color: light-dark(#000,#fff)){
   :root{
     color-scheme:light dark;
-    --bg-a:light-dark(#FAFBFC,#0B0C0F);--bg-b:light-dark(#F1F3F6,#101216);--bg-c:light-dark(#EDEFF3,#14161B);
+    --bg-a:light-dark(#F8FAFC,#0B0C0F);--bg-b:light-dark(#EEF2F8,#101216);--bg-c:light-dark(#E9EEF5,#14161B);
     --glow:light-dark(rgba(255,255,255,.96),rgba(255,255,255,.05));
-    --surf:light-dark(rgba(255,255,255,.68),rgba(255,255,255,.06));
-    --surf-solid:light-dark(rgba(255,255,255,.86),rgba(255,255,255,.095));
-    --surf-flat:light-dark(rgba(17,19,24,.045),rgba(0,0,0,.26));
+    --surf:light-dark(#FFFFFF,#1C1C1E);
+    --surf-solid:light-dark(#FFFFFF,#2C2C2E);
+    --surf-flat:light-dark(#F2F2F7,#2C2C2E);
+    --card-bg:light-dark(#FFFFFF,#1C1C1E);
+    --card-line:light-dark(#FFFFFF,#2C2C2E);
     --frost:light-dark(rgba(255,255,255,.6),rgba(255,255,255,.11));
-    --stroke:light-dark(rgba(255,255,255,.92),rgba(255,255,255,.09));
-    --ink:light-dark(#111318,#F2F4F7);--ink-2:light-dark(#4B5260,#A5ADBB);--ink-3:light-dark(#656B78,#868E9C);
-    --ink-url:light-dark(#2B3038,#C9CFD9);
-    --solid:light-dark(#111318,#F2F4F7);--solid-press:light-dark(#000,#FFF);--on-solid:light-dark(#FFFFFF,#0B0C0F);
-    --ok:light-dark(#16A34A,#34D399);--ok-ink:light-dark(#15803D,#4ADE80);
-    --warn:light-dark(#D97706,#F59E0B);--warn-ink:light-dark(#B45309,#FBBF24);
-    --bad:light-dark(#DC2626,#EF4444);--bad-ink:light-dark(#B91C1C,#FCA5A5);
-    --warn-bg:light-dark(rgba(217,119,6,.09),rgba(245,158,11,.12));
-    --ok-bg:light-dark(rgba(22,163,74,.085),rgba(52,211,153,.13));
-    --ok-line:light-dark(rgba(22,163,74,.26),rgba(52,211,153,.34));
-    --bad-bg:light-dark(rgba(220,38,38,.08),rgba(239,68,68,.14));
-    --track:light-dark(#E8EAEE,rgba(255,255,255,.1));
-    --sh-1:0 1px 2px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.3)),0 6px 16px light-dark(rgba(15,23,42,.055),rgba(0,0,0,.45));
-    --sh-2:0 1px 2px light-dark(rgba(15,23,42,.04),rgba(0,0,0,.26)),0 4px 12px light-dark(rgba(15,23,42,.05),rgba(0,0,0,.38));
+    --stroke:light-dark(rgba(60,60,67,.12),rgba(84,84,88,.4));
+    --ink:light-dark(#1C1C1E,#FFFFFF);--ink-2:light-dark(#3C3C43,#EBEBF5);--ink-3:light-dark(#8E8E93,#98989F);
+    --ink-url:light-dark(#1C1C1E,#EBEBF5);
+    --solid:light-dark(#000000,#FFFFFF);--solid-press:light-dark(#1C1C1E,#E5E5EA);--on-solid:light-dark(#FFFFFF,#000000);
+    --accent:light-dark(#007AFF,#0A84FF);
+    --ok:light-dark(#34C759,#30D158);--ok-ink:light-dark(#248A3D,#30D158);
+    --warn:light-dark(#FF9500,#FF9F0A);--warn-ink:light-dark(#C93400,#FF9F0A);
+    --bad:light-dark(#FF3B30,#FF453A);--bad-ink:light-dark(#D70015,#FF453A);
+    --warn-bg:light-dark(rgba(255,149,0,.12),rgba(255,159,10,.16));
+    --ok-bg:light-dark(rgba(52,199,89,.12),rgba(48,209,88,.16));
+    --ok-line:light-dark(rgba(52,199,89,.32),rgba(48,209,88,.38));
+    --bad-bg:light-dark(rgba(255,59,48,.1),rgba(255,69,58,.16));
+    --track:light-dark(#E5E5EA,#48484A);
+    --sh-1:0 1px 2px light-dark(rgba(0,0,0,.04),rgba(0,0,0,.2));
+    --sh-2:0 1px 1px light-dark(rgba(0,0,0,.03),rgba(0,0,0,.15));
     --sh-press:0 1px 2px light-dark(rgba(15,23,42,.06),rgba(0,0,0,.3));
   }
   /* 黑底白字视觉上更粗，字重降一档抵消 */
@@ -101,13 +106,12 @@ html,body{overflow-x:hidden;overflow-x:clip}
 /* 背景只留单层线性渐变：两层渐变会让 Chromium 为整个文档高度生成一张位图，
    页面 5000px 高时这张图近 200 万像素。高光抽成 560px 高的独立层，只在顶部画 */
 body{position:relative;min-height:100vh;color:var(--ink);padding:0 var(--sp-page) 32px;
-  background:linear-gradient(180deg,var(--bg-a) 0%,var(--bg-b) 58%,var(--bg-c) 100%);
-  background-repeat:no-repeat;background-color:var(--bg-c);
+  background:var(--bg-c);
   -webkit-font-smoothing:antialiased;
-  font:13.5px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  font:13px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
   transition:color .3s var(--e-out)}
-/* 左上角高光：贴在文档顶部 560px，滚出视口即消失，不参与后续重绘 */
+/* 苹果风：纯色底，无渐变无高光 */
 body:before{content:"";position:absolute;top:0;left:calc(-1 * var(--sp-page));right:calc(-1 * var(--sp-page));
   height:560px;pointer-events:none;z-index:0;
   background:radial-gradient(760px 520px at 0% -80px,var(--glow) 0%,transparent 70%)}
@@ -122,7 +126,7 @@ a:focus-visible,.cbtn:focus-visible,.qbtn:focus-visible,.qrx:focus-visible,.url:
 
 /* ── 头部 ──────────────────────────────────────────────────────────────── */
 header{padding:16px 2px 10px}
-h1{font-size:24px;font-weight:var(--fwh);letter-spacing:-.01em;line-height:1.2;text-align:center;color:var(--ink);text-wrap:balance}
+h1{font-size:22px;font-weight:var(--fwh);letter-spacing:-.01em;line-height:1.2;text-align:center;color:var(--ink);text-wrap:balance}
 .sub{color:var(--ink-2);font-size:17px;line-height:1.55;margin-top:8px;text-align:center;text-wrap:pretty}
 .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
 .pill{background:var(--surf-solid);color:var(--ink-2);font-size:13px;font-weight:500;padding:5px 12px;
@@ -135,43 +139,45 @@ button.pill:active{transform:scale(.96)}
 
 /* ── 筛选 ───────────────────────────────────────────────────────────────── */
 .filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:center;margin:12px 0 2px}
-.fbtn{font-family:inherit;font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surf-solid);
+.fbtn{font-family:inherit;font-size:11.5px;font-weight:500;color:var(--ink-2);background:var(--surf-solid);
   border:1px solid var(--stroke);border-radius:var(--r-pill);padding:4px 11px;cursor:pointer;
   box-shadow:var(--sh-press);transition:background .18s var(--e-out),color .18s var(--e-out),border-color .18s var(--e-out)}
 .fbtn:hover{color:var(--ink)}
-.fbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg-a);border-color:var(--ink)}
+.fbtn[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
 .fbtn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg-a),0 0 0 4.5px rgba(17,19,24,.42)}
 .fcount{font-size:12px;color:var(--ink-3);margin-left:2px}
 .fempty{text-align:center;color:var(--ink-2);font-size:13.5px;line-height:1.8;padding:30px 16px}
 
 
 /* ── 「怎么用」区块 ────────────────────────────────────────────────────── */
-.sec{background:var(--surf);border:1px solid var(--stroke);border-radius:var(--r-card);
-  padding:12px 13px 5px;box-shadow:var(--sh-1);margin-bottom:11px}
-.sec-t{font-size:14px;font-weight:var(--fwh);color:var(--ink)}
-.sec-t span{display:block;font-size:11.5px;color:var(--ink-3);font-weight:400;margin-top:1px}
-.gs{display:flex;gap:9px;padding:6px 0;position:relative}
-.gs+.gs:before{content:"";position:absolute;left:32px;right:0;top:0;height:1px;
-  background:linear-gradient(90deg,var(--surf-flat),transparent)}
-.gs .i{flex:0 0 22px;height:22px;border-radius:7px;color:var(--on-solid);font-size:11.5px;font-weight:var(--fwb);
-  display:flex;align-items:center;justify-content:center;background:var(--solid)}
-.gs b{font-size:13px;font-weight:var(--fwb);color:var(--ink)}
-.gs p{font-size:12.5px;color:var(--ink-2);line-height:1.5;text-wrap:pretty}
+.sec{background:var(--card-bg);border:1px solid var(--card-line);border-radius:var(--r-card);
+  padding:12px 13px 10px;box-shadow:var(--sh-1);margin-bottom:10px}
+.sec-t{margin:0 0 7px}
+/* 标题小框：iOS 蓝描边浅蓝底，压在玻璃面板上做视觉锚点 */
+.sec-tag{display:inline-block;font-size:12.5px;font-weight:var(--fwb);color:var(--accent);
+  background:light-dark(rgba(0,122,255,.1),rgba(10,132,255,.18));
+  border:1px solid light-dark(rgba(0,122,255,.3),rgba(10,132,255,.42));
+  border-radius:8px;padding:3px 10px;letter-spacing:.01em}
+.gs{display:flex;gap:9px;padding:6px 0}
+.gs .i{flex:0 0 20px;height:20px;border-radius:6px;color:var(--on-solid);font-size:10.5px;font-weight:var(--fwb);
+  display:flex;align-items:center;justify-content:center;background:var(--accent);align-self:flex-start;margin-top:1px}
+.gs div b{display:block;font-size:12.5px;font-weight:var(--fwb);color:var(--ink)}
+.gs div p{font-size:11.5px;color:var(--ink-2);line-height:1.55;margin-top:2px;text-wrap:pretty}
 
 /* ── 分组标题 ──────────────────────────────────────────────────────────── */
-h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--fwh);margin:14px 0 3px;
+h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--fwh);margin:14px 0 3px;
   color:var(--ink);letter-spacing:-.015em;text-wrap:balance}
-.badge{flex:0 0 24px;height:24px;border-radius:8px;color:var(--on-solid);font-size:12.5px;font-weight:var(--fwb);
-  display:flex;align-items:center;justify-content:center;background:var(--solid);font-variant-numeric:tabular-nums}
-.kern{margin-left:auto;font-size:11px;font-weight:var(--fwb);color:var(--ink-2);background:var(--surf-solid);
+.badge{flex:0 0 23px;height:23px;border-radius:7px;color:var(--on-solid);font-size:12px;font-weight:var(--fwb);
+  display:flex;align-items:center;justify-content:center;background:var(--accent);font-variant-numeric:tabular-nums}
+.kern{margin-left:auto;font-size:10.5px;font-weight:var(--fwb);color:var(--ink-2);background:var(--surf-solid);
   border:1px solid var(--stroke);padding:3px 8px;border-radius:var(--r-pill);white-space:nowrap}
-.gdesc{font-size:12px;color:var(--ink-2);margin:0 0 9px 32px;line-height:1.55;text-wrap:pretty}
+.gdesc{font-size:11.5px;color:var(--ink-2);margin:0 0 9px 32px;line-height:1.55;text-wrap:pretty}
 /* 客户端名整体不拆行：不然「Clash Meta for Android」换行会把 Android 甩到下一行 */
 .gdesc .cl{display:inline-block;white-space:nowrap}
 
 
 /* ── 卡片 ──────────────────────────────────────────────────────────────── */
-.card{background:var(--surf);border:1px solid var(--stroke);border-radius:var(--r-card);padding:var(--sp-card);margin-bottom:var(--sp-gap);
+.card{background:var(--card-bg);border:1px solid var(--card-line);border-radius:var(--r-card);padding:var(--sp-card);margin-bottom:var(--sp-gap);
   box-shadow:var(--sh-2);position:relative;
   /* 屏幕外的卡片整块跳过渲染：11 张卡首屏只看得见 1–2 张，其余不做布局、绘制、光栅化。
      实测卡片高 270–300px，估值偏差压在 ±20px 内，滚动条不会跳 */
@@ -180,46 +186,46 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
 @media (hover:hover){
   .card:hover{transform:translateY(-2px);box-shadow:var(--sh-1)}
 }
-/* 推荐位：底色更实，靠纯明度抬起来 */
-.card.hi{background:var(--surf-solid)}
+/* 推荐位：与普通卡同底，靠 iOS 蓝点标记 */
+.card.hi{background:var(--card-bg)}
 /* 卡头：三列网格。标题长了会在中列内部换行，右侧更新时间钉在第一行，不会掉到下一行去 */
 .ch{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:start}
 /* 序号进这一行，和标题首行同轴对齐；标题换了行，序号也不会飘到中间去 */
 .chl{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
 /* 序号：滑到第几条一眼能看到，筛选后重排 */
-.idx{flex:0 0 auto;font-size:10.5px;font-weight:var(--fwb);line-height:1.55;color:var(--ink-3);
+.idx{flex:0 0 auto;font-size:10px;font-weight:var(--fwb);line-height:1.55;color:var(--ink-3);
   background:var(--surf-flat);border-radius:5px;padding:0 5px;letter-spacing:.02em;
   font-variant-numeric:tabular-nums}
-.tag{font-size:15px;font-weight:var(--fwb);color:var(--ink);letter-spacing:-.01em}
+.tag{font-size:14px;font-weight:var(--fwb);color:var(--ink);letter-spacing:-.01em}
 .card.hi .tag:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
-  background:var(--solid);margin-right:6px;vertical-align:1px;box-shadow:0 0 0 3px var(--surf-flat)}
-.freq{font-size:11px;color:var(--ink-3);background:var(--surf-flat);
+  background:var(--accent);margin-right:6px;vertical-align:1px;box-shadow:0 0 0 3px rgba(0,122,255,.16)}
+.freq{font-size:10.5px;color:var(--ink-3);background:var(--surf-flat);
   padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap;margin-top:1px}
 /* 节点数：辅助信息，压到标题之下——比正文略大、比标题明显小，且用次级墨色 */
 .cnum{display:flex;align-items:baseline;gap:5px;margin:7px 0 0}
-.cnum b{font-size:16px;font-weight:var(--fwb);line-height:1.3;letter-spacing:0;
+.cnum b{font-size:15px;font-weight:var(--fwb);line-height:1.3;letter-spacing:0;
   font-variant-numeric:tabular-nums;color:var(--ink-2)}
-.cnum span{font-size:11.5px;color:var(--ink-3)}
-.cnote{font-size:12.5px;color:var(--ink-2);margin:6px 0 0;text-wrap:pretty;line-height:1.6}
+.cnum span{font-size:11px;color:var(--ink-3)}
+.cnote{font-size:12px;color:var(--ink-2);margin:6px 0 0;text-wrap:pretty;line-height:1.6}
 /* 客户端适配：淡绿细框小标签，只列能用的 */
 /* 客户端标签与更新时间同行：标签靠左，时间靠右，省一行 */
 .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 0}
 .cls{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0}
-.cc{font-size:11px;font-weight:500;line-height:1.75;padding:0 8px;border-radius:6px;
+.cc{font-size:10.5px;font-weight:500;line-height:1.75;padding:0 8px;border-radius:6px;
   color:var(--ok-ink);background:var(--ok-bg);border:1px solid var(--ok-line);white-space:nowrap}
 
 /* 源站自身异常：和节点可连率是两层事，只在源站超时 / 4xx / 5xx 时出现 */
-.srcbad{display:inline-block;font-size:11.5px;line-height:1.5;color:var(--bad-ink);
+.srcbad{display:inline-block;font-size:11px;line-height:1.5;color:var(--bad-ink);
   background:var(--bad-bg);border-radius:7px;padding:3px 9px;margin-top:7px;text-wrap:pretty}
 .srcbad[hidden]{display:none}
 
 /* 源最后一次改动：freq 是作者自己写的承诺，这行是实测，两者分开摆 */
-.age{font-size:11.5px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
+.age{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
 .age[hidden]{display:none}
 .age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
 
 /* 可连率：原生 progress，自带 progressbar 角色与 aria 数值 */
-.probe{display:flex;align-items:center;gap:8px;margin:9px 0 0;font-size:12px;color:var(--ink-3)}
+.probe{display:flex;align-items:center;gap:8px;margin:9px 0 0;font-size:11.5px;color:var(--ink-3)}
 .probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
 .probe .bar{appearance:none;border:0 solid;overflow:clip;display:block;flex:1;min-width:40px;
   height:5px;border-radius:var(--r-pill);background:var(--track)}
@@ -250,7 +256,7 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
 
 /* ── 链接框与复制按钮 ──────────────────────────────────────────────────── */
 .url{display:block;max-width:100%;background:var(--surf-flat);border-radius:var(--r-sub);padding:9px 12px;
-  font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-url);
+  font:11.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-url);
   word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer;
   margin-top:10px;transition:background .2s var(--e-out)}
 .url:active{background:var(--surf-solid)}
@@ -331,7 +337,7 @@ html.lock,html.lock body{overflow:hidden}
 <div id="stale" hidden></div>
 
 <section class="sec">
-  <div class="sec-t">怎么用<span>所有客户端都这三步</span></div>
+  <div class="sec-t"><span class="sec-tag">订阅流程</span></div>
   <div class="gs"><span class="i">1</span><div><b>复制一条链接</b><p>点下面任意卡片的「复制链接」按钮</p></div></div>
   <div class="gs"><span class="i">2</span><div><b>导入客户端</b><p>客户端的「配置」或「订阅」页 → 点 + → 从剪贴板导入</p></div></div>
   <div class="gs"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中它 → 打开代理开关</p></div></div>
