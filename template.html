@@ -202,7 +202,9 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
 .cnum span{font-size:12px;color:var(--ink-3)}
 .cnote{font-size:12.5px;color:var(--ink-2);margin:6px 0 0;text-wrap:pretty;line-height:1.6}
 /* 客户端适配：淡绿细框小标签，只列能用的 */
-.cls{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0;align-items:center}
+/* 客户端标签与更新时间同行：标签靠左，时间靠右，省一行 */
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 0}
+.cls{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0}
 .cc{font-size:11px;font-weight:500;line-height:1.75;padding:0 8px;border-radius:6px;
   color:var(--ok-ink);background:var(--ok-bg);border:1px solid var(--ok-line);white-space:nowrap}
 
@@ -212,7 +214,7 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:var(--f
 .srcbad[hidden]{display:none}
 
 /* 源最后一次改动：freq 是作者自己写的承诺，这行是实测，两者分开摆 */
-.age{font-size:11.5px;color:var(--ink-3);margin:6px 0 0;line-height:1.5;font-variant-numeric:tabular-nums}
+.age{font-size:11.5px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
 .age[hidden]{display:none}
 .age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
 
@@ -351,8 +353,7 @@ html.lock,html.lock body{overflow:hidden}
     <p class="cnum"><b></b><span>条节点</span></p>
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
-    <div class="cls"></div>
-    <p class="age" hidden></p>
+    <div class="meta"><div class="cls"></div><p class="age" hidden></p></div>
     <p class="srcbad" hidden></p>
     <code class="url"></code>
     <div class="acts">
