@@ -158,11 +158,12 @@ button.pill:active{transform:scale(.96)}
   padding:12px 13px 10px;box-shadow:var(--sh-1);margin-bottom:10px}
 .sec-t{margin:0 0 7px}
 /* 标题小框：iOS 蓝描边浅蓝底，压在玻璃面板上做视觉锚点 */
-.sec-t-c{text-align:center}
+.sec-t-c{display:flex;align-items:center;justify-content:center;gap:8px}
 .sec-tag{display:inline-block;font-size:12.5px;font-weight:var(--fwb);color:var(--accent);
   background:light-dark(rgba(0,122,255,.1),rgba(10,132,255,.18));
   border:1px solid light-dark(rgba(0,122,255,.3),rgba(10,132,255,.42));
   border-radius:8px;padding:3px 10px;letter-spacing:.01em}
+.cl-note{font-size:10.5px;color:var(--ink-3);white-space:nowrap}
 .gs{display:flex;gap:9px;padding:6px 0}
 .gs .i{flex:0 0 20px;height:20px;border-radius:6px;color:var(--on-solid);font-size:10.5px;font-weight:var(--fwb);
   display:flex;align-items:center;justify-content:center;background:var(--accent);align-self:flex-start;margin-top:1px}
@@ -361,7 +362,7 @@ html.lock,html.lock body{overflow:hidden}
 <div id="groups"></div>
 
 <section class="sec">
-  <div class="sec-t sec-t-c"><span class="sec-tag">主流客户端下载</span></div>
+  <div class="sec-t sec-t-c"><span class="sec-tag">主流客户端下载</span><span class="cl-note">GitHub 链接需科学上网</span></div>
   <div class="cl-row"><span class="cl-k">电脑</span>
     <a class="clink" href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank" rel="noopener">Clash Verge Rev</a>
     <a class="clink" href="https://github.com/2dust/v2rayN" target="_blank" rel="noopener">v2rayN</a>
