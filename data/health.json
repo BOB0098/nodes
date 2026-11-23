@@ -1,62 +1,52 @@
 {
- "https://radarhub.top/clash.yaml": {
+ "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml": {
   "streak_bad": 0,
-  "rate": 71,
+  "rate": 50,
   "total": 24,
-  "ok": 17,
-  "seen": "11-23 15:38",
-  "fp": "ab1f2bf520c175aad10e53b7a6080242",
-  "fp_ts": 1795419524,
-  "fp_age_h": 0.0
+  "ok": 12,
+  "seen": "11-24 05:25",
+  "fp": "6ebc2628654a4c5e885d9cffe974f747",
+  "fp_ts": 1795390650,
+  "fp_age_h": 21.8
  },
  "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml": {
   "streak_bad": 0,
   "rate": 88,
   "total": 24,
   "ok": 21,
-  "seen": "11-23 15:38",
+  "seen": "11-24 05:25",
   "fp": "b5ec5a2fe474d1e9d260ac87cba90636",
   "fp_ts": 1795279626,
-  "fp_age_h": 38.9
+  "fp_age_h": 52.6
  },
- "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml": {
+ "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt": {
   "streak_bad": 0,
   "rate": 54,
   "total": 24,
   "ok": 13,
-  "seen": "11-23 15:38",
-  "fp": "6ebc2628654a4c5e885d9cffe974f747",
-  "fp_ts": 1795390650,
-  "fp_age_h": 8.0
+  "seen": "11-24 05:25",
+  "fp": "d17177e8b66f4e5bc64d12030dc4163b",
+  "fp_ts": 1795469115,
+  "fp_age_h": 0.0
+ },
+ "https://radarhub.top/clash.yaml": {
+  "streak_bad": 0,
+  "rate": 92,
+  "total": 24,
+  "ok": 22,
+  "seen": "11-24 05:25",
+  "fp": "633be4396055997643fd38522a64a818",
+  "fp_ts": 1795469115,
+  "fp_age_h": 0.0
  },
  "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub": {
   "streak_bad": 0,
   "rate": 100,
-  "total": 9,
-  "ok": 9,
-  "seen": "11-23 15:38",
-  "fp": "c5aa62343958dc64ca5c62fe82b50657",
-  "fp_ts": 1795419524,
-  "fp_age_h": 0.0
- },
- "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt": {
-  "streak_bad": 0,
-  "rate": 50,
-  "total": 24,
-  "ok": 12,
-  "seen": "11-23 15:38",
-  "fp": "72e91fc79a2e60f19841fd56730d0251",
-  "fp_ts": 1795419524,
-  "fp_age_h": 0.0
- },
- "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub": {
-  "streak_bad": 0,
-  "rate": 83,
-  "total": 24,
-  "ok": 20,
-  "seen": "11-23 15:38",
-  "fp": "f076b2a515a6581877bcfe741caf2e94",
-  "fp_ts": 1795419524,
+  "total": 10,
+  "ok": 10,
+  "seen": "11-24 05:25",
+  "fp": "812e542e28f94cc2bdfa99fc05dfe6fe",
+  "fp_ts": 1795469115,
   "fp_age_h": 0.0
  },
  "https://blog.ermao.net/sub/reachable/clash/ermao.net": {
@@ -64,19 +54,29 @@
   "rate": 100,
   "total": 24,
   "ok": 24,
-  "seen": "11-23 15:38",
-  "fp": "1b6983dda633ec2c8e667d12955c3b6e",
-  "fp_ts": 1795419524,
+  "seen": "11-24 05:25",
+  "fp": "2adc931480086aaa9549aa9e404c2d5e",
+  "fp_ts": 1795469115,
+  "fp_age_h": 0.0
+ },
+ "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub": {
+  "streak_bad": 0,
+  "rate": 85,
+  "total": 20,
+  "ok": 17,
+  "seen": "11-24 05:25",
+  "fp": "e162de64d9ae0c596a139a6a824d3df4",
+  "fp_ts": 1795469115,
   "fp_age_h": 0.0
  },
  "https://blog.ermao.net/sub/clash/ermao.net": {
   "streak_bad": 0,
-  "rate": 67,
+  "rate": 79,
   "total": 24,
-  "ok": 16,
-  "seen": "11-23 15:38",
-  "fp": "b4ec65c9417e635af15d873befb1f263",
-  "fp_ts": 1795419524,
+  "ok": 19,
+  "seen": "11-24 05:25",
+  "fp": "9a6e0ff5a507164c6a95387db44b82f8",
+  "fp_ts": 1795469115,
   "fp_age_h": 0.0
  },
  "https://raw.githubusercontent.com/free18/v2ray/main/v.txt": {
@@ -84,19 +84,29 @@
   "rate": 92,
   "total": 24,
   "ok": 22,
-  "seen": "11-23 15:38",
+  "seen": "11-24 05:25",
   "fp": "f4dddbcf7aae331632feca0bac302ea7",
   "fp_ts": 1795419524,
-  "fp_age_h": 0.0
+  "fp_age_h": 13.8
  },
  "https://radarhub.top/sing-box.json": {
   "streak_bad": 0,
-  "rate": 71,
+  "rate": 88,
   "total": 24,
-  "ok": 17,
-  "seen": "11-23 15:38",
-  "fp": "3d2e40927351533bc74eb07b386745c8",
-  "fp_ts": 1795419524,
+  "ok": 21,
+  "seen": "11-24 05:25",
+  "fp": "faccc7fd031ed057deb47a7267f03540",
+  "fp_ts": 1795469115,
+  "fp_age_h": 0.0
+ },
+ "https://blog.ermao.net/sub/v2ray/ermao.net": {
+  "streak_bad": 0,
+  "rate": 100,
+  "total": 24,
+  "ok": 24,
+  "seen": "11-24 05:25",
+  "fp": "f8883b46d0aa84979db77cb08571f8ce",
+  "fp_ts": 1795469115,
   "fp_age_h": 0.0
  },
  "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json": {
@@ -104,39 +114,29 @@
   "rate": 88,
   "total": 24,
   "ok": 21,
-  "seen": "11-23 15:38",
+  "seen": "11-24 05:25",
   "fp": "b57061f5e78813b3267d4fe37bfbfb22",
   "fp_ts": 1795419524,
-  "fp_age_h": 0.0
- },
- "https://blog.ermao.net/sub/v2ray/ermao.net": {
-  "streak_bad": 0,
-  "rate": 88,
-  "total": 24,
-  "ok": 21,
-  "seen": "11-23 15:38",
-  "fp": "fb93974567281f162cb2bab2be53e9a7",
-  "fp_ts": 1795419524,
-  "fp_age_h": 0.0
+  "fp_age_h": 13.8
  },
  "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json": {
   "streak_bad": 0,
-  "rate": 92,
+  "rate": 100,
   "total": 24,
-  "ok": 22,
-  "seen": "11-23 15:38",
-  "fp": "bbe2d6decc3c23079561afaa1928ea5c",
-  "fp_ts": 1795419524,
+  "ok": 24,
+  "seen": "11-24 05:25",
+  "fp": "a475f375dcb6826c2fe2894bcba21dd6",
+  "fp_ts": 1795469115,
   "fp_age_h": 0.0
  },
  "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt": {
   "streak_bad": 0,
   "rate": 100,
-  "total": 18,
-  "ok": 18,
-  "seen": "11-23 15:38",
-  "fp": "91315c1b240bcbe4d3f0970c681eafc4",
-  "fp_ts": 1795419524,
+  "total": 17,
+  "ok": 17,
+  "seen": "11-24 05:25",
+  "fp": "d3c75b358e3f3c3559905d5c2accea14",
+  "fp_ts": 1795469115,
   "fp_age_h": 0.0
  },
  "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt": {
