@@ -522,6 +522,100 @@
   "add": 188,
   "drop": 72
  },
+ "stats": {
+  "raw": 15355,
+  "dedup": 10352,
+  "real_tested": 994,
+  "real_ok": 333,
+  "regions": {
+   "欧洲": 134,
+   "美国": 76,
+   "未知": 36,
+   "其他": 26,
+   "中国台湾": 15,
+   "香港": 14,
+   "新加坡": 14,
+   "韩国": 11,
+   "日本": 7
+  },
+  "tags": {
+   "待复测": 536,
+   "可用": 333,
+   "非机房": 237,
+   "隔离": 125,
+   "稳定": 110,
+   "机房 IP": 96,
+   "低延迟": 26,
+   "高速": 4
+  },
+  "checked_at": "11-24 21:26",
+  "subs": {
+   "all": {
+    "count": 10352,
+    "label": "全部节点"
+   },
+   "best": {
+    "count": 193,
+    "label": "优选（真实可用且评分 B 以上）"
+   },
+   "stable": {
+    "count": 110,
+    "label": "稳定（连续三轮可用）"
+   },
+   "lowlat": {
+    "count": 26,
+    "label": "低延迟（<200ms）"
+   },
+   "fast": {
+    "count": 4,
+    "label": "高速（≥2MB/s）"
+   },
+   "hk": {
+    "count": 14,
+    "label": "香港"
+   },
+   "tw": {
+    "count": 15,
+    "label": "中国台湾"
+   },
+   "jp": {
+    "count": 7,
+    "label": "日本"
+   },
+   "sg": {
+    "count": 14,
+    "label": "新加坡"
+   },
+   "us": {
+    "count": 76,
+    "label": "美国"
+   },
+   "kr": {
+    "count": 11,
+    "label": "韩国"
+   },
+   "eu": {
+    "count": 134,
+    "label": "欧洲"
+   }
+  },
+  "quarantine": {
+   "total": 822,
+   "top_reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "top_count": 739
+  },
+  "isolated": 0,
+  "protos": {
+   "VMess": 5811,
+   "VLESS": 2188,
+   "Shadowsocks": 1070,
+   "Trojan": 948,
+   "Hysteria2": 258,
+   "Socks5": 47,
+   "AnyTLS": 30
+  },
+  "sources": 15
+ },
  "nodes": [
   {
    "name": "🇹🇼_TW_台湾_IPV4",

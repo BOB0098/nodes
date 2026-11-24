@@ -256,6 +256,27 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
   background:var(--bad-bg);border-radius:7px;padding:3px 9px;margin-top:7px;text-wrap:pretty}
 .srcbad[hidden]{display:none}
 
+/* 数据总览：四个数回答「这批节点里有多少真能用」。
+   没有数据时整块不出现，不用 0 或「—」占位——在数据页里 0 和「不知道」
+   是两件完全不同的事 */
+/* 窄屏两列：四列时每格只剩 78px，「真实可用 34%」会折成两行，四块高度参差 */
+.ov{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0 0}
+@media (min-width:560px){.ov{grid-template-columns:repeat(4,1fr)}}
+.ov-k{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:10px;
+  background:var(--surf-flat);border:1px solid var(--stroke)}
+.ov-k b{font-size:19px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums;
+  color:var(--ink)}
+.ov-k span{font-size:11px;color:var(--ink-3);line-height:1.3;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.ov-when{font-size:11px;color:var(--ink-3);margin-left:auto;font-variant-numeric:tabular-nums}
+.ov-bars{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.ovb{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-2);
+  background:var(--surf-flat);border:1px solid var(--stroke);border-radius:7px;padding:3px 8px 3px 6px}
+.ovb i{display:block;height:6px;min-width:3px;border-radius:3px;background:var(--ok);opacity:.5}
+.ovb em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.ov-note{font-size:11px;color:var(--ink-3);margin:10px 0 0;line-height:1.65;text-wrap:pretty}
+.ov-note b{color:var(--ink-2);font-weight:var(--fwb)}
+
 /* 源最后一次改动：freq 是作者自己写的承诺，这行是实测，两者分开摆 */
 .age{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
 .age[hidden]{display:none}
@@ -399,6 +420,18 @@ html.lock,html.lock body{overflow:hidden}
   <div class="gs"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中它 → 打开代理开关</p></div></div>
 </section>
 
+<section class="sec" id="ovSec" hidden>
+  <div class="sec-t"><span class="sec-tag">数据总览</span><span class="ov-when" id="ovWhen"></span></div>
+  <div class="ov">
+    <div class="ov-k"><b id="ovNodes">—</b><span>去重后入库</span></div>
+    <div class="ov-k"><b id="ovReal">—</b><span>真实可用</span></div>
+    <div class="ov-k"><b id="ovBest">—</b><span>优选</span></div>
+    <div class="ov-k"><b id="ovIso">—</b><span>隔离未入库</span></div>
+  </div>
+  <div class="ov-bars" id="ovRegions"></div>
+  <p class="ov-note" id="ovNote"></p>
+</section>
+
 <div class="filters" role="group" aria-label="按可用性筛选">
   <button class="fbtn" type="button" id="fAlive" aria-pressed="false">只看可连 ≥80%</button>
   <button class="fbtn" type="button" id="fCn" aria-pressed="false">只看国内可直连</button>
@@ -465,6 +498,78 @@ html.lock,html.lock body{overflow:hidden}
 (() => {
   'use strict';
   const DATA = __DATA__;
+
+  /* ── 数据总览 ────────────────────────────────────────────────────────
+     四个数回答「这批节点里到底有多少真能用」。真实可用和优选都来自
+     mihomo 真握手，不是端口探测——两个口径差三倍，混着说会误导。
+     stats 缺失（首次运行、检测尚未跑完）时整块不显示。 */
+  (function overview() {
+    const st = DATA.stats;
+    const sec = document.getElementById('ovSec');
+    if (!st || !st.dedup) return;
+    const nf = n => (n === null || n === undefined) ? '—' : n.toLocaleString('zh-CN');
+
+    document.getElementById('ovNodes').textContent = nf(st.dedup);
+    document.getElementById('ovReal').textContent = nf(st.real_ok);
+    const pct = st.real_tested ? Math.round(st.real_ok / st.real_tested * 100) : null;
+    // 「真实可用」旁边必须写清分母：997 里 334 和 10,216 里 334 是两回事
+    document.querySelector('#ovReal').nextElementSibling.textContent =
+      pct === null ? '真实可用' : `真实可用 ${pct}%`;
+    const best = st.subs && st.subs.best ? st.subs.best.count : null;
+    document.getElementById('ovBest').textContent = nf(best);
+    document.querySelector('#ovBest').nextElementSibling.textContent =
+      st.real_tested ? `优选（测 ${nf(st.real_tested)} 条）` : '优选';
+    // 隔离区优先用条数（缺口的另一半）；老数据没有 quarantine 就退回源状态计数
+    const q = st.quarantine || {};
+    document.getElementById('ovIso').textContent =
+      nf(q.total !== undefined && q.total !== null ? q.total : st.isolated);
+
+    if (st.checked_at) document.getElementById('ovWhen').textContent = `检测于 ${st.checked_at}`;
+
+    // 地区分布：条形长度按占可用总数的比例，最少 3px 保证罕见地区也看得见
+    const box = document.getElementById('ovRegions');
+    const regions = st.regions || {};
+    const total = Object.values(regions).reduce((a, b) => a + b, 0);
+    if (total) {
+      Object.entries(regions).forEach(([k, v]) => {
+        const el = document.createElement('span');
+        el.className = 'ovb';
+        const bar = document.createElement('i');
+        bar.style.width = Math.max(3, Math.round(v / total * 46)) + 'px';
+        const name = document.createElement('span');
+        name.textContent = k;
+        const num = document.createElement('em');
+        num.textContent = nf(v);
+        el.append(bar, name, num);
+        box.append(el);
+      });
+    }
+
+    // 结论行：把「TCP 可连」和「真实可用」的差距说透，这是整页最反直觉的一点
+    const note = document.getElementById('ovNote');
+    if (st.raw && st.dedup) {
+      note.innerHTML = '';
+      const b1 = document.createElement('b');
+      b1.textContent = `声明 ${nf(st.raw)} 条，去重后 ${nf(st.dedup)} 条入库`;
+      note.append(b1);
+      let tail = '';
+      if (q.total) {
+        // 主因写出来才解释得了缺口：绝大多数是明文 HTTP 代理，不是「解析失败」。
+        // 原因字符串自带的括注在这里要砍掉，否则一行里套两层括号，读不成句
+        const why = (q.top_reason || '').split('（')[0];
+        tail += `，另有 ${nf(q.total)} 条按安全规则隔离` +
+                (why ? `（${why} ${nf(q.top_count)} 条）` : '') + '，不进订阅。';
+      } else {
+        tail += '。';
+      }
+      if (st.real_tested) {
+        tail += `抽样 ${nf(st.real_tested)} 条做真实握手，${nf(st.real_ok)} 条能出网。` +
+                '端口能连不等于代理可用，所以卡片上同时给出「可连」和「可用」两个数。';
+      }
+      note.append(document.createTextNode(tail));
+    }
+    sec.hidden = false;
+  })();
 
   /* ── 页头时间行 ──────────────────────────────────────────────────────
      DATA.updated 一直带着值，但模板里没有承接它的元素，采集时间从没显示出来过。

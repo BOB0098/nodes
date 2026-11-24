@@ -13,6 +13,7 @@
     python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
 """
 import base64, hashlib, json, os, re, socket, sys, time, urllib.error, urllib.request
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 
@@ -539,6 +540,38 @@ def _load_real():
         return {}
 
 
+def _load_scores():
+    try:
+        return json.load(open(os.path.join(OUT_DATA, "node_scores.json"), encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _load_quarantine():
+    """隔离区条数与主因。这是「声明 15,306 → 入库 10,216」缺口的另一半：
+    一半是重复，另一半是根本不该入库的（明文代理、非公网地址）。"""
+    try:
+        d = json.load(open(os.path.join(OUT_DATA, "quarantine.json"), encoding="utf-8"))
+        by = d.get("by_reason") or {}
+        top = max(by.items(), key=lambda kv: kv[1]) if by else None
+        return {"total": d.get("total") or 0,
+                "top_reason": top[0] if top else None,
+                "top_count": top[1] if top else 0}
+    except Exception:
+        return {}
+
+
+def _load_sub_counts():
+    """订阅各分组的条数。订阅文件本身含凭据不进仓库，页面只能显示「有几条」。
+    读不到就是空 dict，页面那块自动不显示，不编造数字。"""
+    try:
+        d = json.load(open(os.path.join(OUT_DATA, "subscriptions.json"), encoding="utf-8"))
+        return {g["key"]: {"count": g.get("count"), "label": g.get("label")}
+                for g in d.get("groups") or []}
+    except Exception:
+        return {}
+
+
 def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None,
              meta=None, include_uri=False, grades=None, fresh=None, life_span=None,
              real=None):
@@ -587,6 +620,35 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                                    -it["score"], it.get("prio") or 0))
         groups.append({"title": g["title"], "kern": g["kern"],
                        "clients": g["clients"], "items": items})
+
+    # 页面顶部的总览。全部来自实测文件，任何一个缺了就整块不显示，
+    # 不用占位符凑数——「—」和「0」在数据页里是完全不同的两件事
+    sc = _load_scores()
+    sm = sc.get("summary") or {}
+    subs = _load_sub_counts()
+    # 页头用的是「11-25 04:48」，这里把「2026-11-24 21:09」砍成同款，
+    # 两个时间戳并排出现时格式不一致会被当成两个不同的东西
+    _ck = str(sc.get("updated") or "")
+    if len(_ck) >= 16 and _ck[:2] == "20":
+        _ck = _ck[5:16]
+    stats = {
+        "raw": raw_total,
+        "dedup": len(nodes),
+        "real_tested": sm.get("tested"),
+        "real_ok": sm.get("ok"),
+        "regions": sm.get("regions") or {},
+        "tags": sm.get("tags") or {},
+        "checked_at": _ck or None,
+        "subs": subs,
+        # 隔离区是「声明数与入库数的缺口」的另一半，比「几个源被隔离」有用得多：
+        # 用户看到 15,306 变 10,216，第一反应就是「剩下的去哪了」
+        "quarantine": _load_quarantine(),
+        "isolated": sum(1 for g in groups for it in g["items"]
+                        if it.get("src_state") == "isolated"),
+        "protos": dict(Counter(n["proto"] for n in nodes).most_common()),
+        "sources": sum(len(g["items"]) for g in groups),
+    }
+
     return {
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
         "ts": int(time.time()),
@@ -594,6 +656,7 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
         # 冷启动那轮所有节点都是首次见到，报出来是假的新增
         "life_span": life_span,
         "raw": raw_total, "errors": errors, "groups": groups, "delta": delta,
+        "stats": stats,
         "nodes": [({"name": n["name"], "proto": n["proto"], "region": n["region"],
                     "addr": n["addr"], "src": n["src"], "uri": n["uri"]}
                    if include_uri else
