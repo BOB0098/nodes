@@ -1,6 +1,6 @@
 {
- "updated": "11-25 04:01",
- "ts": 1795550515,
+ "updated": "11-25 04:16",
+ "ts": 1795551402,
  "life_span": 1,
  "raw": 15654,
  "errors": [],
@@ -27,9 +27,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 28
+      "ms": 21
      },
-     "age_h": 22.1,
+     "age_h": 22.4,
      "score": 1866,
      "streak": 0,
      "grade": "A",
@@ -57,9 +57,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 30
+      "ms": 28
      },
-     "age_h": 80.0,
+     "age_h": 80.3,
      "score": 1152,
      "streak": 0,
      "grade": "A",
@@ -87,9 +87,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 299
+      "ms": 335
      },
-     "age_h": 0.5,
+     "age_h": 0.7,
      "score": 251,
      "streak": 0,
      "grade": "A",
@@ -117,9 +117,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 349
+      "ms": 281
      },
-     "age_h": 0.5,
+     "age_h": 0.7,
      "score": 201,
      "streak": 0,
      "grade": "B",
@@ -147,9 +147,9 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 161
+      "ms": 73
      },
-     "age_h": 0.5,
+     "age_h": 0.7,
      "score": 495,
      "streak": 0,
      "grade": "A",
@@ -186,9 +186,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 28
+      "ms": 24
      },
-     "age_h": 0.0,
+     "age_h": 0.3,
      "score": 2630,
      "streak": 0,
      "grade": "A",
@@ -211,19 +211,19 @@
      "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
      "count": 3969,
      "probe": {
-      "ok": 11,
+      "ok": 10,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 20
+      "ms": 22
      },
-     "age_h": 8.0,
-     "score": 1819,
+     "age_h": 8.3,
+     "score": 1654,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 80.7,
+     "grade": "B",
+     "grade_score": 78.7,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 4,
@@ -248,9 +248,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 307
+      "ms": 365
      },
-     "age_h": 0.5,
+     "age_h": 0.7,
      "score": 290,
      "streak": 0,
      "grade": "S",
@@ -258,7 +258,7 @@
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 9,
-     "new7": 244,
+     "new7": 245,
      "med_age": 1
     },
     {
@@ -281,7 +281,7 @@
       "code": 200,
       "ms": 18
      },
-     "age_h": 14.6,
+     "age_h": 14.9,
      "score": 161,
      "streak": 0,
      "grade": "A",
@@ -289,7 +289,7 @@
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 6,
-     "new7": 152,
+     "new7": 150,
      "med_age": 1
     },
     {
@@ -310,9 +310,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 22
+      "ms": 17
      },
-     "age_h": 0.6,
+     "age_h": 0.9,
      "score": 13,
      "streak": 0,
      "grade": "A",
@@ -341,13 +341,13 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 34
+      "ms": 25
      },
-     "age_h": 0.9,
+     "age_h": 0.2,
      "score": 7,
      "streak": 0,
      "grade": "B",
-     "grade_score": 79.4,
+     "grade_score": 76.0,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 10,
@@ -379,9 +379,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 18
+      "ms": 22
      },
-     "age_h": 3.5,
+     "age_h": 3.8,
      "score": 323,
      "streak": 0,
      "grade": "A",
@@ -410,9 +410,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 18
+      "ms": 15
      },
-     "age_h": 12.2,
+     "age_h": 12.4,
      "score": 35,
      "streak": 0,
      "grade": "A",
@@ -441,9 +441,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 21
+      "ms": 13
      },
-     "age_h": 0.5,
+     "age_h": 0.7,
      "score": 20,
      "streak": 0,
      "grade": "A",
@@ -472,9 +472,9 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 147
+      "ms": 53
      },
-     "age_h": 0.5,
+     "age_h": 0.7,
      "score": 495,
      "streak": 0,
      "grade": "A",
@@ -489,7 +489,7 @@
   }
  ],
  "delta": {
-  "add": 13,
+  "add": 0,
   "drop": 0
  },
  "nodes": [
@@ -24826,17 +24826,17 @@
    "src": "Barabama"
   },
   {
-   "name": "俄罗斯+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "俄罗斯",
-   "addr": "193.111.248.54:443",
+   "name": "美国+麻省理工学院",
+   "proto": "Trojan",
+   "region": "美国",
+   "addr": "sclass-b1.catcat321.com:20051",
    "src": "Pawdroid"
   },
   {
-   "name": "爱沙尼亚+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "196.196.148.177:443",
+   "name": "美国+惠普HP",
+   "proto": "Trojan",
+   "region": "美国",
+   "addr": "sclass-00.catcat321.com:20123",
    "src": "Pawdroid"
   },
   {
@@ -26432,6 +26432,13 @@
    "name": "🇳🇱 荷兰 | NLD",
    "proto": "VLESS",
    "region": "荷兰",
+   "addr": "193.111.248.54:443",
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "name": "🇳🇱 荷兰 | NLD",
+   "proto": "VLESS",
+   "region": "荷兰",
    "addr": "717252g.nl8.h1clayd.click:443",
    "src": "尔毛子·V2Ray"
   },
@@ -26555,7 +26562,7 @@
    "src": "ALIILAPRO"
   },
   {
-   "name": "🕒 Last Update: 2026-11-24 - 22:00 (IR-🇮🇷",
+   "name": "🕒 Last Update: 2026-11-24 - 22:31 (IR-🇮🇷",
    "proto": "VMess",
    "region": "伊朗",
    "addr": "time.ir:443",
@@ -59182,13 +59189,6 @@
    "src": "free18"
   },
   {
-   "name": "🇭🇰_香港 (13)",
-   "proto": "Trojan",
-   "region": "香港",
-   "addr": "sclass-00.catcat321.com:20123",
-   "src": "free18"
-  },
-  {
    "name": "🇺🇸_美国 (23)",
    "proto": "VLESS",
    "region": "美国",
@@ -59291,13 +59291,6 @@
    "proto": "VLESS",
    "region": "俄罗斯",
    "addr": "136.148.83.69:443",
-   "src": "free18"
-  },
-  {
-   "name": "🇺🇸_美国 (25)",
-   "proto": "Trojan",
-   "region": "美国",
-   "addr": "sclass-b1.catcat321.com:20051",
    "src": "free18"
   },
   {
