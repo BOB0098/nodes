@@ -18,7 +18,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-CACHE = os.path.join(os.path.dirname(BASE), ".nodes-cache")
+# 缓存目录默认在仓库上一级。容器里上一级是 /（不可写），用 NODES_CACHE 覆盖
+CACHE = os.environ.get("NODES_CACHE") or os.path.join(os.path.dirname(BASE), ".nodes-cache")
 OUT_DATA = os.path.join(BASE, "data")
 os.makedirs(CACHE, exist_ok=True)
 os.makedirs(OUT_DATA, exist_ok=True)

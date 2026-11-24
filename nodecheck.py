@@ -32,7 +32,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, "data", "nodecheck.json")
-CACHE = os.path.join(os.path.dirname(BASE), ".nodes-cache")
+# 默认把 mihomo 放在仓库上一级，不进版本库。容器里上一级是 /（不可写），
+# 所以允许用 NODES_CACHE 覆盖到挂载出来的目录——否则 Docker 部署第一次
+# 下载就会失败，而失败信息是「Permission denied: /.nodes-cache」
+CACHE = os.environ.get("NODES_CACHE") or os.path.join(os.path.dirname(BASE), ".nodes-cache")
 MIHOMO = os.path.join(CACHE, "mihomo")
 
 MIHOMO_VER = "v1.19.34"

@@ -156,11 +156,48 @@ Hysteria2 / TUIC / SOCKS5 / AnyTLS。
 
 本项目仅整理公开渠道的订阅链接，不生产、不存储、不修改任何节点资源。订阅内容来自第三方仓库，可用性与安全性由源作者负责。请遵守当地法律法规，仅作学习交流用途。
 
+## Docker 部署（自建机器）
+
+不想依赖 GitHub Actions 的话，任意一台带 Docker 的机器都能跑同一套链路：
+
+```bash
+cp .env.example .env      # 填你的 uid/gid，`id -u` / `id -g`
+docker compose run --rm collect
+```
+
+一条命令跑完「采集 → 真实握手 → 评分 → 渲染 → 生成订阅」，顺序和 CI 里一模一样。
+定时执行交给宿主机的 cron：
+
+```
+17 */3 * * * cd /path/to/nodes && docker compose run --rm collect >> data/logs/cron.log 2>&1
+```
+
+几个刻意的设计：
+
+* **采集失败就停，检测失败继续**。采不到数据还往下走，后面的步骤会拿旧数据算出一份
+  看起来正常的结果——那比直接失败危险得多
+* `data/` 是宿主机挂进去的，容器只是干活的。换机器只要把目录搬走
+* mihomo 放在命名卷里，第二次跑不用再下载
+* 不假设多台机器共享磁盘。想并行就在各自机器上跑，再去合并 `data/nodes.json`
+
+评估一台云服务器能不能用，先在那台机器上跑体检：
+
+```bash
+python3 dockerprobe/probe.py run --platform 你的平台名 --json probe/x.json
+```
+
+它只回答三个问题：Docker 真的能跑吗、出网通不通、中途会不会被平台停掉。
+三个都过才叫「适合日常采集」。结论和三家免费平台的实测情况见
+[docs/P11-docker-platforms.md](docs/P11-docker-platforms.md)。
+
 ## 本地运行
 
 ```bash
 python3 collector.py            # 采集并重建 index.html（读 sources.yaml）
 python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
+python3 nodecheck.py --speed    # mihomo 真握手 + 测速（需 curl，会自己下 mihomo）
+python3 nodescore.py            # 评分、地区、标签
+python3 export_subs.py          # 生成各格式订阅并逐个反解校验
 python3 screen.py               # 审核候选源（试采集→解析→去重→真实检测）
 python3 discover.py --dry-run   # 检索新的候选仓库，只看结果不落盘
 python3 score.py --report       # 用现有 stats 重算评分并重写质量报告

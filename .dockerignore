@@ -1,0 +1,10 @@
+# 宿主机的 .nodes-cache 由 CI 的 actions/cache 管理，容器里用命名卷，别混在一起。
+git
+.github
+__pycache__
+*.pyc
+.nodes-cache
+export
+订阅 全部节点 *.txt
+data
+index.html

@@ -1,0 +1,42 @@
+# P11：自建环境部署。适用于任意一台带 Docker 的机器——包括任务书里
+# 那三个免费云服务器，只要 dockerprobe 的检查项能过。
+#
+# 设计上不假设「多台机器共享磁盘」：每一份 data 只属于一台机器，
+# 想并行跑就各自跑各自的，再去合并 data/nodes.json，而不是脑补一个分布式库。
+#
+# 一次运行：
+#   docker compose run --rm collect
+# 定时运行（宿主机 crontab，每 3 小时一次，错开整点）：
+#   17 */3 * * * cd /path/to/nodes && docker compose run --rm collect >> data/logs/cron.log 2>&1
+
+services:
+  collect:
+    build: .
+    image: nodes-collector:local
+    # 数据目录是宿主机挂进来的，容器里的 uid 要跟着宿主机的属主走，
+    # 否则跑完一轮 data/*.json 会变成另一个用户所有，下次 git commit 会乱
+    user: "${NODES_UID:-10001}:${NODES_GID:-10001}"
+    environment:
+      TZ: Asia/Shanghai
+      # 容器里没有 GITHUB_ACTIONS 变量，lifecycle.save 需要这个才肯落盘
+      NODES_FORCE_WRITE: "1"
+      # 上一级目录在容器里是 /，不可写；mihomo 放到数据盘旁边
+      NODES_CACHE: /app/.cache
+      PERSIST_DIR: /app/data
+      # 设成 1 跳过「2 小时内刚更新过就不跑」的闸门
+      SKIP_GATE: "${SKIP_GATE:-0}"
+    volumes:
+      - ./data:/app/data
+      - ./index.html:/app/index.html
+      - mihomo:/app/.cache
+    # 一轮 15–25 分钟。超过 50 分钟基本是卡在某个源的超时上，让它失败重来
+    stop_grace_period: 10s
+    deploy:
+      resources:
+        limits:
+          # 检测是网络 IO 密集，40 个并发 socks 连接 + 一个 mihomo 进程，
+          # 实测 1 GiB 够用；给 2 GiB 是留 mihomo 解析大配置的余量
+          memory: 2g
+
+volumes:
+  mihomo:
