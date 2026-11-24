@@ -1,6 +1,6 @@
 {
- "updated": "11-25 03:36",
- "ts": 1795549006,
+ "updated": "11-25 03:38",
+ "ts": 1795549123,
  "raw": 15654,
  "errors": [],
  "groups": [
@@ -20,16 +20,16 @@
      "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
      "count": 2133,
      "probe": {
-      "ok": 21,
+      "ok": 20,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 43
+      "ms": 33
      },
      "age_h": 21.7,
-     "score": 1866,
+     "score": 1778,
      "streak": 0,
      "grade": "A",
      "grade_score": 86.0,
@@ -54,9 +54,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 48
+      "ms": 46
      },
-     "age_h": 79.6,
+     "age_h": 79.7,
      "score": 1152,
      "streak": 0,
      "grade": "A",
@@ -82,7 +82,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 35
+      "ms": 335
      },
      "age_h": 0.1,
      "score": 222,
@@ -104,16 +104,16 @@
      "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
      "count": 199,
      "probe": {
-      "ok": 22,
+      "ok": 21,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 667
+      "ms": 323
      },
      "age_h": 0.1,
-     "score": 182,
+     "score": 174,
      "streak": 0,
      "grade": "B",
      "grade_score": 74.0,
@@ -138,7 +138,7 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 165
+      "ms": 149
      },
      "age_h": 0.1,
      "score": 495,
@@ -175,7 +175,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 33
+      "ms": 30
      },
      "age_h": 0.1,
      "score": 2630,
@@ -204,9 +204,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 35
+      "ms": 36
      },
-     "age_h": 7.6,
+     "age_h": 7.7,
      "score": 1654,
      "streak": 0,
      "grade": "B",
@@ -233,7 +233,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 1616
+      "ms": 312
      },
      "age_h": 0.1,
      "score": 270,
@@ -262,7 +262,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 41
+      "ms": 37
      },
      "age_h": 14.2,
      "score": 152,
@@ -291,7 +291,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 26
+      "ms": 29
      },
      "age_h": 0.2,
      "score": 13,
@@ -320,9 +320,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 40
+      "ms": 41
      },
-     "age_h": 0.5,
+     "age_h": 0.6,
      "score": 7,
      "streak": 0,
      "grade": "B",
@@ -356,7 +356,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 27
+      "ms": 37
      },
      "age_h": 3.1,
      "score": 323,
@@ -385,7 +385,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 24
+      "ms": 34
      },
      "age_h": 11.8,
      "score": 35,
@@ -414,7 +414,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 24
+      "ms": 31
      },
      "age_h": 0.1,
      "score": 20,
@@ -443,7 +443,7 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 163
+      "ms": 197
      },
      "age_h": 0.1,
      "score": 495,
