@@ -85,6 +85,13 @@ jobs:
           python3 nodescore.py
           python3 collector.py --render
 
+      # 多格式订阅：Clash YAML / sing-box JSON / URI / Base64，按质量与地区分组。
+      # 每种格式生成后立刻用自己的解析器读回来校验条数，只改扩展名不算输出成功。
+      - name: 生成订阅（多格式）
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
+        run: python3 export_subs.py
+
       - name: 提交更新
         if: steps.gate.outputs.skip != 'true'
         run: |
