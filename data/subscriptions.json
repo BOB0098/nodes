@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24 21:59",
+ "updated": "2026-11-24 22:31",
  "formats": [
   "clash",
   "singbox",
@@ -10,138 +10,138 @@
   {
    "key": "all",
    "label": "全部节点",
-   "count": 10352,
+   "count": 10271,
    "files": {
     "clash": {
      "file": "all.yaml",
-     "verified": 10352
+     "verified": 10271
     },
     "singbox": {
      "file": "all.json",
-     "verified": 10352
+     "verified": 10271
     },
     "uri": {
      "file": "all.txt",
-     "verified": 10352
+     "verified": 10271
     },
     "b64": {
      "file": "all.b64",
-     "verified": 10352
+     "verified": 10271
     }
    }
   },
   {
    "key": "best",
    "label": "优选（真实可用且评分 B 以上）",
-   "count": 231,
+   "count": 232,
    "files": {
     "clash": {
      "file": "best.yaml",
-     "verified": 231
+     "verified": 232
     },
     "singbox": {
      "file": "best.json",
-     "verified": 231
+     "verified": 232
     },
     "uri": {
      "file": "best.txt",
-     "verified": 231
+     "verified": 232
     },
     "b64": {
      "file": "best.b64",
-     "verified": 231
+     "verified": 232
     }
    }
   },
   {
    "key": "stable",
    "label": "稳定（连续三轮可用）",
-   "count": 218,
+   "count": 251,
    "files": {
     "clash": {
      "file": "stable.yaml",
-     "verified": 218
+     "verified": 251
     },
     "singbox": {
      "file": "stable.json",
-     "verified": 218
+     "verified": 251
     },
     "uri": {
      "file": "stable.txt",
-     "verified": 218
+     "verified": 251
     },
     "b64": {
      "file": "stable.b64",
-     "verified": 218
+     "verified": 251
     }
    }
   },
   {
    "key": "lowlat",
    "label": "低延迟（<200ms）",
-   "count": 32,
+   "count": 22,
    "files": {
     "clash": {
      "file": "lowlat.yaml",
-     "verified": 32
+     "verified": 22
     },
     "singbox": {
      "file": "lowlat.json",
-     "verified": 32
+     "verified": 22
     },
     "uri": {
      "file": "lowlat.txt",
-     "verified": 32
+     "verified": 22
     },
     "b64": {
      "file": "lowlat.b64",
-     "verified": 32
+     "verified": 22
     }
    }
   },
   {
    "key": "fast",
    "label": "高速（≥2MB/s）",
-   "count": 22,
+   "count": 15,
    "files": {
     "clash": {
      "file": "fast.yaml",
-     "verified": 22
+     "verified": 15
     },
     "singbox": {
      "file": "fast.json",
-     "verified": 22
+     "verified": 15
     },
     "uri": {
      "file": "fast.txt",
-     "verified": 22
+     "verified": 15
     },
     "b64": {
      "file": "fast.b64",
-     "verified": 22
+     "verified": 15
     }
    }
   },
   {
    "key": "hk",
    "label": "香港",
-   "count": 15,
+   "count": 14,
    "files": {
     "clash": {
      "file": "hk.yaml",
-     "verified": 15
+     "verified": 14
     },
     "singbox": {
      "file": "hk.json",
-     "verified": 15
+     "verified": 14
     },
     "uri": {
      "file": "hk.txt",
-     "verified": 15
+     "verified": 14
     },
     "b64": {
      "file": "hk.b64",
-     "verified": 15
+     "verified": 14
     }
    }
   },
@@ -171,115 +171,115 @@
   {
    "key": "jp",
    "label": "日本",
-   "count": 12,
+   "count": 9,
    "files": {
     "clash": {
      "file": "jp.yaml",
-     "verified": 12
+     "verified": 9
     },
     "singbox": {
      "file": "jp.json",
-     "verified": 12
+     "verified": 9
     },
     "uri": {
      "file": "jp.txt",
-     "verified": 12
+     "verified": 9
     },
     "b64": {
      "file": "jp.b64",
-     "verified": 12
+     "verified": 9
     }
    }
   },
   {
    "key": "sg",
    "label": "新加坡",
-   "count": 13,
+   "count": 14,
    "files": {
     "clash": {
      "file": "sg.yaml",
-     "verified": 13
+     "verified": 14
     },
     "singbox": {
      "file": "sg.json",
-     "verified": 13
+     "verified": 14
     },
     "uri": {
      "file": "sg.txt",
-     "verified": 13
+     "verified": 14
     },
     "b64": {
      "file": "sg.b64",
-     "verified": 13
+     "verified": 14
     }
    }
   },
   {
    "key": "us",
    "label": "美国",
-   "count": 76,
+   "count": 88,
    "files": {
     "clash": {
      "file": "us.yaml",
-     "verified": 76
+     "verified": 88
     },
     "singbox": {
      "file": "us.json",
-     "verified": 76
+     "verified": 88
     },
     "uri": {
      "file": "us.txt",
-     "verified": 76
+     "verified": 88
     },
     "b64": {
      "file": "us.b64",
-     "verified": 76
+     "verified": 88
     }
    }
   },
   {
    "key": "kr",
    "label": "韩国",
-   "count": 11,
+   "count": 9,
    "files": {
     "clash": {
      "file": "kr.yaml",
-     "verified": 11
+     "verified": 9
     },
     "singbox": {
      "file": "kr.json",
-     "verified": 11
+     "verified": 9
     },
     "uri": {
      "file": "kr.txt",
-     "verified": 11
+     "verified": 9
     },
     "b64": {
      "file": "kr.b64",
-     "verified": 11
+     "verified": 9
     }
    }
   },
   {
    "key": "eu",
    "label": "欧洲",
-   "count": 132,
+   "count": 135,
    "files": {
     "clash": {
      "file": "eu.yaml",
-     "verified": 132
+     "verified": 135
     },
     "singbox": {
      "file": "eu.json",
-     "verified": 132
+     "verified": 135
     },
     "uri": {
      "file": "eu.txt",
-     "verified": 132
+     "verified": 135
     },
     "b64": {
      "file": "eu.b64",
-     "verified": 132
+     "verified": 135
     }
    }
   }

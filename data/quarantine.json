@@ -1,10 +1,10 @@
 {
- "updated": "2026-11-25 05:45",
- "total": 822,
+ "updated": "2026-11-25 06:18",
+ "total": 816,
  "by_reason": {
-  "条目结构异常（不是对象或字段类型不对）": 31,
+  "条目结构异常（不是对象或字段类型不对）": 26,
   "非公网地址（回环/私有/保留网段）": 45,
-  "明文代理（流量与凭据均可被链路上任何人读取）": 739,
+  "明文代理（流量与凭据均可被链路上任何人读取）": 738,
   "不支持的协议类型": 6,
   "缺少地址或端口": 1
  },
@@ -44,11 +44,10 @@
   },
   {
    "src": "v2ray-configs",
-   "count": 32,
+   "count": 26,
    "by_reason": {
-    "条目结构异常（不是对象或字段类型不对）": 27,
-    "非公网地址（回环/私有/保留网段）": 4,
-    "明文代理（流量与凭据均可被链路上任何人读取）": 1
+    "条目结构异常（不是对象或字段类型不对）": 22,
+    "非公网地址（回环/私有/保留网段）": 4
    }
   },
   {
@@ -144,51 +143,6 @@
    "src": "尔毛子·V2Ray"
   },
   {
-   "kind": "node",
-   "type": "http",
-   "name": "🇩🇪DE_1|1.8MB/s|P002-260618",
-   "server": "172.64.68.89",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "US_speednode_0027",
-   "server": "172.64.69.89",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇷🇸RS_1|1.1MB/s",
-   "server": "146.70.221.18",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "BE_speednode_0001",
-   "server": "146.70.123.98",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "BR_speednode_0002",
-   "server": "152.233.16.174",
-   "port": 9443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
    "kind": "clash",
    "type": "hysteria",
    "name": "🇫🇷 France 33",
@@ -254,47 +208,47 @@
   {
    "kind": "node",
    "type": "http",
-   "name": "D🔴🇫🇷hos[🤖💬🔮🧩]_dokng.com_262bcecb",
-   "server": "87.98.174.157",
-   "port": 6103,
+   "name": "🇩🇪DE_1|1.8MB/s|P002-260618",
+   "server": "172.64.68.89",
+   "port": 443,
    "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
    "type": "http",
-   "name": "D🔴🇺🇸hos[🤖💬🧩🎵]_dokng.com_847f2db1",
-   "server": "138.199.35.220",
-   "port": 9002,
+   "name": "US_speednode_0027",
+   "server": "172.64.69.89",
+   "port": 443,
    "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
    "type": "http",
-   "name": "D🔴🇳🇱hos[🤖💬🔮🧩]_dokng.com_f03b1640",
-   "server": "84.17.47.124",
-   "port": 9002,
+   "name": "🇷🇸RS_1|1.1MB/s",
+   "server": "146.70.221.18",
+   "port": 443,
    "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
    "type": "http",
-   "name": "D🔴🇷🇴hos[🤖💬🔮🧩]_dokng.com_4efcc5ec",
-   "server": "193.176.84.24",
-   "port": 9002,
+   "name": "BE_speednode_0001",
+   "server": "146.70.123.98",
+   "port": 443,
    "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
    "type": "http",
-   "name": "D🔴🇳🇱hos[🤖💬🔮🧩]_dokng.com_f6303636",
-   "server": "84.17.47.148",
-   "port": 9002,
+   "name": "BR_speednode_0002",
+   "server": "152.233.16.174",
+   "port": 9443,
    "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
@@ -342,6 +296,132 @@
    "src": "Barabama"
   },
   {
+   "kind": "singbox",
+   "type": "hysteria",
+   "name": "🇫🇷 France 33",
+   "server": "163.172.117.163",
+   "port": 36699,
+   "reason": "不支持的协议类型",
+   "src": "radarhub·singbox"
+  },
+  {
+   "kind": "singbox",
+   "type": "hysteria",
+   "name": "🇫🇷 France 36",
+   "server": "62.210.28.175",
+   "port": 24667,
+   "reason": "不支持的协议类型",
+   "src": "radarhub·singbox"
+  },
+  {
+   "kind": "clash",
+   "type": "vmess",
+   "name": "其他 075",
+   "server": "使用前记得更新订阅",
+   "port": 0,
+   "reason": "不支持的协议类型",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "vless",
+   "name": "其他 149",
+   "server": "127.0.0.1",
+   "port": 1080,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇫🇷hos[🤖💬🔮🧩]_dokng.com_262bcecb",
+   "server": "87.98.174.157",
+   "port": 6103,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇺🇸hos[🤖💬🧩🎵]_dokng.com_847f2db1",
+   "server": "138.199.35.220",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇳🇱hos[🤖💬🔮🧩]_dokng.com_f03b1640",
+   "server": "84.17.47.124",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇷🇴hos[🤖💬🔮🧩]_dokng.com_4efcc5ec",
+   "server": "193.176.84.24",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇳🇱hos[🤖💬🔮🧩]_dokng.com_f6303636",
+   "server": "84.17.47.148",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "uri",
+   "type": "#profile-web-page-url: https",
+   "name": "",
+   "server": "",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "v2ray-configs"
+  },
+  {
+   "kind": "uri",
+   "type": "#support-url: https",
+   "name": "",
+   "server": "",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "v2ray-configs"
+  },
+  {
+   "kind": "uri",
+   "type": "ssr",
+   "name": "",
+   "server": "yxbplm1laxr1yw44oc5jb206mtg1njy6yxv0af9hzxmxmjhfbwq1omnoywno",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "v2ray-configs"
+  },
+  {
+   "kind": "uri",
+   "type": "ssr",
+   "name": "",
+   "server": "yxbplm1laxr1yw44oc5jb206nzawndphdxrox2flczeyof9tzdu6y2hhy2hh",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "v2ray-configs"
+  },
+  {
+   "kind": "uri",
+   "type": "ssr",
+   "name": "",
+   "server": "yxbplm1laxr1yw44oc5jb206mzk1mtq6yxv0af9hzxmxmjhfbwq1omnoywno",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "v2ray-configs"
+  },
+  {
    "kind": "uri",
    "type": "# 📥 subscription link: https",
    "name": "",
@@ -387,24 +467,6 @@
    "src": "ALIILAPRO"
   },
   {
-   "kind": "singbox",
-   "type": "hysteria",
-   "name": "🇫🇷 France 33",
-   "server": "163.172.117.163",
-   "port": 36699,
-   "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
-  },
-  {
-   "kind": "singbox",
-   "type": "hysteria",
-   "name": "🇫🇷 France 36",
-   "server": "62.210.28.175",
-   "port": 24667,
-   "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
-  },
-  {
    "kind": "uri",
    "type": "#support-url: https",
    "name": "",
@@ -412,69 +474,6 @@
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
    "src": "Andrejewild"
-  },
-  {
-   "kind": "uri",
-   "type": "#profile-web-page-url: https",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
-  },
-  {
-   "kind": "uri",
-   "type": "#support-url: https",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
-  },
-  {
-   "kind": "uri",
-   "type": "ssr",
-   "name": "",
-   "server": "c2hvdy5iawxpymlsawnsb3vkmdeuy29toju0mtayomf1dghfywvzmti4x3no",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
-  },
-  {
-   "kind": "uri",
-   "type": "ssr",
-   "name": "",
-   "server": "yxbplm1laxr1yw44oc5jb206nje1ntg6yxv0af9hzxmxmjhfbwq1onjjnc1t",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
-  },
-  {
-   "kind": "uri",
-   "type": "ssr",
-   "name": "",
-   "server": "yxbplm1laxr1yw44oc5jb206nzaxntphdxrox2flczeyof9tzdu6y2hhy2hh",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
-  },
-  {
-   "kind": "clash",
-   "type": "vmess",
-   "name": "其他 075",
-   "server": "使用前记得更新订阅",
-   "port": 0,
-   "reason": "不支持的协议类型",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vless",
-   "name": "其他 149",
-   "server": "127.0.0.1",
-   "port": 1080,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
   }
  ]
 }
