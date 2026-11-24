@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 05:12",
+ "updated": "2026-11-25 05:45",
  "sources": [
   {
    "id": "radarhub-clash",
@@ -9,10 +9,10 @@
    "format": "clash",
    "license": null,
    "priority": 9,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 161,
-   "source_age_h": 1.7,
+   "http_ms": 98,
+   "source_age_h": 2.2,
    "parsed": 495,
    "declared": 497,
    "kept": 360,
@@ -25,7 +25,7 @@
    "fails_streak": 0,
    "last_error": null,
    "quality": 100,
-   "score": 81.8,
+   "score": 80.2,
    "grade": "A",
    "grade_raw": "A",
    "state": "ok",
@@ -51,7 +51,7 @@
     },
     {
      "name": "新鲜度",
-     "score": 12.0,
+     "score": 10.4,
      "max": 12,
      "note": "2 小时前更新"
     },
@@ -81,10 +81,10 @@
    "format": "singbox-json",
    "license": null,
    "priority": 10,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 112,
-   "source_age_h": 1.7,
+   "http_ms": 55,
+   "source_age_h": 2.2,
    "parsed": 495,
    "declared": 520,
    "kept": 77,
@@ -97,7 +97,7 @@
    "fails_streak": 0,
    "last_error": null,
    "quality": 100,
-   "score": 82.6,
+   "score": 81.0,
    "grade": "A",
    "grade_raw": "A",
    "state": "ok",
@@ -123,7 +123,7 @@
     },
     {
      "name": "新鲜度",
-     "score": 12.0,
+     "score": 10.4,
      "max": 12,
      "note": "2 小时前更新"
     },
@@ -153,10 +153,10 @@
    "format": "singbox-json",
    "license": "GPL-3.0",
    "priority": 7,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 128,
-   "source_age_h": 13.4,
+   "http_ms": 15,
+   "source_age_h": 13.9,
    "parsed": 35,
    "declared": 38,
    "kept": 20,
@@ -197,7 +197,7 @@
      "name": "新鲜度",
      "score": 8.0,
      "max": 12,
-     "note": "13 小时前更新"
+     "note": "14 小时前更新"
     },
     {
      "name": "稳定性",
@@ -225,10 +225,10 @@
    "format": "sing-box",
    "license": null,
    "priority": 5,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 47,
-   "source_age_h": 0.6,
+   "http_ms": 16,
+   "source_age_h": 0.1,
    "parsed": 20,
    "declared": 21,
    "kept": 18,
@@ -269,7 +269,7 @@
      "name": "新鲜度",
      "score": 12.0,
      "max": 12,
-     "note": "1 小时前更新"
+     "note": "0 小时前更新"
     },
     {
      "name": "稳定性",
@@ -297,10 +297,10 @@
    "format": "v2ray-base64",
    "license": null,
    "priority": 10,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 91,
-   "source_age_h": 0.1,
+   "http_ms": 32,
+   "source_age_h": 0.7,
    "parsed": 6,
    "declared": 6,
    "kept": 0,
@@ -341,7 +341,7 @@
      "name": "新鲜度",
      "score": 12.0,
      "max": 12,
-     "note": "0 小时前更新"
+     "note": "1 小时前更新"
     },
     {
      "name": "稳定性",
@@ -369,10 +369,10 @@
    "format": "singbox-json",
    "license": null,
    "priority": 8,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 197,
-   "source_age_h": 4.7,
+   "http_ms": 15,
+   "source_age_h": 5.2,
    "parsed": 337,
    "declared": 451,
    "kept": 184,
@@ -434,78 +434,6 @@
    "effective": 177
   },
   {
-   "id": "ermao-clash-reachable",
-   "name": "尔毛子·可连Clash",
-   "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
-   "type": "aggregator",
-   "format": "clash",
-   "license": "GPL-3.0",
-   "priority": 10,
-   "checked_at": "11-25 05:12",
-   "http": 200,
-   "http_ms": 295,
-   "source_age_h": 1.7,
-   "parsed": 219,
-   "declared": 243,
-   "kept": 213,
-   "unique": 0,
-   "dup": 219,
-   "probe_total": 24,
-   "probe_ok": 22,
-   "alive_pct": 92,
-   "fails_total": 0,
-   "fails_streak": 0,
-   "last_error": null,
-   "quality": 92,
-   "score": 77.0,
-   "grade": "B",
-   "grade_raw": "B",
-   "state": "ok",
-   "state_label": "正常",
-   "dims": [
-    {
-     "name": "可连率",
-     "score": 40.0,
-     "max": 40,
-     "note": "可连 92%"
-    },
-    {
-     "name": "独立新增",
-     "score": 0.0,
-     "max": 12,
-     "note": "无独立新增"
-    },
-    {
-     "name": "独立率",
-     "score": 0.0,
-     "max": 8,
-     "note": "独立率 0%"
-    },
-    {
-     "name": "新鲜度",
-     "score": 12.0,
-     "max": 12,
-     "note": "2 小时前更新"
-    },
-    {
-     "name": "稳定性",
-     "score": 18.0,
-     "max": 18,
-     "note": "连败 0 · 近 6 轮波动 4pp"
-    },
-    {
-     "name": "合规/类型",
-     "score": 7.0,
-     "max": 10,
-     "note": "有许可证 GPL-3.0 · 聚合"
-    }
-   ],
-   "priority_penalty": 0,
-   "priority_eff": 10,
-   "dup_rate": 100.0,
-   "effective": 0
-  },
-  {
    "id": "free18",
    "name": "free18",
    "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
@@ -513,10 +441,10 @@
    "format": "v2ray-base64",
    "license": null,
    "priority": 6,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 56,
-   "source_age_h": 15.8,
+   "http_ms": 16,
+   "source_age_h": 16.3,
    "parsed": 176,
    "declared": 176,
    "kept": 152,
@@ -585,10 +513,10 @@
    "format": "v2ray-plain",
    "license": "GPL-3.0",
    "priority": 9,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 305,
-   "source_age_h": 1.7,
+   "http_ms": 309,
+   "source_age_h": 2.2,
    "parsed": 332,
    "declared": 368,
    "kept": 245,
@@ -601,7 +529,7 @@
    "fails_streak": 0,
    "last_error": null,
    "quality": 88,
-   "score": 93.8,
+   "score": 92.2,
    "grade": "S",
    "grade_raw": "S",
    "state": "ok",
@@ -627,7 +555,7 @@
     },
     {
      "name": "新鲜度",
-     "score": 12.0,
+     "score": 10.4,
      "max": 12,
      "note": "2 小时前更新"
     },
@@ -650,22 +578,22 @@
    "effective": 192
   },
   {
-   "id": "ermao-clash-full",
-   "name": "尔毛子·全量Clash",
-   "url": "https://blog.ermao.net/sub/clash/ermao.net",
+   "id": "ermao-clash-reachable",
+   "name": "尔毛子·可连Clash",
+   "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
    "type": "aggregator",
    "format": "clash",
    "license": "GPL-3.0",
-   "priority": 8,
-   "checked_at": "11-25 05:12",
+   "priority": 10,
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 333,
-   "source_age_h": 1.7,
-   "parsed": 287,
-   "declared": 322,
-   "kept": 65,
-   "unique": 56,
-   "dup": 231,
+   "http_ms": 324,
+   "source_age_h": 2.2,
+   "parsed": 219,
+   "declared": 243,
+   "kept": 213,
+   "unique": 0,
+   "dup": 219,
    "probe_total": 24,
    "probe_ok": 21,
    "alive_pct": 88,
@@ -673,9 +601,9 @@
    "fails_streak": 0,
    "last_error": null,
    "quality": 88,
-   "score": 86.7,
-   "grade": "A",
-   "grade_raw": "A",
+   "score": 75.4,
+   "grade": "B",
+   "grade_raw": "B",
    "state": "ok",
    "state_label": "正常",
    "dims": [
@@ -687,19 +615,19 @@
     },
     {
      "name": "独立新增",
-     "score": 6.6,
+     "score": 0.0,
      "max": 12,
-     "note": "独立 56 条"
+     "note": "无独立新增"
     },
     {
      "name": "独立率",
-     "score": 3.1,
+     "score": 0.0,
      "max": 8,
-     "note": "独立率 20%"
+     "note": "独立率 0%"
     },
     {
      "name": "新鲜度",
-     "score": 12.0,
+     "score": 10.4,
      "max": 12,
      "note": "2 小时前更新"
     },
@@ -707,7 +635,7 @@
      "name": "稳定性",
      "score": 18.0,
      "max": 18,
-     "note": "连败 0 · 近 6 轮波动 5pp"
+     "note": "连败 0 · 近 6 轮波动 4pp"
     },
     {
      "name": "合规/类型",
@@ -717,9 +645,9 @@
     }
    ],
    "priority_penalty": 0,
-   "priority_eff": 8,
-   "dup_rate": 80.5,
-   "effective": 49
+   "priority_eff": 10,
+   "dup_rate": 100.0,
+   "effective": 0
   },
   {
    "id": "barabama",
@@ -729,10 +657,10 @@
    "format": "clash",
    "license": "MIT",
    "priority": 6,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 195,
-   "source_age_h": 81.2,
+   "http_ms": 25,
+   "source_age_h": 81.8,
    "parsed": 1383,
    "declared": 1982,
    "kept": 751,
@@ -773,7 +701,7 @@
      "name": "新鲜度",
      "score": 2.4,
      "max": 12,
-     "note": "81 小时前更新"
+     "note": "82 小时前更新"
     },
     {
      "name": "稳定性",
@@ -794,6 +722,78 @@
    "effective": 612
   },
   {
+   "id": "ermao-clash-full",
+   "name": "尔毛子·全量Clash",
+   "url": "https://blog.ermao.net/sub/clash/ermao.net",
+   "type": "aggregator",
+   "format": "clash",
+   "license": "GPL-3.0",
+   "priority": 8,
+   "checked_at": "11-25 05:45",
+   "http": 200,
+   "http_ms": 306,
+   "source_age_h": 2.2,
+   "parsed": 287,
+   "declared": 322,
+   "kept": 65,
+   "unique": 56,
+   "dup": 231,
+   "probe_total": 24,
+   "probe_ok": 20,
+   "alive_pct": 83,
+   "fails_total": 0,
+   "fails_streak": 0,
+   "last_error": null,
+   "quality": 83,
+   "score": 85.1,
+   "grade": "A",
+   "grade_raw": "A",
+   "state": "ok",
+   "state_label": "正常",
+   "dims": [
+    {
+     "name": "可连率",
+     "score": 40.0,
+     "max": 40,
+     "note": "可连 83%"
+    },
+    {
+     "name": "独立新增",
+     "score": 6.6,
+     "max": 12,
+     "note": "独立 56 条"
+    },
+    {
+     "name": "独立率",
+     "score": 3.1,
+     "max": 8,
+     "note": "独立率 20%"
+    },
+    {
+     "name": "新鲜度",
+     "score": 10.4,
+     "max": 12,
+     "note": "2 小时前更新"
+    },
+    {
+     "name": "稳定性",
+     "score": 18.0,
+     "max": 18,
+     "note": "连败 0 · 近 6 轮波动 5pp"
+    },
+    {
+     "name": "合规/类型",
+     "score": 7.0,
+     "max": 10,
+     "note": "有许可证 GPL-3.0 · 聚合"
+    }
+   ],
+   "priority_penalty": 0,
+   "priority_eff": 8,
+   "dup_rate": 80.5,
+   "effective": 46
+  },
+  {
    "id": "v2rayfree",
    "name": "v2rayfree",
    "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
@@ -801,10 +801,10 @@
    "format": "v2ray-base64",
    "license": null,
    "priority": 7,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 122,
-   "source_age_h": 1.8,
+   "http_ms": 15,
+   "source_age_h": 2.3,
    "parsed": 16,
    "declared": 16,
    "kept": 4,
@@ -817,7 +817,7 @@
    "fails_streak": 0,
    "last_error": null,
    "quality": 81,
-   "score": 82.6,
+   "score": 81.0,
    "grade": "A",
    "grade_raw": "A",
    "state": "ok",
@@ -843,7 +843,7 @@
     },
     {
      "name": "新鲜度",
-     "score": 12.0,
+     "score": 10.4,
      "max": 12,
      "note": "2 小时前更新"
     },
@@ -873,10 +873,10 @@
    "format": "clash",
    "license": null,
    "priority": 7,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 62,
-   "source_age_h": 0.7,
+   "http_ms": 46,
+   "source_age_h": 1.2,
    "parsed": 1794,
    "declared": 1796,
    "kept": 1783,
@@ -945,9 +945,9 @@
    "format": "v2ray-plain",
    "license": "GPL-3.0",
    "priority": 8,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 61,
+   "http_ms": 32,
    "source_age_h": 0.2,
    "parsed": 4906,
    "declared": 4918,
@@ -1017,10 +1017,10 @@
    "format": "v2ray-base64",
    "license": "MIT",
    "priority": 4,
-   "checked_at": "11-25 05:12",
+   "checked_at": "11-25 05:45",
    "http": 200,
-   "http_ms": 41,
-   "source_age_h": 9.2,
+   "http_ms": 20,
+   "source_age_h": 9.8,
    "parsed": 3969,
    "declared": 4001,
    "kept": 1846,
@@ -1061,7 +1061,7 @@
      "name": "新鲜度",
      "score": 8.0,
      "max": 12,
-     "note": "9 小时前更新"
+     "note": "10 小时前更新"
     },
     {
      "name": "稳定性",

@@ -1,6 +1,6 @@
 {
- "updated": "11-25 05:12",
- "ts": 1795554744,
+ "updated": "11-25 05:45",
+ "ts": 1795556710,
  "life_span": 1,
  "raw": 15355,
  "errors": [],
@@ -27,9 +27,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 62
+      "ms": 46
      },
-     "age_h": 0.7,
+     "age_h": 1.2,
      "score": 1196,
      "streak": 0,
      "grade": "A",
@@ -59,9 +59,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 195
+      "ms": 25
      },
-     "age_h": 81.2,
+     "age_h": 81.8,
      "score": 1152,
      "streak": 0,
      "grade": "A",
@@ -69,7 +69,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 6,
-     "rok": 34,
+     "rok": 32,
      "rtest": 90,
      "new7": 751,
      "med_age": 1
@@ -85,23 +85,23 @@
      "url": "https://blog.ermao.net/sub/clash/ermao.net",
      "count": 287,
      "probe": {
-      "ok": 21,
+      "ok": 20,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 333
+      "ms": 306
      },
-     "age_h": 1.7,
-     "score": 251,
+     "age_h": 2.2,
+     "score": 239,
      "streak": 0,
      "grade": "A",
-     "grade_score": 86.7,
+     "grade_score": 85.1,
      "src_state": "ok",
      "src_state_label": null,
      "prio": 8,
-     "rok": 14,
+     "rok": 13,
      "rtest": 65,
      "new7": 65,
      "med_age": 1
@@ -117,23 +117,23 @@
      "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
      "count": 219,
      "probe": {
-      "ok": 22,
+      "ok": 21,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 295
+      "ms": 324
      },
-     "age_h": 1.7,
-     "score": 201,
+     "age_h": 2.2,
+     "score": 192,
      "streak": 0,
      "grade": "B",
-     "grade_score": 77.0,
+     "grade_score": 75.4,
      "src_state": "ok",
      "src_state_label": null,
      "prio": 10,
-     "rok": 49,
+     "rok": 53,
      "rtest": 90,
      "new7": 213,
      "med_age": 1
@@ -155,17 +155,17 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 161
+      "ms": 98
      },
-     "age_h": 1.7,
+     "age_h": 2.2,
      "score": 495,
      "streak": 0,
      "grade": "A",
-     "grade_score": 81.8,
+     "grade_score": 80.2,
      "src_state": "ok",
      "src_state_label": null,
      "prio": 9,
-     "rok": 79,
+     "rok": 80,
      "rtest": 90,
      "new7": 360,
      "med_age": 1
@@ -196,7 +196,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 61
+      "ms": 32
      },
      "age_h": 0.2,
      "score": 2657,
@@ -206,7 +206,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 8,
-     "rok": 5,
+     "rok": 4,
      "rtest": 90,
      "new7": 4634,
      "med_age": 1
@@ -229,9 +229,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 41
+      "ms": 20
      },
-     "age_h": 9.2,
+     "age_h": 9.8,
      "score": 1819,
      "streak": 0,
      "grade": "A",
@@ -262,17 +262,17 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 305
+      "ms": 309
      },
-     "age_h": 1.7,
+     "age_h": 2.2,
      "score": 290,
      "streak": 0,
      "grade": "S",
-     "grade_score": 93.8,
+     "grade_score": 92.2,
      "src_state": "ok",
      "src_state_label": null,
      "prio": 9,
-     "rok": 24,
+     "rok": 26,
      "rtest": 90,
      "new7": 245,
      "med_age": 1
@@ -295,9 +295,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 56
+      "ms": 16
      },
-     "age_h": 15.8,
+     "age_h": 16.3,
      "score": 161,
      "streak": 0,
      "grade": "A",
@@ -305,7 +305,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 6,
-     "rok": 27,
+     "rok": 28,
      "rtest": 90,
      "new7": 152,
      "med_age": 1
@@ -328,13 +328,13 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 122
+      "ms": 15
      },
-     "age_h": 1.8,
+     "age_h": 2.3,
      "score": 13,
      "streak": 0,
      "grade": "A",
-     "grade_score": 82.6,
+     "grade_score": 81.0,
      "src_state": "ok",
      "src_state_label": null,
      "prio": 7,
@@ -361,9 +361,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 91
+      "ms": 32
      },
-     "age_h": 0.1,
+     "age_h": 0.7,
      "score": 6,
      "streak": 0,
      "grade": "B",
@@ -401,9 +401,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 197
+      "ms": 15
      },
-     "age_h": 4.7,
+     "age_h": 5.2,
      "score": 323,
      "streak": 0,
      "grade": "A",
@@ -434,9 +434,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 128
+      "ms": 15
      },
-     "age_h": 13.4,
+     "age_h": 13.9,
      "score": 35,
      "streak": 0,
      "grade": "A",
@@ -467,9 +467,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 47
+      "ms": 16
      },
-     "age_h": 0.6,
+     "age_h": 0.1,
      "score": 20,
      "streak": 0,
      "grade": "A",
@@ -500,17 +500,17 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 112
+      "ms": 55
      },
-     "age_h": 1.7,
+     "age_h": 2.2,
      "score": 495,
      "streak": 0,
      "grade": "A",
-     "grade_score": 82.6,
+     "grade_score": 81.0,
      "src_state": "ok",
      "src_state_label": null,
      "prio": 10,
-     "rok": 63,
+     "rok": 67,
      "rtest": 77,
      "new7": 77,
      "med_age": 1
@@ -519,36 +519,36 @@
   }
  ],
  "delta": {
-  "add": 188,
-  "drop": 72
+  "add": 0,
+  "drop": 0
  },
  "stats": {
   "raw": 15355,
   "dedup": 10352,
   "real_tested": 994,
-  "real_ok": 333,
+  "real_ok": 341,
   "regions": {
-   "欧洲": 134,
+   "欧洲": 132,
    "美国": 76,
-   "未知": 36,
-   "其他": 26,
+   "未知": 44,
+   "其他": 23,
+   "香港": 15,
    "中国台湾": 15,
-   "香港": 14,
-   "新加坡": 14,
-   "韩国": 11,
-   "日本": 7
+   "新加坡": 13,
+   "日本": 12,
+   "韩国": 11
   },
   "tags": {
-   "待复测": 536,
-   "可用": 333,
-   "非机房": 237,
-   "隔离": 125,
-   "稳定": 110,
-   "机房 IP": 96,
-   "低延迟": 26,
-   "高速": 4
+   "待复测": 378,
+   "可用": 341,
+   "隔离": 275,
+   "非机房": 248,
+   "稳定": 218,
+   "机房 IP": 93,
+   "低延迟": 32,
+   "高速": 22
   },
-  "checked_at": "11-24 21:26",
+  "checked_at": "11-24 21:59",
   "subs": {
    "all": {
     "count": 10352,
@@ -24544,7 +24544,7 @@
    "src": "ALIILAPRO"
   },
   {
-   "name": "🕒 Last Update: 2026-11-24 - 23:32 (IR-🇮🇷",
+   "name": "🕒 Last Update: 2026-11-25 - 00:02 (IR-🇮🇷",
    "proto": "VMess",
    "region": "伊朗",
    "addr": "time.ir:443",
@@ -51361,9 +51361,9 @@
    "src": "ALIILAPRO"
   },
   {
-   "name": "FI 🇫🇮 | @Raydikalx | 875198",
+   "name": "DE 🇩🇪 | @Raydikalx | 875198",
    "proto": "VMess",
-   "region": "芬兰",
+   "region": "德国",
    "addr": "tgju.org:8080",
    "src": "ALIILAPRO"
   },
@@ -52425,9 +52425,9 @@
    "src": "ALIILAPRO"
   },
   {
-   "name": "US 🇺🇸 | @Raydikalx | F15D9F",
+   "name": "NL 🇳🇱 | @Raydikalx | F15D9F",
    "proto": "VMess",
-   "region": "美国",
+   "region": "荷兰",
    "addr": "usa.sixmax.ir:110",
    "src": "ALIILAPRO"
   },
@@ -72959,14 +72959,14 @@
    "name": "🔥 megavpn (мега впн) в тг -> @vpnsmegabo",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "willow.kryonix.space:443",
+   "addr": "owl.zentaris.website:443",
    "src": "Andrejewild"
   },
   {
    "name": "02 🇪🇺 02 • обход глушилок #2 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "owl.zentaris.website:443",
+   "addr": "willow.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
@@ -72980,35 +72980,35 @@
    "name": "04 🇪🇺 04 • обход глушилок #4 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "gain.novacelestia.live:443",
+   "addr": "monte.quantumveritas.monster:443",
    "src": "Andrejewild"
   },
   {
    "name": "05 🇪🇺 05 • обход глушилок #5 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "rowan.kryonix.space:443",
+   "addr": "tenet.ultraveltrion.cyou:443",
    "src": "Andrejewild"
   },
   {
    "name": "06 🇪🇺 06 • обход глушилок #6 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "monte.quantumveritas.monster:443",
+   "addr": "gain.novacelestia.live:443",
    "src": "Andrejewild"
   },
   {
    "name": "07 🇪🇺 07 • обход глушилок #7 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "maple.kryonix.space:443",
+   "addr": "rowan.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "08 🇪🇺 08 • обход глушилок #8 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "tenet.ultraveltrion.cyou:443",
+   "addr": "maple.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
@@ -73029,56 +73029,56 @@
    "name": "11 🇪🇺 11 • обход глушилок #11 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "hazel.kryonix.space:443",
+   "addr": "juniper.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "12 🇪🇺 12 • обход глушилок #12 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "juniper.kryonix.space:443",
+   "addr": "hazel.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "13 🇪🇺 13 • обход глушилок #13 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "elm.kryonix.space:443",
+   "addr": "cedar.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "14 🇪🇺 14 • обход глушилок #14 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "cedar.kryonix.space:443",
+   "addr": "elm.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "15 🇪🇺 15 • обход глушилок #15 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "birch.kryonix.space:443",
+   "addr": "alder.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "16 🇪🇺 16 • обход глушилок #16 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "alder.kryonix.space:443",
+   "addr": "birch.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "17 🇪🇺 17 • обход глушилок #17 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "231ccd11c72e7354.topology.gslb.yccdn.ru:443",
+   "addr": "stremnina.online:443",
    "src": "Andrejewild"
   },
   {
    "name": "18 🇪🇺 18 • обход глушилок #18 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "stremnina.online:443",
+   "addr": "231ccd11c72e7354.topology.gslb.yccdn.ru:443",
    "src": "Andrejewild"
   }
  ]
