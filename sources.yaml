@@ -1,0 +1,483 @@
+# ─────────────────────────────────────────────────────────────────────
+# 来源登记表（唯一事实来源）
+#
+# 改这里就够了：collector.py 从这里读清单，页面卡片也从这里生成。
+# 旧的 collector.py 里 GROUPS(14 张卡片) 与 SOURCES(9 个采集项) 是两份
+# 互不对应的表，导致 7 张卡片没有统计数据、2 个源被采集却不展示。
+#
+# 字段说明（对齐任务书 §4「每个来源记录」）：
+#   id        稳定标识，改 URL 也不改它（统计/健康记录按 id 归档）
+#   name      展示名 / 采集日志名
+#   url       页面卡片上给用户复制的地址（一定是仓库原版，不改写）
+#   mirrors   备用拉取地址，按顺序 fallback；仅采集用，不给用户
+#   type      original（源作者自己产数据）| aggregator（聚合多个源）
+#   format    clash | v2ray-base64 | v2ray-plain | singbox-json | mixed
+#   license   SPDX 标识；null = 仓库未声明（合规风险，页面/文档需标注）
+#   priority  同组排序权重，越大越靠前（页面实际排序仍按「预计可用数」）
+#   enabled   是否参与采集与展示。新源必须经 screen.py 审核后才置 true
+#   card      页面卡片文案。cn:true = 国内直连常不通，沉底并加提示
+#   note      维护备注：迁移、重合、风险等人工判断，供后续审计
+#
+# 动态字段（最近抓取/内容变化/各阶段条数/失败次数/质量评分）不写在这里，
+# 由 collector.py 每轮写入 data/sources_stats.json，避免提交时大面积 diff。
+# ─────────────────────────────────────────────────────────────────────
+version: 1
+updated: "2026-11-24"
+
+groups:
+  - id: clash
+    title: Clash 系
+    kern: mihomo 内核
+    clients: Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android
+  - id: v2ray
+    title: V2Ray 系
+    kern: Xray 内核
+    clients: v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing
+  - id: singbox
+    title: sing-box 系
+    kern: sing-box 内核
+    clients: Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）
+
+sources:
+  # ── Clash 系 ────────────────────────────────────────────────────────
+  - id: ermao-clash-reachable
+    name: 尔毛子·可连Clash
+    group: clash
+    url: https://blog.ermao.net/sub/reachable/clash/ermao.net
+    mirrors:
+      - https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/reachable/clash.yml
+    type: aggregator
+    format: clash
+    license: GPL-3.0
+    priority: 10
+    enabled: true
+    card:
+      tag: 推荐 · 只含可连节点
+      note: 只留连得上的，成功率高
+      ok: [Clash]
+      no: [v2rayNG]
+      freq: 每日更新
+    note: 上游会先自测再发布，是「少而可用」路线；页面地址走作者 CDN，raw 只作镜像。
+
+  - id: radarhub-clash
+    name: radarhub
+    group: clash
+    url: https://radarhub.top/clash.yaml
+    mirrors: []
+    type: aggregator
+    format: clash
+    license: null
+    priority: 9
+    enabled: true
+    card:
+      tag: 带规则分流
+      note: 自带分流规则，开箱即用
+      ok: [Clash]
+      no: []
+      freq: 6 小时更新
+      cn: true
+    note: 站点无开源仓库、无许可证声明；国内直连常不通，需代理才能更新。
+
+  - id: ermao-clash-full
+    name: 尔毛子·全量Clash
+    group: clash
+    url: https://blog.ermao.net/sub/clash/ermao.net
+    mirrors:
+      - https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml
+    type: aggregator
+    format: clash
+    license: GPL-3.0
+    priority: 8
+    enabled: true
+    card:
+      tag: 全量节点
+      note: 含未测速节点，量最大
+      ok: [Clash]
+      no: []
+      freq: 每日更新
+    note: 与 ermao-clash-reachable 同仓库不同文件，重合度高，但定位不同（全量 vs 可连）。
+
+  - id: anaer
+    name: anaer
+    group: clash
+    url: https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/anaer/Sub@main/clash.yaml
+    type: aggregator
+    format: clash
+    license: null
+    priority: 7
+    enabled: true
+    card:
+      tag: 超大合集
+      note: 2000 条以上，最全也最杂
+      ok: [Clash]
+      no: []
+      freq: 每日更新
+    note: 仓库无 LICENSE；含少量回环地址（127.0.0.53），已在解析层过滤。
+
+  - id: barabama
+    name: Barabama
+    group: clash
+    url: https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/Barabama/FreeNodes@main/nodes/clashmeta.yaml
+    type: aggregator
+    format: clash
+    license: MIT
+    priority: 6
+    enabled: true
+    card:
+      tag: 多源合并
+      note: 几个日更仓库合成，已去重
+      ok: [Clash]
+      no: []
+      freq: 每日更新
+    note: 该仓库有多个近义文件（merged.yaml / clashnode.yaml / freeclashnode.yaml），只取 clashmeta.yaml 其一，避免自我重复。
+
+  # ── V2Ray 系 ───────────────────────────────────────────────────────
+  - id: pawdroid
+    name: Pawdroid
+    group: v2ray
+    url: https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/Pawdroid/Free-servers@main/sub
+    type: original
+    format: v2ray-base64
+    license: null
+    priority: 10
+    enabled: true
+    card:
+      tag: 推荐 · 精选稳定
+      note: 量少质高，失效慢
+      ok: [v2rayNG, 小火箭]
+      no: [Clash]
+      freq: 6 小时更新
+    note: 主文件 sub 仅约 2 KB（十几条），偏「精选」而非铺量；仓库无 LICENSE。
+
+  - id: ermao-v2ray
+    name: 尔毛子·V2Ray
+    group: v2ray
+    url: https://blog.ermao.net/sub/v2ray/ermao.net
+    mirrors:
+      - https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt
+    type: aggregator
+    format: v2ray-plain
+    license: GPL-3.0
+    priority: 9
+    enabled: true
+    card:
+      tag: 每日抓取
+      note: 每天抓全网机场并测连通
+      ok: [v2rayNG, 小火箭]
+      no: [Clash]
+      freq: 每日更新
+    note: 与 Clash 版同源同批节点，只是编码不同；两卡片并存是为了客户端适配，不是两份独立库存。
+
+  - id: aliilapro
+    name: ALIILAPRO
+    group: v2ray
+    url: https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/ALIILAPRO/v2rayNG-Config@main/server.txt
+    type: aggregator
+    format: v2ray-plain
+    license: GPL-3.0
+    priority: 8
+    enabled: true
+    card:
+      tag: 全量最大
+      note: 几千条，最多也最杂
+      ok: [v2rayNG, 小火箭, Hiddify]
+      no: [Clash]
+      freq: 每日更新
+    note: 单源占比过高（曾达库内 84%），是「铺量」路线的主要来源；含部分推广命名节点。
+
+  - id: v2rayfree
+    name: v2rayfree
+    group: v2ray
+    url: https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/free-nodes/v2rayfree@main/sub
+    type: original
+    format: v2ray-base64
+    license: null
+    priority: 7
+    enabled: true
+    card:
+      tag: 老牌仓库
+      note: 每小时更新一次
+      ok: [v2rayNG, 小火箭]
+      no: [Clash]
+      freq: 每小时更新
+    note: 原仓库 aiboboxx/v2rayfree 已迁移到 free-nodes/v2rayfree（README 与数据文件字节数完全一致），旧地址 301，已改用新地址。
+
+  - id: free18
+    name: free18
+    group: v2ray
+    url: https://raw.githubusercontent.com/free18/v2ray/main/v.txt
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/free18/v2ray@main/v.txt
+    type: original
+    format: v2ray-base64
+    license: null
+    priority: 6
+    enabled: true
+    card:
+      tag: 每日分享
+      note: 节点和机场一起发
+      ok: [v2rayNG, 小火箭]
+      no: [Clash]
+      freq: 每日更新
+    note: 同仓库另有 c.yaml（Clash 版），未接入，避免同源重复计数。
+
+  # P2 新接入：指纹级复核后唯一有真实增量的候选（详见 docs/P2-sources.md）
+  - id: matinghanbari
+    name: v2ray-configs
+    group: v2ray
+    url: https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt
+    mirrors:
+      - https://gcore.jsdelivr.net/gh/MatinGhanbari/v2ray-configs@main/subscriptions/base64/all_sub.txt
+    type: aggregator
+    format: v2ray-base64
+    license: MIT
+    priority: 4
+    enabled: true
+    card:
+      tag: 多协议合集
+      note: 近 4000 条，含 ss / vless / vmess
+      ok: [v2rayNG, 小火箭]
+      no: [Clash]
+      freq: 每日更新
+    note: >-
+      审核：解析 3969 条、唯一 3848，与现有全源指纹并集比对后**真正新增 1764 条（46%）**，
+      抽样可连 25%，MIT 许可、每日构建。属「量足但需筛选」路线，卡片已标注可连率供用户判断。
+
+  # ── sing-box 系 ─────────────────────────────────────────────────────
+  - id: radarhub-singbox
+    name: radarhub·singbox
+    group: singbox
+    url: https://radarhub.top/sing-box.json
+    mirrors: []
+    type: aggregator
+    format: singbox-json
+    license: null
+    priority: 10
+    enabled: true
+    card:
+      tag: 带规则 · 与 Clash 同源
+      note: 同 Clash 源，只是换成 json
+      ok: [sing-box, Hiddify]
+      no: [Clash]
+      freq: 6 小时更新
+      cn: true
+    note: 与 radarhub-clash 同一份节点、不同封装。二者在「独立节点比例」上算一个来源。
+
+  - id: bzfq21
+    name: bzfq21
+    group: singbox
+    url: https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/bzfq21/proxy-singbox@main/singbox-config.json
+    type: aggregator
+    format: singbox-json
+    license: null
+    priority: 8
+    enabled: true
+    card:
+      tag: 带规则 · 半小时构建
+      note: 内置分流和去广告，需 1.13+
+      ok: [sing-box, Hiddify]
+      no: [Clash]
+      freq: 30 分钟更新
+    note: 仓库仅 8 星但构建频率高；无 LICENSE，配置里含规则集，属「可用但无背书」。
+
+  - id: awesome-vpn
+    name: awesome-vpn
+    group: singbox
+    url: https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json
+    mirrors:
+      - https://cdn.jsdelivr.net/gh/awesome-vpn/awesome-vpn@master/sing-box.json
+    type: aggregator
+    format: singbox-json
+    license: GPL-3.0
+    priority: 7
+    enabled: true
+    card:
+      tag: 每日聚合
+      note: 每天重抓一遍，量不多
+      ok: [sing-box, Hiddify]
+      no: [Clash]
+      freq: 每日更新
+    note: 仓库另有 config/node_ledger.json（节点台账），可作为后续「来源可追溯」的参考实现。
+
+  - id: andrejewild
+    name: Andrejewild
+    group: singbox
+    url: https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt
+    mirrors: []
+    type: original
+    format: sing-box
+    license: null
+    priority: 5
+    enabled: true
+    card:
+      tag: 独立小源
+      note: 十几条，几乎不撞车
+      ok: [sing-box, Hiddify]
+      no: [Clash]
+      freq: 每日更新
+    note: 体量很小但独立度高；format 需在首轮采集时按实际内容确认（sub.txt 可能是 URI 列表而非 json）。
+
+  # ── 候选：已审核、暂不启用（enabled:false 不进采集也不上页面）──────
+  # 保留在册是为了让「为什么不接」有据可查，避免下一轮重复调研。
+  # 结论对应的数据见 data/screening.json 与 docs/P2-screening.md。
+  - id: cand-nomorewalls-derivative
+    name: AutoMergePublicNodes
+    group: v2ray
+    url: https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt
+    mirrors: []
+    type: aggregator
+    format: v2ray-base64
+    license: NOASSERTION
+    priority: 0
+    enabled: false
+    note: >-
+      拒绝：与 NoMoreWalls 是派生关系——282 条里 228 条（83%）指纹完全相同，
+      fetch.py 与 LICENSE 字节数也一致。两者同时接入等于同一批节点算两次。
+
+  - id: cand-tgparse
+    name: TGParse
+    group: v2ray
+    url: https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed
+    mirrors: []
+    type: aggregator
+    format: v2ray-plain
+    license: null
+    priority: 0
+    enabled: false
+    note: >-
+      拒绝：解析 8189 条、独立新增 2174 条，看似最大，但抽样可连仅 8%。
+      Telegram 频道直接抓取、未经任何检测，属于「量最大质量最差」的典型；
+      仓库还带 50+ 份历史归档（每份 2.8MB），体量会持续膨胀。
+
+  - id: cand-mhditaheri
+    name: V2rayCollector
+    group: v2ray
+    url: https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix
+    mirrors: []
+    type: aggregator
+    format: v2ray-plain
+    license: MIT
+    priority: 0
+    enabled: false
+    note: 拒绝：解析 1845 条，抽样可连 4%。MIT 许可证不是可用性的替代品。
+
+  - id: cand-freenodess
+    name: freenodess
+    group: clash
+    url: https://raw.githubusercontent.com/freenodess/freenodess/main/nodes/clash.yaml
+    mirrors: []
+    type: aggregator
+    format: clash
+    license: null
+    priority: 0
+    enabled: false
+    note: 拒绝：解析 1751 条但抽样可连 4%；仓库 24 星、无许可证。
+
+  - id: cand-rtwo2
+    name: FastNodes
+    group: clash
+    url: https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt
+    mirrors: []
+    type: aggregator
+    format: v2ray-plain
+    license: MIT
+    priority: 0
+    enabled: false
+    note: >-
+      拒绝：top.txt 解析 999 条、抽样可连 21%。主文件 everything.txt 等
+      恰好 52,428,780 字节，是 GitHub 单文件 50MB 上限截断的结果，内容不完整。
+
+  - id: cand-xiaoji235
+    name: airport-free
+    group: clash
+    url: https://raw.githubusercontent.com/xiaoji235/airport-free/main/clash/clashnodecc.txt
+    mirrors: []
+    type: aggregator
+    format: clash
+    license: null
+    priority: 0
+    enabled: false
+    note: >-
+      拒绝：文件 3.7MB 看着很大，实际只有 21 个内联节点；其余 6690 个 name:
+      属于 ACL4SSR 规则集，不是节点。接入价值低于维护成本。
+
+  - id: cand-share-daily
+    name: share-daily
+    group: clash
+    url: https://raw.githubusercontent.com/share-daily/node/main/clash.yaml
+    mirrors: []
+    type: aggregator
+    format: clash
+    license: null
+    priority: 0
+    enabled: false
+    note: 拒绝：仅 18 条，量不足以单独成卡。
+
+  - id: cand-learnli
+    name: learnLi-free-nodes
+    group: v2ray
+    url: https://raw.githubusercontent.com/learnLi/free-nodes/main/config.yml
+    mirrors: []
+    type: original
+    format: clash
+    license: LICENSE.md
+    priority: 0
+    enabled: false
+    note: >-
+      不作为节点源：config.yml 的 proxies 为空数组，仓库发布的是「空模板 + fetch/probe/prune
+      工具链」，节点在运行期或 release 产出。可作为 P5「真实检测」的实现参考。
+
+  - id: cand-735754647
+    name: subbench
+    group: clash
+    url: https://raw.githubusercontent.com/735754647/Free-Nodes/main/config/sources.txt
+    mirrors: []
+    type: original
+    format: unknown
+    license: null
+    priority: 0
+    enabled: false
+    note: >-
+      不作为节点源：仓库本体是 subbench 测速工具（含 61MB mihomo 二进制）。
+      但 config/sources.txt 是一份现成的源清单，适合喂 discover.py 做自动发现。
+
+  - id: cand-aiboboxx
+    name: aiboboxx-v2rayfree
+    group: v2ray
+    url: https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/sub
+    mirrors: []
+    type: original
+    format: v2ray-base64
+    license: null
+    priority: 0
+    enabled: false
+    note: >-
+      重复源：301 到 free-nodes/v2rayfree，两仓库 README(37,608B) 与 sub(5,060B)
+      字节数完全一致，是同一次改名。已在册的 v2rayfree 即此项目，不得重复接入。
+
+  - id: cand-nomorewalls
+    name: NoMoreWalls
+    group: v2ray
+    url: https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt
+    mirrors: []
+    type: aggregator
+    format: v2ray-base64
+    license: NOASSERTION
+    priority: 0
+    enabled: false
+    note: >-
+      拒绝（冗余）：地址级比对显示"独立新增 76 条"，但指纹级复核发现它的 277 个唯一指纹
+      **全部**已被「尔毛子·V2Ray」包含（277/277）——尔毛子本就把 NoMoreWalls 当上游。
+      接入后独立新增为 0，只会让同一批节点被算两次。

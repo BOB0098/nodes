@@ -1,0 +1,518 @@
+{
+ "library_size": 10502,
+ "checked": 19,
+ "results": [
+  {
+   "repo": "735754647/Free-Nodes",
+   "kind": "tool",
+   "url": "https://raw.githubusercontent.com/735754647/Free-Nodes/main/config/sources.txt",
+   "note": "仓库本体是 subbench 测速工具（含 61MB mihomo 二进制），不是节点发布源；只有一份 sources.txt 源清单，可作为自动发现的种子",
+   "license": null,
+   "stars": 1102,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 63192,
+   "bytes": 2087,
+   "truncated": false,
+   "via": "raw.githubusercontent.com",
+   "declared": 20,
+   "parsed": 0,
+   "unique": 0,
+   "new_unique": 0,
+   "new_ratio": null,
+   "types": {},
+   "probe_ok": 0,
+   "probe_total": 0,
+   "alive_pct": null,
+   "verdict": "skip",
+   "reasons": [
+    "不是节点发布源（tool），不参与节点库；可用于自动发现"
+   ]
+  },
+  {
+   "repo": "learnLi/free-nodes",
+   "kind": "tool",
+   "url": "https://raw.githubusercontent.com/learnLi/free-nodes/main/config.yml",
+   "note": "config.yml 的 proxies 为空数组，仓库发布的是空模板 + fetch/probe/prune 工具链，节点经 release 或运行期产出，不是可直接订阅的发布源",
+   "license": "LICENSE.md",
+   "stars": 58,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 1508,
+   "bytes": 90609,
+   "truncated": false,
+   "via": "raw.githubusercontent.com",
+   "declared": 10,
+   "parsed": 0,
+   "unique": 0,
+   "new_unique": 0,
+   "new_ratio": null,
+   "types": {},
+   "probe_ok": 0,
+   "probe_total": 0,
+   "alive_pct": null,
+   "verdict": "skip",
+   "reasons": [
+    "不是节点发布源（tool），不参与节点库；可用于自动发现"
+   ]
+  },
+  {
+   "repo": "xiaoji235/airport-free",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/xiaoji235/airport-free/main/clash/clashnodecc.txt",
+   "note": "单文件 3.7MB；另有 15MB 版本，体积异常需核对是否重复堆叠",
+   "license": null,
+   "stars": 146,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 2167,
+   "bytes": 3762142,
+   "truncated": false,
+   "via": "gcore.jsdelivr.net",
+   "declared": 21,
+   "parsed": 21,
+   "unique": 21,
+   "new_unique": 18,
+   "new_ratio": 0.857,
+   "types": {
+    "vless": 19,
+    "vmess": 2
+   },
+   "probe_ok": 9,
+   "probe_total": 21,
+   "alive_pct": 43,
+   "expected_usable": 8,
+   "verdict": "reject",
+   "reasons": [
+    "预计可用新增仅 8 条（18 新增 × 可连 43%），低于 250 门槛",
+    "仓库未声明许可证（合规风险，需人工确认）"
+   ]
+  },
+  {
+   "repo": "freenodess/freenodess",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/freenodess/freenodess/main/nodes/clash.yaml",
+   "note": "三种格式并存（clash.yaml / singbox.json / v2ray-base64.txt），同源同批",
+   "license": null,
+   "stars": 24,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 43748,
+   "bytes": 615234,
+   "truncated": false,
+   "via": "raw.githubusercontent.com",
+   "declared": 1751,
+   "parsed": 1751,
+   "unique": 1029,
+   "new_unique": 403,
+   "new_ratio": 0.72,
+   "types": {
+    "hysteria2": 171,
+    "ss": 134,
+    "trojan": 234,
+    "vless": 1002,
+    "vmess": 210
+   },
+   "probe_ok": 1,
+   "probe_total": 24,
+   "alive_pct": 4,
+   "expected_usable": 16,
+   "verdict": "reject",
+   "reasons": [
+    "预计可用新增仅 16 条（403 新增 × 可连 4%），低于 250 门槛",
+    "自身可连率仅 4%，大量死条目会稀释库内可用率",
+    "仓库未声明许可证（合规风险，需人工确认）"
+   ]
+  },
+  {
+   "repo": "share-daily/node",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/share-daily/node/main/clash.yaml",
+   "note": "仅 33KB，量小",
+   "license": null,
+   "stars": 22,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 2670,
+   "bytes": 33445,
+   "truncated": false,
+   "via": "raw.githubusercontent.com",
+   "declared": 233,
+   "parsed": 18,
+   "unique": 12,
+   "new_unique": 12,
+   "new_ratio": 1.0,
+   "types": {
+    "ss": 16,
+    "vmess": 2
+   },
+   "probe_ok": 10,
+   "probe_total": 12,
+   "alive_pct": 83,
+   "verdict": "reject",
+   "reasons": [
+    "只解析出 18 条，量不足以单独成卡"
+   ]
+  },
+  {
+   "repo": "rtwo2/FastNodes",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt",
+   "note": "MIT；主文件被 GitHub 50MB 上限截断（everything.txt 恰为 52,428,780 字节），只取 top.txt",
+   "license": "MIT",
+   "stars": 110,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 3608,
+   "bytes": 332387,
+   "truncated": false,
+   "via": "cdn.jsdelivr.net",
+   "declared": 1000,
+   "parsed": 998,
+   "unique": 916,
+   "new_unique": 440,
+   "new_ratio": 0.657,
+   "types": {
+    "trojan": 112,
+    "vless": 742,
+    "vmess": 144
+   },
+   "probe_ok": 5,
+   "probe_total": 24,
+   "alive_pct": 21,
+   "expected_usable": 92,
+   "verdict": "reject",
+   "reasons": [
+    "预计可用新增仅 92 条（440 新增 × 可连 21%），低于 250 门槛"
+   ]
+  },
+  {
+   "repo": "nodesradar/nodesradar-en",
+   "kind": "index",
+   "url": "https://raw.githubusercontent.com/nodesradar/nodesradar-en/main/README.md",
+   "note": "仓库只有 README，无数据文件；真正的数据在 radarhub.top，已在册",
+   "license": null,
+   "stars": 31,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 1979,
+   "bytes": 12136,
+   "truncated": false,
+   "via": "cdn.jsdelivr.net",
+   "declared": 44,
+   "parsed": 30,
+   "unique": 30,
+   "new_unique": 18,
+   "new_ratio": 0.667,
+   "types": {
+    "hysteria2": 6,
+    "ss": 18,
+    "vmess": 6
+   },
+   "probe_ok": 3,
+   "probe_total": 24,
+   "alive_pct": 12,
+   "verdict": "skip",
+   "reasons": [
+    "不是节点发布源（index），不参与节点库；可用于自动发现"
+   ]
+  },
+  {
+   "repo": "peasoft/NoMoreWalls",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt",
+   "note": "老牌项目，带 list.yml/meta.yml；LICENSE.md 为 NOASSERTION，需人工看",
+   "license": "NOASSERTION",
+   "stars": 3636,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 3129,
+   "bytes": 78044,
+   "truncated": false,
+   "via": "gcore.jsdelivr.net",
+   "declared": 378,
+   "parsed": 307,
+   "unique": 304,
+   "new_unique": 105,
+   "new_ratio": 0.372,
+   "types": {
+    "hysteria2": 51,
+    "socks5": 15,
+    "ss": 76,
+    "trojan": 23,
+    "vless": 141,
+    "vmess": 1
+   },
+   "probe_ok": 11,
+   "probe_total": 24,
+   "alive_pct": 46,
+   "expected_usable": 48,
+   "verdict": "reject",
+   "reasons": [
+    "预计可用新增仅 48 条（105 新增 × 可连 46%），低于 250 门槛"
+   ]
+  },
+  {
+   "repo": "chengaopan/AutoMergePublicNodes",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
+   "note": "与 NoMoreWalls 高度相似（fetch.py 同为 63,200B、LICENSE 同为 2,113B），疑为派生，需看去重后还剩多少",
+   "license": "NOASSERTION",
+   "stars": 8438,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 2096,
+   "bytes": 73304,
+   "truncated": false,
+   "via": "cdn.jsdelivr.net",
+   "declared": 342,
+   "parsed": 282,
+   "unique": 276,
+   "new_unique": 75,
+   "new_ratio": 0.287,
+   "types": {
+    "hysteria2": 49,
+    "socks5": 6,
+    "ss": 73,
+    "trojan": 22,
+    "vless": 131,
+    "vmess": 1
+   },
+   "probe_ok": 11,
+   "probe_total": 24,
+   "alive_pct": 46,
+   "expected_usable": 34,
+   "verdict": "reject",
+   "reasons": [
+    "预计可用新增仅 34 条（75 新增 × 可连 46%），低于 250 门槛"
+   ]
+  },
+  {
+   "repo": "Leon406/SubCrawler",
+   "kind": "index",
+   "url": "https://raw.githubusercontent.com/Leon406/SubCrawler/main/sub/subs.txt",
+   "note": "subs.txt 只有 1.5KB，是「订阅地址清单」不是节点；适合喂自动发现",
+   "license": "GPL-3.0",
+   "stars": 1582,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 1488,
+   "bytes": 1513,
+   "truncated": false,
+   "via": "cdn.jsdelivr.net",
+   "declared": 8,
+   "parsed": 6,
+   "unique": 6,
+   "new_unique": 6,
+   "new_ratio": 1.0,
+   "types": {
+    "ss": 2,
+    "trojan": 2,
+    "vmess": 2
+   },
+   "probe_ok": 1,
+   "probe_total": 6,
+   "alive_pct": 17,
+   "verdict": "skip",
+   "reasons": [
+    "不是节点发布源（index），不参与节点库；可用于自动发现"
+   ]
+  },
+  {
+   "repo": "MhdiTaheri/V2rayCollector",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix",
+   "note": "MIT；按协议拆分（mix/vless/ss/...），取混合版",
+   "license": "MIT",
+   "stars": 323,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 1803,
+   "bytes": 559487,
+   "truncated": false,
+   "via": "gcore.jsdelivr.net",
+   "declared": 1982,
+   "parsed": 1845,
+   "unique": 1232,
+   "new_unique": 945,
+   "new_ratio": 0.811,
+   "types": {
+    "ss": 912,
+    "trojan": 92,
+    "vless": 696,
+    "vmess": 145
+   },
+   "probe_ok": 1,
+   "probe_total": 24,
+   "alive_pct": 4,
+   "expected_usable": 38,
+   "verdict": "reject",
+   "reasons": [
+    "预计可用新增仅 38 条（945 新增 × 可连 4%），低于 250 门槛",
+    "自身可连率仅 4%，大量死条目会稀释库内可用率"
+   ]
+  },
+  {
+   "repo": "Surfboardv2ray/TGParse",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed",
+   "note": "Telegram 频道抓取；仓库里有 50+ 份历史归档，会持续膨胀",
+   "license": null,
+   "stars": 297,
+   "pushed": "2026-11-24",
+   "stale_days": 0,
+   "http": 200,
+   "http_ms": 13525,
+   "bytes": 2690777,
+   "truncated": false,
+   "via": "gcore.jsdelivr.net",
+   "declared": 8282,
+   "parsed": 8189,
+   "unique": 4642,
+   "new_unique": 2167,
+   "new_ratio": 0.647,
+   "types": {
+    "hysteria2": 82,
+    "socks5": 30,
+    "ss": 1517,
+    "trojan": 702,
+    "vless": 5340,
+    "vmess": 518
+   },
+   "probe_ok": 4,
+   "probe_total": 24,
+   "alive_pct": 17,
+   "expected_usable": 368,
+   "verdict": "watch",
+   "reasons": [
+    "预计可用新增 368 条（2167 × 17%），中等",
+    "自身可连率仅 17%，大量死条目会稀释库内可用率",
+    "仓库未声明许可证（合规风险，需人工确认）"
+   ]
+  },
+  {
+   "repo": "free-nodes/clashfree",
+   "stars": 17423,
+   "license": null,
+   "pushed_at": "2026-11-24",
+   "desc": "clash节点、免费clash节点、免费节点、免费梯子、clash科学上网、clash翻墙、clash订阅链接、clash for Windows、clash教程、免费公益节点、最新clash免费节点订阅地址、clash免费节点每日更新",
+   "url": "https://raw.githubusercontent.com/free-nodes/clashfree/main/clash20261122.yml",
+   "format_guess": "clash",
+   "size": 636294,
+   "status": "queued",
+   "first_seen": "2026-11-24",
+   "http": 200,
+   "http_ms": 3879,
+   "bytes": 636294,
+   "truncated": false,
+   "via": "gcore.jsdelivr.net",
+   "declared": 1,
+   "parsed": 0,
+   "unique": 0,
+   "new_unique": 0,
+   "new_ratio": null,
+   "types": {},
+   "probe_ok": 0,
+   "probe_total": 0,
+   "alive_pct": null,
+   "verdict": "reject",
+   "reasons": [
+    "只解析出 0 条，量不足以单独成卡"
+   ]
+  },
+  {
+   "repo": "igareck/vpn-configs-for-russia",
+   "stars": 9807,
+   "license": "GPL-3.0",
+   "pushed_at": "2026-11-24",
+   "desc": "🗽Бесплатные и проверенные VPN/Tor конфигурации, работающие в РФ ⚪ Белые списки / обход белых списков ⚪ Free and checked ",
+   "url": "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Export/Clash/RU_DIRECT/BLACK_VLESS_RUS_clash_rudirect.yaml",
+   "format_guess": "clash",
+   "size": 441126,
+   "status": "queued",
+   "first_seen": "2026-11-24",
+   "http": 200,
+   "http_ms": 2216,
+   "bytes": 441126,
+   "truncated": false,
+   "via": "cdn.jsdelivr.net",
+   "declared": 767,
+   "parsed": 767,
+   "unique": 619,
+   "new_unique": 165,
+   "new_ratio": 0.668,
+   "types": {
+    "vless": 767
+   },
+   "probe_ok": 9,
+   "probe_total": 24,
+   "alive_pct": 38,
+   "expected_usable": 63,
+   "verdict": "reject",
+   "reasons": [
+    "预计可用新增仅 63 条（165 新增 × 可连 38%），低于 250 门槛"
+   ]
+  },
+  {
+   "repo": "Pawdroid/Free-servers",
+   "kind": "enabled",
+   "url": "",
+   "note": "已在册",
+   "verdict": "skip",
+   "reasons": [
+    "已在 sources.yaml 中启用，不重复审核"
+   ]
+  },
+  {
+   "repo": "aiboboxx/v2rayfree",
+   "kind": "dup",
+   "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
+   "note": "301 到 free-nodes/v2rayfree；两仓库 README(37,608B) 与 sub(5,060B) 字节数完全一致，同一次改名，不得重复接入",
+   "verdict": "skip",
+   "reasons": [
+    "已在 sources.yaml 中启用，不重复审核"
+   ]
+  },
+  {
+   "repo": "ermaozi/get_subscribe",
+   "kind": "enabled",
+   "url": "",
+   "note": "已在册（3 张卡片）",
+   "verdict": "skip",
+   "reasons": [
+    "已在 sources.yaml 中启用，不重复审核"
+   ]
+  },
+  {
+   "repo": "Barabama/FreeNodes",
+   "kind": "enabled",
+   "url": "",
+   "note": "已在册",
+   "verdict": "skip",
+   "reasons": [
+    "已在 sources.yaml 中启用，不重复审核"
+   ]
+  },
+  {
+   "repo": "MatinGhanbari/v2ray-configs",
+   "kind": "source",
+   "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
+   "note": "MIT；1.6MB base64 合集，按协议分目录",
+   "verdict": "skip",
+   "reasons": [
+    "已在 sources.yaml 中启用，不重复审核"
+   ]
+  }
+ ]
+}

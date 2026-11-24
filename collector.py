@@ -24,102 +24,17 @@ os.makedirs(OUT_DATA, exist_ok=True)
 
 sys.path.insert(0, BASE)
 import nodes_parse  # noqa: E402  同目录模块，负责把 YAML/JSON/URI 统一解析成节点
+import sources_io  # noqa: E402  来源登记表读取（sources.yaml）
 
-# ── 订阅清单：页面按此结构展示，url 均为仓库原版地址 ──────────────
-GROUPS = [
-    {
-        "title": "Clash 系",
-        "kern": "mihomo 内核",
-        "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android",
-        "items": [
-            {"tag": "推荐 · 只含可连节点", "note": "只留连得上的，成功率高",
-             "ok": ["Clash"], "no": ["v2rayNG"],
-             "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net"},
-            {"tag": "带规则分流", "note": "自带分流规则，开箱即用",
-             "ok": ["Clash"], "no": [],
-             "freq": "6 小时更新", "cn": True, "url": "https://radarhub.top/clash.yaml"},
-            {"tag": "全量节点", "note": "含未测速节点，量最大",
-             "ok": ["Clash"], "no": [],
-             "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net"},
-            {"tag": "超大合集", "note": "1800 条以上，最全也最杂",
-             "ok": ["Clash"], "no": [],
-             "freq": "每日更新", "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml"},
-            {"tag": "多源合并", "note": "几个日更仓库合成，已去重",
-             "ok": ["Clash"], "no": [],
-             "freq": "每日更新",
-             "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml"},
-        ],
-    },
-    {
-        "title": "V2Ray 系",
-        "kern": "Xray 内核",
-        "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing",
-        "items": [
-            {"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢",
-             "ok": ["v2rayNG", "小火箭"], "no": ["Clash"],
-             "freq": "6 小时更新",
-             "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"},
-            {"tag": "每日抓取", "note": "每天抓全网机场并测连通",
-             "ok": ["v2rayNG", "小火箭"], "no": ["Clash"],
-             "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net"},
-            {"tag": "全量最大", "note": "近 3000 条，最多也最杂",
-             "ok": ["v2rayNG", "小火箭", "Hiddify"], "no": ["Clash"],
-             "freq": "每日更新",
-             "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt"},
-            {"tag": "老牌仓库", "note": "每小时更新一次",
-             "ok": ["v2rayNG", "小火箭"], "no": ["Clash"],
-             "freq": "每小时更新",
-             "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub"},
-            {"tag": "每日分享", "note": "节点和机场一起发",
-             "ok": ["v2rayNG", "小火箭"], "no": ["Clash"],
-             "freq": "每日更新",
-             "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt"},
-        ],
-    },
-    {
-        "title": "sing-box 系",
-        "kern": "sing-box 内核",
-        "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）",
-        "items": [
-            {"tag": "带规则 · 与 Clash 同源", "note": "同 Clash 源，只是换成 json",
-             "ok": ["sing-box", "Hiddify"], "no": ["Clash"],
-             "freq": "6 小时更新", "cn": True, "url": "https://radarhub.top/sing-box.json"},
-            {"tag": "带规则 · 半小时构建", "note": "内置分流和去广告，需 1.13+",
-             "ok": ["sing-box", "Hiddify"], "no": ["Clash"],
-             "freq": "30 分钟更新",
-             "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json"},
-            {"tag": "每日聚合", "note": "每天重抓一遍，量不多",
-             "ok": ["sing-box", "Hiddify"], "no": ["Clash"],
-             "freq": "每日更新",
-             "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json"},
-            {"tag": "独立小源", "note": "十几条，几乎不撞车",
-             "ok": ["sing-box", "Hiddify"], "no": ["Clash"],
-             "freq": "每日更新",
-             "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt"},
-        ],
-    },
-]
-
-
-# 采集校验用（与卡片对应，只用于统计条数和生成明细）
-SOURCES = [
-    ("Pawdroid",   ["https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-                    "https://cdn.jsdelivr.net/gh/Pawdroid/Free-servers@main/sub"]),
-    ("nodesradar", ["https://radarhub.top/v2ray.txt"]),
-    ("尔毛子",     ["https://blog.ermao.net/sub/v2ray/ermao.net"]),
-    ("v2rayfree",  ["https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
-                    "https://cdn.jsdelivr.net/gh/free-nodes/v2rayfree@main/sub"]),
-    ("free18",     ["https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
-                    "https://cdn.jsdelivr.net/gh/free18/v2ray@main/v.txt"]),
-    ("anaer",      ["https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
-                    "https://cdn.jsdelivr.net/gh/anaer/Sub@main/clash.yaml"]),
-    ("Barabama",   ["https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml",
-                    "https://cdn.jsdelivr.net/gh/Barabama/FreeNodes@main/nodes/clashmeta.yaml"]),
-    ("ALIILAPRO",  ["https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
-                    "https://cdn.jsdelivr.net/gh/ALIILAPRO/v2rayNG-Config@main/server.txt"]),
-    ("zhuhaiuk",   ["https://raw.githubusercontent.com/zhuhaiuk/free-nodes/main/nodes.txt",
-                    "https://cdn.jsdelivr.net/gh/zhuhaiuk/free-nodes@main/nodes.txt"]),
-]
+# ── 来源清单：唯一事实来源是 sources.yaml ──────────────────────────
+# 旧实现里 GROUPS(14 张卡片) 与 SOURCES(9 个采集项) 是两张互不对应的表，
+# 7 张卡片拿不到统计、2 个源采了却不展示。现在都从 YAML 生成。
+GROUPS, SOURCES_ALL, GROUP_META = sources_io.load()
+SOURCES = sources_io.collect_targets(SOURCES_ALL)
+# url -> [主地址, *镜像]：计数/测速/探活都走这一份，避免只试主地址时把
+# 网络抖动当成源挂了（NoMoreWalls 这类只有 GitHub raw 的源尤其明显）
+URLS_BY_URL = {s["url"]: [s["url"]] + [m for m in (s.get("mirrors") or []) if m]
+               for s in SOURCES_ALL if s.get("enabled")}
 
 PROTO_LABEL = {"vmess": "VMess", "vless": "VLESS", "ss": "Shadowsocks", "ssr": "SSR",
                "trojan": "Trojan", "hysteria": "Hysteria", "hysteria2": "Hysteria2", "hy2": "Hysteria2",
@@ -274,10 +189,25 @@ def http_probe(url, timeout=12):
 
 
 def probe_sources(items):
-    """并发测每个订阅地址本身。失败不抛，返回 code=0 + 异常类名。"""
+    """并发测每个订阅地址本身。失败不抛，返回 code=0 + 异常类名。
+
+    主地址不通时会试镜像：页面要回答的是「这个源还活着吗」，而不是
+    「GitHub raw 此刻通不通」。
+    """
     urls = [i["url"] for i in items]
+
+    def best(u):
+        r = http_probe(u)
+        if r.get("code") == 200:
+            return r
+        for m in URLS_BY_URL.get(u, [])[1:]:
+            r2 = http_probe(m)
+            if r2.get("code") == 200:
+                return r2
+        return r
+
     with ThreadPoolExecutor(max_workers=6) as ex:
-        res = list(ex.map(lambda u: http_probe(u), urls))
+        res = list(ex.map(best, urls))
     out = {}
     for u, r in zip(urls, res):
         out[u] = r
@@ -346,7 +276,7 @@ def measure(items, use_cache=False):
 
     def work(it):
         nm = "c_" + hashlib.md5(it["url"].encode()).hexdigest()[:10]
-        data = fetch([it["url"]], nm, use_cache)
+        data = fetch(URLS_BY_URL.get(it["url"], [it["url"]]), nm, use_cache)
         # 指纹用来判断「这条源的内容到底有没有变」：
         # 非 GitHub 的站点拿不到提交时间，只能靠它算新鲜度
         return it["url"], count_of(data), extract_addrs(data), hashlib.md5(data).hexdigest()
@@ -470,6 +400,70 @@ def update_health(old, probes, fps=None):
     else:
         print("  （本地运行，不写入健康记录）")
     return new
+
+
+def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, prev=None):
+    """按任务书 §4 的字段口径，为每个启用的源生成一行动态记录。
+
+    与页面上那点数字的区别：这里记的是「这一轮采集的原始事实」——
+    解析出多少、去重后实际留下多少、抽样可连多少、HTTP 几、连续失败几次。
+    页面只展示其中一部分，全量落在 data/sources_stats.json 供 P4 评分使用。
+    """
+    from collections import Counter
+    kept = Counter(n["src"] for n in nodes)
+    prev_map = {r.get("id"): r for r in (prev or []) if isinstance(r, dict)}
+    stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M")
+    rows = []
+    for s in sources:
+        if not s.get("enabled"):
+            continue
+        u = s["url"]
+        p = probes.get(u) or {}
+        total, ok = int(p.get("total") or 0), int(p.get("ok") or 0)
+        parsed = counts.get(u)
+        kept_n = kept.get(s["name"], 0)
+        http = (srcstat.get(u) or {})
+        code = http.get("code")
+        old = prev_map.get(s["id"]) or {}
+        fails_total = int(old.get("fails_total") or 0)
+        fails_streak = int(old.get("fails_streak") or 0)
+        err = None
+        if code != 200 or parsed is None:
+            fails_total += 1
+            fails_streak += 1
+            err = f"HTTP {code}" if code != 200 else "解析失败"
+        else:
+            fails_streak = 0
+        rate = (ok / total * 100) if total else None
+        rows.append({
+            "id": s["id"], "name": s["name"], "url": u,
+            "type": s["type"], "format": s["format"], "license": s.get("license"),
+            "priority": s.get("priority"),
+            "checked_at": stamp,
+            "http": code, "http_ms": http.get("ms"),
+            "source_age_h": _age_of(meta, health, u),
+            "parsed": parsed,                 # 解析出的节点数
+            "kept": kept_n,                   # 去重后实际入库归属该源的条数
+            "dup": (parsed - kept_n) if isinstance(parsed, int) else None,
+            "probe_total": total, "probe_ok": ok,
+            "alive_pct": round(rate) if rate is not None else None,
+            "fails_total": fails_total, "fails_streak": fails_streak,
+            "last_error": err,
+            # quality 暂用抽样可连率；P4 会替换为加权分（更新频率/可用率/独立新增）
+            "quality": round(rate) if rate is not None else None,
+        })
+    rows.sort(key=lambda r: (-(r.get("quality") or -1), -(r.get("kept") or 0)))
+    return rows
+
+
+def print_source_stats(rows):
+    print("\n来源统计（解析 → 去重后入库 → 抽样可连）")
+    print(f"  {'来源':<18}{'解析':>7}{'入库':>7}{'重复':>7}{'可连':>7}{'HTTP':>7}{'失败':>6}")
+    for r in rows:
+        print(f"  {r['name'][:17]:<18}{str(r['parsed'] or '—'):>7}{r['kept']:>7}"
+              f"{str(r['dup'] if r['dup'] is not None else '—'):>7}"
+              f"{(str(r['alive_pct']) + '%') if r['alive_pct'] is not None else '—':>7}"
+              f"{str(r['http'] or '—'):>7}{r['fails_streak']:>6}")
 
 
 def _age_of(meta, health, url):
@@ -614,6 +608,14 @@ def main():
             print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
 
     build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat, meta)
+
+    # 每源动态统计：任务书 §4 要求的原始/解析/重复/新增/有效节点数与失败次数
+    rows = build_source_stats(SOURCES_ALL, counts, probes, srcstat, meta, health, nodes,
+                              sources_io.load_stats().get("sources"))
+    print_source_stats(rows)
+    sources_io.save_stats(
+        rows,
+        updated=datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"))
 
     # 全量导出口：含完整凭据，只能留在本地/CI 产物里，绝不能进仓库
     # （2024-11 曾提交到公开仓库 78 次，已重写历史清除；export/ 已在 .gitignore）

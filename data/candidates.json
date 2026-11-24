@@ -1,0 +1,38 @@
+{
+ "generated_at": "2026-11-24 23:00",
+ "queries": [
+  "clash subscribers in:name,description,readme",
+  "free v2ray nodes in:name,description,readme",
+  "sing-box config in:name,description,readme",
+  "免费节点 订阅 in:name,description,readme"
+ ],
+ "min_stars": 30,
+ "max_age_days": 14,
+ "note": "候选队列。仅经 screen.py 审核 + 人工置 enabled 后才会上线。",
+ "candidates": [
+  {
+   "repo": "free-nodes/clashfree",
+   "stars": 17423,
+   "license": null,
+   "pushed_at": "2026-11-24",
+   "desc": "clash节点、免费clash节点、免费节点、免费梯子、clash科学上网、clash翻墙、clash订阅链接、clash for Windows、clash教程、免费公益节点、最新clash免费节点订阅地址、clash免费节点每日更新",
+   "url": "https://raw.githubusercontent.com/free-nodes/clashfree/main/clash20261122.yml",
+   "format_guess": "clash",
+   "size": 636294,
+   "status": "queued",
+   "first_seen": "2026-11-24"
+  },
+  {
+   "repo": "igareck/vpn-configs-for-russia",
+   "stars": 9807,
+   "license": "GPL-3.0",
+   "pushed_at": "2026-11-24",
+   "desc": "🗽Бесплатные и проверенные VPN/Tor конфигурации, работающие в РФ ⚪ Белые списки / обход белых списков ⚪ Free and checked ",
+   "url": "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main/Export/Clash/RU_DIRECT/BLACK_VLESS_RUS_clash_rudirect.yaml",
+   "format_guess": "clash",
+   "size": 441126,
+   "status": "queued",
+   "first_seen": "2026-11-24"
+  }
+ ]
+}

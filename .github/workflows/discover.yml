@@ -1,0 +1,47 @@
+name: 候选来源发现
+
+on:
+  schedule:
+    # 每周一 04:23（UTC）。与采集解耦：发现失败不影响线上数据
+    - cron: '23 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: discover
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install pyyaml
+
+      - name: 检索候选来源
+        env:
+          # 搜索接口限流很紧（带 token 30 次/分），必须用 token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 discover.py
+
+      # 只提交候选队列。sources.yaml 永远由人改：
+      # 任务书 §4 明确「不得自动把新发现来源直接加入正式订阅」
+      - name: 提交候选队列
+        run: |
+          git config user.name "node-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/candidates.json
+          if git diff --cached --quiet; then
+            echo "队列无变化，不提交"
+            exit 0
+          fi
+          git commit -m "chore: 更新候选来源队列 $(date '+%Y-%m-%d')"
+          git push

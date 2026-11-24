@@ -1,77 +1,82 @@
 {
- "updated": "11-24 21:00",
- "ts": 1795525234,
+ "updated": "11-24 22:18",
+ "ts": 1795529938,
  "sources": [
   {
    "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
    "code": 200,
-   "ms": 2952
+   "ms": 3112
   },
   {
    "url": "https://radarhub.top/clash.yaml",
    "code": 200,
-   "ms": 828
+   "ms": 1554
   },
   {
    "url": "https://blog.ermao.net/sub/clash/ermao.net",
    "code": 200,
-   "ms": 5815
+   "ms": 4211
   },
   {
    "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
-   "code": 0,
-   "ms": 24571,
-   "err": "URLError"
+   "code": 200,
+   "ms": 3631
   },
   {
    "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml",
    "code": 200,
-   "ms": 1140
+   "ms": 645
   },
   {
    "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
    "code": 200,
-   "ms": 2485
+   "ms": 597
   },
   {
    "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
    "code": 200,
-   "ms": 2797
+   "ms": 3479
   },
   {
    "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
    "code": 200,
-   "ms": 906
+   "ms": 616
   },
   {
    "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
    "code": 200,
-   "ms": 1914
+   "ms": 657
   },
   {
    "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
    "code": 200,
-   "ms": 3206
+   "ms": 658
+  },
+  {
+   "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
+   "code": 200,
+   "ms": 6570
   },
   {
    "url": "https://radarhub.top/sing-box.json",
    "code": 200,
-   "ms": 1911
+   "ms": 1584
   },
   {
    "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json",
    "code": 200,
-   "ms": 7134
+   "ms": 654
   },
   {
    "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json",
    "code": 200,
-   "ms": 3292
+   "ms": 482
   },
   {
    "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt",
-   "code": 200,
-   "ms": 3183
+   "code": 0,
+   "ms": 24752,
+   "err": "TimeoutError"
   }
  ]
 }
