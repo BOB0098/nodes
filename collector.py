@@ -268,14 +268,14 @@ def load_template():
 
 
 def render_page(page):
-    """把数据填进模板。__N__ 是条数，__DATA__ 是 JSON。
+    """把数据填进模板。__DATA__ 是整页 JSON。
 
     JSON 里的 </ 转义成 <\/，否则数据中出现 </script> 会截断脚本块。
+    模板里已经没有 __N__ 占位符（源条数由页面自己数），原先那步替换是空转，去掉。
     """
     tpl = load_template()
-    n = sum(len(g["items"]) for g in page["groups"])
     payload = json.dumps(page, ensure_ascii=False).replace("</", "<\\/")
-    return tpl.replace("__N__", str(n)).replace("__DATA__", payload)
+    return tpl.replace("__DATA__", payload)
 
 
 def count_of(data):
@@ -706,9 +706,9 @@ def main():
 
     build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat, meta)
     uris = [n["uri"] for n in nodes]
-    with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w") as f:
+    with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w", encoding="utf-8") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
-    with open(os.path.join(BASE, "订阅 全部节点 明文.txt"), "w") as f:
+    with open(os.path.join(BASE, "订阅 全部节点 明文.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(uris))
 
     print(f"\n完成: 校验 {raw} 条，去重后 {len(nodes)} 条")

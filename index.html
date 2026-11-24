@@ -2,11 +2,31 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<!-- 不锁 maximum-scale：锁住之后安卓/iOS 双指放大失效，低视力用户没法看清明细 -->
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#FAFBFC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0B0C0F" media="(prefers-color-scheme: dark)">
-<title>节点配置链接</title>
+<title>节点配置链接 · 免费节点订阅索引</title>
+<meta name="description" content="免费节点订阅索引：每 3 小时自动采集 14 条公开订阅源（Clash / V2Ray / sing-box），实测可连率与源新鲜度，按质量排序，一键复制或扫码导入客户端。">
+<link rel="canonical" href="https://bob0098.github.io/nodes/">
+<!-- 分享卡片：微信 / Telegram / X 抓不到 og 就只显示一个裸标题 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="节点配置链接">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="节点配置链接 · 免费节点订阅索引">
+<meta property="og:description" content="每 3 小时自动采集 14 条公开订阅源，实测可连率与新鲜度、按质量排序，一键复制或扫码导入。">
+<meta property="og:url" content="https://bob0098.github.io/nodes/">
+<meta property="og:image" content="https://bob0098.github.io/nodes/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="节点配置链接 —— 免费节点订阅索引">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="节点配置链接 · 免费节点订阅索引">
+<meta name="twitter:description" content="每 3 小时自动采集 14 条公开订阅源，实测可连率与新鲜度、按质量排序，一键复制或扫码导入。">
+<meta name="twitter:image" content="https://bob0098.github.io/nodes/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B0C0F'/%3E%3Cg stroke='%23fff' stroke-width='1.6' stroke-linecap='round' opacity='.55'%3E%3Cpath d='M16 16 9.5 10M16 16l6.5-6M16 16 9.5 22M16 16l6.5 6'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Ccircle cx='16' cy='16' r='3.1'/%3E%3Ccircle cx='9.5' cy='10' r='1.9'/%3E%3Ccircle cx='22.5' cy='10' r='1.9'/%3E%3Ccircle cx='9.5' cy='22' r='1.9'/%3E%3Ccircle cx='22.5' cy='22' r='1.9'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230B0C0F'/%3E%3Cg fill='%23fff'%3E%3Ccircle cx='16' cy='16' r='4'/%3E%3Ccircle cx='9' cy='9' r='2.4'/%3E%3Ccircle cx='23' cy='9' r='2.4'/%3E%3Ccircle cx='9' cy='23' r='2.4'/%3E%3Ccircle cx='23' cy='23' r='2.4'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 
 /* ── 免责声明 ─────────────────────────────────────────────────────── */
@@ -132,6 +152,10 @@ a:focus-visible,.cbtn:focus-visible,.qbtn:focus-visible,.qrx:focus-visible,.url:
 header{padding:16px 2px 10px}
 h1{font-size:22px;font-weight:var(--fwh);letter-spacing:-.01em;line-height:1.2;text-align:center;color:var(--ink);text-wrap:balance}
 .sub{color:var(--ink-2);font-size:17px;line-height:1.55;margin-top:8px;text-align:center;text-wrap:pretty}
+/* 时间行：字号压到 12.5px 并等宽数字，避免秒/分变化时整行抖动 */
+.sub.upd{font-size:12.5px;color:var(--ink-3);margin-top:7px;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.sub.upd b{font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.sub.upd .stale{color:var(--warn-ink)}
 .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
 .pill{background:var(--surf-solid);color:var(--ink-2);font-size:13px;font-weight:500;padding:5px 12px;
   border-radius:var(--r-pill);border:1px solid var(--stroke);box-shadow:var(--sh-press)}
@@ -325,14 +349,10 @@ html.lock,html.lock body{overflow:hidden}
 
 
 /* ── 动效 ──────────────────────────────────────────────────────────────── */
-/* 收尾写 filter:none 而不是 blur(0)：blur(0) 仍算滤镜，会让 23 个逐字 span
-   各自常驻一个合成层，滚动时白背着 23 层合成 */
-@keyframes ink{from{opacity:0;filter:blur(6px);transform:translateY(.22em)}to{opacity:1;filter:none;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes qin{from{opacity:0}to{opacity:1}}
 @keyframes qpop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes pop{0%{transform:scale(1)}42%{transform:scale(1.03)}100%{transform:scale(1)}}
-.ink{display:inline-block;opacity:0;animation:ink .55s var(--e-out) both;animation-delay:calc(var(--i,0)*16ms)}
 
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
@@ -343,6 +363,7 @@ html.lock,html.lock body{overflow:hidden}
 <div class="wrap">
 <header>
   <h1>节点配置链接</h1>
+  <p class="sub upd" id="upd"></p>
 </header>
 
 
@@ -360,6 +381,9 @@ html.lock,html.lock body{overflow:hidden}
 </div>
 
 <div id="groups"></div>
+
+<!-- 空态紧跟列表，之前挂在免责声明后面，筛空了提示会跑到页面最下方 -->
+<p class="fempty" id="fempty" hidden>这个组合下没有源<br><span style="color:var(--ink-3);font-size:13px">两个条件同时开太严了，关掉一个试试</span></p>
 
 <section class="sec">
   <div class="sec-t sec-t-c"><span class="sec-tag">主流客户端下载</span><span class="cl-note">GitHub 链接需科学上网</span></div>
@@ -381,8 +405,7 @@ html.lock,html.lock body{overflow:hidden}
   </div>
 </section>
 
-<p class="disc disc-a">本站仅收录第三方公开发布的订阅链接，不存储、不托管任何节点资源。请遵守当地法律法规，违规使用后果自负。</p>
-<p class="fempty" id="fempty" hidden>这个组合下没有源<br><span style="color:var(--ink-3);font-size:13px">两个条件同时开太严了，关掉一个试试</span></p>
+<p class="disc disc-a">本站仅收录第三方公开发布的订阅链接，不生产节点、不改写原始链接。请遵守当地法律法规，违规使用后果自负。</p>
 </div>
 
 <template id="tpl-card">
@@ -416,6 +439,27 @@ html.lock,html.lock body{overflow:hidden}
 (() => {
   'use strict';
   const DATA = {"updated": "11-24 17:54", "ts": 1795514063, "raw": 5965, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "多源合并", "note": "几个日更仓库合成，已去重", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml", "count": 2050, "probe": {"ok": 21, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 19}, "age_h": 69.9, "score": 1794, "streak": 0}, {"tag": "超大合集", "note": "1800 条以上，最全也最杂", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml", "count": 2169, "probe": {"ok": 10, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 18}, "age_h": 12.0, "score": 904, "streak": 0}, {"tag": "全量节点", "note": "含未测速节点，量最大", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 456, "probe": {"ok": 19, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 269}, "age_h": 0.0, "score": 361, "streak": 0}, {"tag": "推荐 · 只含可连节点", "note": "只留连得上的，成功率高", "ok": ["Clash"], "no": ["v2rayNG"], "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 349, "probe": {"ok": 23, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 307}, "age_h": 0.0, "score": 334, "streak": 0}, {"tag": "带规则分流", "note": "自带分流规则，开箱即用", "ok": ["Clash"], "no": [], "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 500, "probe": {"ok": 20, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 41}, "age_h": 0.0, "score": 417, "streak": 0}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "全量最大", "note": "近 3000 条，最多也最杂", "ok": ["v2rayNG", "小火箭", "Hiddify"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt", "count": 4854, "probe": {"ok": 13, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 18}, "age_h": 0.2, "score": 2629, "streak": 0}, {"tag": "每日抓取", "note": "每天抓全网机场并测连通", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 405, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 316}, "age_h": 0.0, "score": 338, "streak": 0}, {"tag": "每日分享", "note": "节点和机场一起发", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 166, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 13}, "age_h": 4.5, "score": 166, "streak": 0}, {"tag": "老牌仓库", "note": "每小时更新一次", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 21, "probe": {"ok": 14, "total": 17}, "cnbad": false, "src_http": {"code": 200, "ms": 13}, "age_h": 5.2, "score": 17, "streak": 0}, {"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "ok": ["v2rayNG", "小火箭"], "no": ["Clash"], "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 9, "probe": {"ok": 8, "total": 8}, "cnbad": false, "src_http": {"code": 200, "ms": 18}, "age_h": 0.8, "score": 9, "streak": 0}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "带规则 · 半小时构建", "note": "内置分流和去广告，需 1.13+", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "30 分钟更新", "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json", "count": 466, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 22}, "age_h": 4.3, "score": 466, "streak": 0}, {"tag": "每日聚合", "note": "每天重抓一遍，量不多", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json", "count": 35, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 13}, "age_h": 2.1, "score": 32, "streak": 0}, {"tag": "独立小源", "note": "十几条，几乎不撞车", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt", "count": 20, "probe": {"ok": 17, "total": 17}, "cnbad": false, "src_http": {"code": 200, "ms": 13}, "age_h": 0.9, "score": 20, "streak": 0}, {"tag": "带规则 · 与 Clash 同源", "note": "同 Clash 源，只是换成 json", "ok": ["sing-box", "Hiddify"], "no": ["Clash"], "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 498, "probe": {"ok": 20, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 42}, "age_h": 0.0, "score": 415, "streak": 0}]}], "delta": {"add": 326, "drop": 471}};
+
+  /* ── 页头时间行 ──────────────────────────────────────────────────────
+     DATA.updated 一直带着值，但模板里没有承接它的元素，采集时间从没显示出来过。
+     顺手把「这页是不是放久了没刷」也判掉：超过 6 小时就直说，别让人拿旧数字当现状。 */
+  const updEl = document.getElementById('upd');
+  if (updEl && DATA.updated) {
+    const ageH = DATA.ts ? (Date.now() / 1000 - DATA.ts) / 3600 : 0;
+    updEl.append('数据更新于 ');
+    const stamp = document.createElement('b');
+    stamp.textContent = DATA.updated;
+    updEl.append(stamp);
+    if (ageH >= 6) {
+      const late = document.createElement('span');
+      late.className = 'stale';
+      late.textContent = ` · 已 ${Math.floor(ageH)} 小时未刷新`;
+      updEl.append(late);
+    } else {
+      updEl.append(' · 每 3 小时自动采集');
+    }
+  }
+
   const groupsEl = document.getElementById('groups');
   const liveEl = document.getElementById('live');
   const tpl = document.getElementById('tpl-card');
@@ -670,7 +714,9 @@ html.lock,html.lock body{overflow:hidden}
       node.querySelector('.flagx:not(.cnf)').hidden = !bad;
       node.querySelector('.flagx.cnf').hidden = !cnf;
       node.querySelector('.freq').textContent = it.freq;
-      node.querySelector('.cnum b').textContent = it.count === null ? '—' : String(it.count);
+      // 用 == null 同时接住 null 和 undefined：源拉取失败时 count 可能是 null，
+      // 只判 === null 会漏成页面上显示「undefined 条节点」
+      node.querySelector('.cnum b').textContent = it.count == null ? '—' : String(it.count);
       node.querySelector('.cnote').textContent = it.note;
 
       const cls = node.querySelector('.cls');
@@ -928,23 +974,12 @@ html.lock,html.lock body{overflow:hidden}
   paintTheme();
 
   /* ── 入场 ─────────────────────────────────────────────────────────── */
+  /* 原来这里还有一段「副标题逐字晕开」，找的是 .sub —— 但 .sub 当时不在 DOM 里，
+     所以它从上线起就没执行过。现在 .sub 装的是带 <b> 的时间行，拆成单字会把
+     加粗和「已延迟」的配色一起拆掉，干脆去掉，只留 h1 的位移淡入。 */
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const h1 = document.querySelector('h1');
     if (h1) h1.style.animation = 'rise .55s var(--e-out) both';
-
-    // 副标题逐字晕开
-    const sub = document.querySelector('.sub');
-    if (sub) {
-      const chars = [...sub.textContent];
-      const spans = chars.map((ch, i) => {
-        const sp = document.createElement('span');
-        sp.className = 'ink';
-        sp.style.setProperty('--i', i);
-        sp.textContent = ch === ' ' ? '\u00A0' : ch;
-        return sp;
-      });
-      sub.replaceChildren(...spans);
-    }
   }
 })();
 </script>
