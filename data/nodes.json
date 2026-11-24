@@ -1,6 +1,6 @@
 {
- "updated": "11-25 04:16",
- "ts": 1795551402,
+ "updated": "11-25 04:32",
+ "ts": 1795552378,
  "life_span": 1,
  "raw": 15654,
  "errors": [],
@@ -27,16 +27,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 21
+      "ms": 36
      },
-     "age_h": 22.4,
+     "age_h": 0.0,
      "score": 1866,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 89.0,
+     "grade": "S",
+     "grade_score": 93.0,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 7,
+     "rok": 2,
+     "rtest": 90,
      "new7": 2094,
      "med_age": 1
     },
@@ -57,16 +59,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 28
+      "ms": 48
      },
-     "age_h": 80.3,
+     "age_h": 80.6,
      "score": 1152,
      "streak": 0,
      "grade": "A",
      "grade_score": 86.2,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 6,
+     "rok": 32,
+     "rtest": 90,
      "new7": 744,
      "med_age": 1
     },
@@ -81,22 +85,24 @@
      "url": "https://blog.ermao.net/sub/clash/ermao.net",
      "count": 287,
      "probe": {
-      "ok": 21,
+      "ok": 20,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 335
+      "ms": 356
      },
-     "age_h": 0.7,
-     "score": 251,
+     "age_h": 1.0,
+     "score": 239,
      "streak": 0,
      "grade": "A",
      "grade_score": 86.7,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 8,
+     "rok": 14,
+     "rtest": 65,
      "new7": 65,
      "med_age": 1
     },
@@ -117,16 +123,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 281
+      "ms": 262
      },
-     "age_h": 0.7,
+     "age_h": 1.0,
      "score": 201,
      "streak": 0,
      "grade": "B",
      "grade_score": 77.0,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 10,
+     "rok": 53,
+     "rtest": 90,
      "new7": 213,
      "med_age": 1
     },
@@ -147,16 +155,18 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 73
+      "ms": 103
      },
-     "age_h": 0.7,
+     "age_h": 1.0,
      "score": 495,
      "streak": 0,
      "grade": "A",
      "grade_score": 81.6,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 9,
+     "rok": 78,
+     "rtest": 90,
      "new7": 360,
      "med_age": 1
     }
@@ -186,16 +196,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 24
+      "ms": 40
      },
-     "age_h": 0.3,
+     "age_h": 0.0,
      "score": 2630,
      "streak": 0,
      "grade": "A",
      "grade_score": 89.5,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 8,
+     "rok": 3,
+     "rtest": 90,
      "new7": 4574,
      "med_age": 1
     },
@@ -211,22 +223,24 @@
      "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
      "count": 3969,
      "probe": {
-      "ok": 10,
+      "ok": 11,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 22
+      "ms": 37
      },
-     "age_h": 8.3,
-     "score": 1654,
+     "age_h": 8.6,
+     "score": 1819,
      "streak": 0,
-     "grade": "B",
-     "grade_score": 78.7,
+     "grade": "A",
+     "grade_score": 80.7,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 4,
+     "rok": 1,
+     "rtest": 90,
      "new7": 1769,
      "med_age": 1
     },
@@ -248,16 +262,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 365
+      "ms": 241
      },
-     "age_h": 0.7,
+     "age_h": 1.0,
      "score": 290,
      "streak": 0,
      "grade": "S",
      "grade_score": 93.8,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 9,
+     "rok": 16,
+     "rtest": 90,
      "new7": 245,
      "med_age": 1
     },
@@ -279,16 +295,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 18
+      "ms": 230
      },
-     "age_h": 14.9,
+     "age_h": 15.1,
      "score": 161,
      "streak": 0,
      "grade": "A",
      "grade_score": 88.2,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 6,
+     "rok": 26,
+     "rtest": 90,
      "new7": 150,
      "med_age": 1
     },
@@ -310,16 +328,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 17
+      "ms": 30
      },
-     "age_h": 0.9,
+     "age_h": 1.1,
      "score": 13,
      "streak": 0,
      "grade": "A",
      "grade_score": 83.9,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 7,
+     "rok": 1,
+     "rtest": 5,
      "new7": 5,
      "med_age": 1
     },
@@ -341,16 +361,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 25
+      "ms": 67
      },
-     "age_h": 0.2,
+     "age_h": 0.5,
      "score": 7,
      "streak": 0,
      "grade": "B",
      "grade_score": 76.0,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 10,
+     "rok": 2,
+     "rtest": 2,
      "new7": 2,
      "med_age": 1
     }
@@ -379,16 +401,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 22
+      "ms": 32
      },
-     "age_h": 3.8,
+     "age_h": 4.0,
      "score": 323,
      "streak": 0,
      "grade": "A",
      "grade_score": 88.0,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 8,
+     "rok": 30,
+     "rtest": 90,
      "new7": 184,
      "med_age": 1
     },
@@ -410,16 +434,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 15
+      "ms": 27
      },
-     "age_h": 12.4,
+     "age_h": 12.7,
      "score": 35,
      "streak": 0,
      "grade": "A",
      "grade_score": 86.0,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 7,
+     "rok": 18,
+     "rtest": 20,
      "new7": 20,
      "med_age": 1
     },
@@ -441,16 +467,18 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 13
+      "ms": 27
      },
-     "age_h": 0.7,
+     "age_h": 1.0,
      "score": 20,
      "streak": 0,
      "grade": "A",
      "grade_score": 88.8,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 5,
+     "rok": 0,
+     "rtest": 18,
      "new7": 18,
      "med_age": 1
     },
@@ -472,16 +500,18 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 53
+      "ms": 77
      },
-     "age_h": 0.7,
+     "age_h": 1.0,
      "score": 495,
      "streak": 0,
      "grade": "A",
      "grade_score": 82.6,
      "src_state": "ok",
-     "src_state_label": "正常",
+     "src_state_label": null,
      "prio": 10,
+     "rok": 64,
+     "rtest": 77,
      "new7": 77,
      "med_age": 1
     }

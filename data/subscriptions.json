@@ -1,0 +1,253 @@
+{
+ "updated": "2026-11-24 20:40",
+ "formats": [
+  "clash",
+  "singbox",
+  "uri",
+  "b64"
+ ],
+ "groups": [
+  {
+   "key": "all",
+   "label": "全部节点",
+   "count": 10520,
+   "files": {
+    "clash": {
+     "file": "all.yaml",
+     "verified": 10520
+    },
+    "singbox": {
+     "file": "all.json",
+     "verified": 10520
+    }
+   }
+  },
+  {
+   "key": "best",
+   "label": "优选（真实可用且评分 B 以上）",
+   "count": 4,
+   "files": {
+    "clash": {
+     "file": "best.yaml",
+     "verified": 4
+    },
+    "singbox": {
+     "file": "best.json",
+     "verified": 4
+    },
+    "uri": {
+     "file": "best.txt",
+     "verified": 4
+    },
+    "b64": {
+     "file": "best.b64",
+     "verified": 4
+    }
+   }
+  },
+  {
+   "key": "stable",
+   "label": "稳定（连续三轮可用）",
+   "count": 0,
+   "note": "无符合条件的节点"
+  },
+  {
+   "key": "lowlat",
+   "label": "低延迟（<200ms）",
+   "count": 18,
+   "files": {
+    "clash": {
+     "file": "lowlat.yaml",
+     "verified": 18
+    },
+    "singbox": {
+     "file": "lowlat.json",
+     "verified": 18
+    },
+    "uri": {
+     "file": "lowlat.txt",
+     "verified": 18
+    },
+    "b64": {
+     "file": "lowlat.b64",
+     "verified": 18
+    }
+   }
+  },
+  {
+   "key": "fast",
+   "label": "高速（≥2MB/s）",
+   "count": 0,
+   "note": "无符合条件的节点"
+  },
+  {
+   "key": "hk",
+   "label": "香港",
+   "count": 13,
+   "files": {
+    "clash": {
+     "file": "hk.yaml",
+     "verified": 13
+    },
+    "singbox": {
+     "file": "hk.json",
+     "verified": 13
+    },
+    "uri": {
+     "file": "hk.txt",
+     "verified": 13
+    },
+    "b64": {
+     "file": "hk.b64",
+     "verified": 13
+    }
+   }
+  },
+  {
+   "key": "tw",
+   "label": "中国台湾",
+   "count": 11,
+   "files": {
+    "clash": {
+     "file": "tw.yaml",
+     "verified": 11
+    },
+    "singbox": {
+     "file": "tw.json",
+     "verified": 11
+    },
+    "uri": {
+     "file": "tw.txt",
+     "verified": 11
+    },
+    "b64": {
+     "file": "tw.b64",
+     "verified": 11
+    }
+   }
+  },
+  {
+   "key": "jp",
+   "label": "日本",
+   "count": 11,
+   "files": {
+    "clash": {
+     "file": "jp.yaml",
+     "verified": 11
+    },
+    "singbox": {
+     "file": "jp.json",
+     "verified": 11
+    },
+    "uri": {
+     "file": "jp.txt",
+     "verified": 11
+    },
+    "b64": {
+     "file": "jp.b64",
+     "verified": 11
+    }
+   }
+  },
+  {
+   "key": "sg",
+   "label": "新加坡",
+   "count": 14,
+   "files": {
+    "clash": {
+     "file": "sg.yaml",
+     "verified": 14
+    },
+    "singbox": {
+     "file": "sg.json",
+     "verified": 14
+    },
+    "uri": {
+     "file": "sg.txt",
+     "verified": 14
+    },
+    "b64": {
+     "file": "sg.b64",
+     "verified": 14
+    }
+   }
+  },
+  {
+   "key": "us",
+   "label": "美国",
+   "count": 89,
+   "files": {
+    "clash": {
+     "file": "us.yaml",
+     "verified": 89
+    },
+    "singbox": {
+     "file": "us.json",
+     "verified": 89
+    },
+    "uri": {
+     "file": "us.txt",
+     "verified": 89
+    },
+    "b64": {
+     "file": "us.b64",
+     "verified": 89
+    }
+   }
+  },
+  {
+   "key": "kr",
+   "label": "韩国",
+   "count": 9,
+   "files": {
+    "clash": {
+     "file": "kr.yaml",
+     "verified": 9
+    },
+    "singbox": {
+     "file": "kr.json",
+     "verified": 9
+    },
+    "uri": {
+     "file": "kr.txt",
+     "verified": 9
+    },
+    "b64": {
+     "file": "kr.b64",
+     "verified": 9
+    }
+   }
+  },
+  {
+   "key": "eu",
+   "label": "欧洲",
+   "count": 121,
+   "files": {
+    "clash": {
+     "file": "eu.yaml",
+     "verified": 121
+    },
+    "singbox": {
+     "file": "eu.json",
+     "verified": 121
+    },
+    "uri": {
+     "file": "eu.txt",
+     "verified": 121
+    },
+    "b64": {
+     "file": "eu.b64",
+     "verified": 121
+    }
+   }
+  }
+ ],
+ "failed": [
+  "all.txt: 10506 条可解析（期望 10520）",
+  "all.b64: 解出 10506 条（期望 10520）"
+ ],
+ "not_implemented": {
+  "streaming": "需要流媒体解锁检测，P6 未实现",
+  "ai": "需要 AI 服务可用性检测，P6 未实现"
+ }
+}

@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 04:16",
+ "updated": "2026-11-25 04:32",
  "total": 831,
  "by_reason": {
   "条目结构异常（不是对象或字段类型不对）": 31,
@@ -144,6 +144,24 @@
    "src": "尔毛子·V2Ray"
   },
   {
+   "kind": "clash",
+   "type": "hysteria",
+   "name": "🇫🇷 France 33",
+   "server": "163.172.117.163",
+   "port": 36699,
+   "reason": "不支持的协议类型",
+   "src": "radarhub"
+  },
+  {
+   "kind": "clash",
+   "type": "hysteria",
+   "name": "🇫🇷 France 36",
+   "server": "62.210.28.175",
+   "port": 24667,
+   "reason": "不支持的协议类型",
+   "src": "radarhub"
+  },
+  {
    "kind": "node",
    "type": "http",
    "name": "🇩🇪DE_1|1.8MB/s|P002-260618",
@@ -234,22 +252,22 @@
    "src": "尔毛子·全量Clash"
   },
   {
-   "kind": "clash",
+   "kind": "singbox",
    "type": "hysteria",
    "name": "🇫🇷 France 33",
    "server": "163.172.117.163",
    "port": 36699,
    "reason": "不支持的协议类型",
-   "src": "radarhub"
+   "src": "radarhub·singbox"
   },
   {
-   "kind": "clash",
+   "kind": "singbox",
    "type": "hysteria",
    "name": "🇫🇷 France 36",
    "server": "62.210.28.175",
    "port": 24667,
    "reason": "不支持的协议类型",
-   "src": "radarhub"
+   "src": "radarhub·singbox"
   },
   {
    "kind": "node",
@@ -297,67 +315,58 @@
    "src": "bzfq21"
   },
   {
+   "kind": "clash",
+   "type": "vmess",
+   "name": "其他 086",
+   "server": "使用前记得更新订阅",
+   "port": 0,
+   "reason": "不支持的协议类型",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "其他 001",
+   "server": "127.0.0.53",
+   "port": 80,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "其他 002",
+   "server": "127.0.0.53",
+   "port": 81,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "其他 003",
+   "server": "127.0.0.53",
+   "port": 82,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "其他 004",
+   "server": "127.0.0.53",
+   "port": 83,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "anaer"
+  },
+  {
    "kind": "uri",
-   "type": "# 📥 subscription link: https",
+   "type": "#support-url: https",
    "name": "",
    "server": "",
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "ALIILAPRO"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "Global 🌐 | @Raydikalx | C90159",
-   "server": "127.0.0.53",
-   "port": 80,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "ALIILAPRO"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "Global 🌐 | @Raydikalx | C9508B",
-   "server": "127.0.0.53",
-   "port": 81,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "ALIILAPRO"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "Global 🌐 | @Raydikalx | FCC8A3",
-   "server": "127.0.0.53",
-   "port": 82,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "ALIILAPRO"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "Global 🌐 | @Raydikalx | 8FB720",
-   "server": "127.0.0.53",
-   "port": 83,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "ALIILAPRO"
-  },
-  {
-   "kind": "singbox",
-   "type": "hysteria",
-   "name": "🇫🇷 France 33",
-   "server": "163.172.117.163",
-   "port": 36699,
-   "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
-  },
-  {
-   "kind": "singbox",
-   "type": "hysteria",
-   "name": "🇫🇷 France 36",
-   "server": "62.210.28.175",
-   "port": 24667,
-   "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
+   "src": "Andrejewild"
   },
   {
    "kind": "node",
@@ -406,15 +415,6 @@
   },
   {
    "kind": "uri",
-   "type": "#support-url: https",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "Andrejewild"
-  },
-  {
-   "kind": "uri",
    "type": "#profile-web-page-url: https",
    "name": "",
    "server": "",
@@ -459,49 +459,49 @@
    "src": "v2ray-configs"
   },
   {
-   "kind": "clash",
-   "type": "vmess",
-   "name": "其他 086",
-   "server": "使用前记得更新订阅",
+   "kind": "uri",
+   "type": "# 📥 subscription link: https",
+   "name": "",
+   "server": "",
    "port": 0,
-   "reason": "不支持的协议类型",
-   "src": "anaer"
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "ALIILAPRO"
   },
   {
    "kind": "node",
    "type": "vmess",
-   "name": "其他 001",
+   "name": "Global 🌐 | @Raydikalx | C90159",
    "server": "127.0.0.53",
    "port": 80,
    "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
+   "src": "ALIILAPRO"
   },
   {
    "kind": "node",
    "type": "vmess",
-   "name": "其他 002",
+   "name": "Global 🌐 | @Raydikalx | C9508B",
    "server": "127.0.0.53",
    "port": 81,
    "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
+   "src": "ALIILAPRO"
   },
   {
    "kind": "node",
    "type": "vmess",
-   "name": "其他 003",
+   "name": "Global 🌐 | @Raydikalx | FCC8A3",
    "server": "127.0.0.53",
    "port": 82,
    "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
+   "src": "ALIILAPRO"
   },
   {
    "kind": "node",
    "type": "vmess",
-   "name": "其他 004",
+   "name": "Global 🌐 | @Raydikalx | 8FB720",
    "server": "127.0.0.53",
    "port": 83,
    "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
+   "src": "ALIILAPRO"
   }
  ]
 }
