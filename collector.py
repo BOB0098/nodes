@@ -525,8 +525,23 @@ def _rank(item, counts, probes):
     return ok / total * n
 
 
+def _load_real():
+    """每源的真实握手结果 {src: {tested, ok}}。
+
+    读的是 data/node_scores.json 的 by_source：那个文件由 nodescore.py 在
+    nodecheck.py 之后生成，所以采集这一段拿到的是**上一轮**的结果——
+    延迟一轮总比页面显示「本轮还没测」好，而且下一轮就自动对上了。
+    """
+    try:
+        d = json.load(open(os.path.join(OUT_DATA, "node_scores.json"), encoding="utf-8"))
+        return d.get("by_source") or {}
+    except Exception:
+        return {}
+
+
 def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None,
-             meta=None, include_uri=False, grades=None, fresh=None, life_span=None):
+             meta=None, include_uri=False, grades=None, fresh=None, life_span=None,
+             real=None):
     """组装页面数据。
 
     include_uri=False（默认）时节点不带 uri 字段：uri 里含 uuid/password 等
@@ -543,6 +558,7 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
     meta = meta or {}
     grades = grades or {}
     fresh = fresh or {}
+    real = real if real is not None else _load_real()
     groups = []
     for g in GROUPS:
         items = [{"tag": i["tag"], "note": i["note"],
@@ -559,6 +575,8 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "src_state": (grades.get(i["url"]) or {}).get("state"),
                   "src_state_label": (grades.get(i["url"]) or {}).get("state_label"),
                   "prio": (grades.get(i["url"]) or {}).get("priority_eff"),
+                  "rok": (real.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("ok"),
+                  "rtest": (real.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("tested"),
                   "new7": (fresh.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("new7"),
                   "med_age": (fresh.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("median_age"),
                   } for i in g["items"]]
@@ -632,6 +650,10 @@ def rerender():
     page = {k: v for k, v in data.items() if k != "nodes"}
     out = os.path.join(BASE, "index.html")
     open(out, "w", encoding="utf-8").write(render_page(page))
+    # 同步写回 nodes.json：真实检测汇总（rok/rtest）是渲染时才读进来的，
+    # 只改 index.html 会让两份数据对不上
+    open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
+        json.dumps(data, ensure_ascii=False, indent=1))
     print(f"已重渲染 {out}（数据保持 {data['updated']}，未联网）")
 
 

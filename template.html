@@ -260,6 +260,13 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
 .age{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
 .age[hidden]{display:none}
 .age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
+
+/* 真实握手结果：和上面那条 TCP 抽样是两个口径，必须分开写清楚，
+   否则「可连 83%」会被人当成「83% 的节点能用」 */
+.real{font-size:11px;color:var(--ink-3);margin:4px 0 0;line-height:1.5;font-variant-numeric:tabular-nums}
+.real[hidden]{display:none}
+.real b{color:var(--ink-1);font-weight:var(--fwb)}
+.real.weak b{color:var(--bad-ink)}
 /* 生命周期：靠右与「源更新时间」同排。margin-left:auto 只给 .life，
    第二个 auto 没有剩余空间可分，.age 会紧贴在它右边，间距由 .meta 的 gap 提供 */
 .life{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
@@ -431,6 +438,7 @@ html.lock,html.lock body{overflow:hidden}
     <div class="ch"><div class="chl"><span class="idx"></span><h3 class="tag"></h3><span class="gchip" hidden></span><span class="flagx stb" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span><span class="flagx iso" hidden>已隔离</span></div><span class="freq"></span></div>
     <p class="cnum"><b></b><span>条节点</span></p>
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
+    <p class="real" hidden></p>
     <p class="cnote"></p>
     <div class="meta"><div class="cls"></div><p class="life" hidden></p><p class="age" hidden></p></div>
     <p class="srcbad" hidden></p>
@@ -820,6 +828,22 @@ html.lock,html.lock body{overflow:hidden}
         probe.querySelector('.pv').textContent = pct + '%';
       } else {
         probe.remove();
+      }
+
+      // 真实握手结果。和上面那条 TCP 抽样是两个口径：那条只说明端口开着，
+      // 这条（经 mihomo 真的出网）才说明装进客户端能用。两个都摆出来，
+      // 让「可连 83%」不至于被读成「83% 的节点能用」
+      const rt = it.rtest, ro = it.rok;
+      const realEl = node.querySelector('.real');
+      if (rt) {
+        const pct = Math.round(ro / rt * 100);
+        realEl.append(document.createTextNode(`真实握手 ${rt} 个 · 可用 `));
+        const b = document.createElement('b');
+        b.textContent = `${ro}（${pct}%）`;
+        realEl.append(b);
+        // 低于 10% 才标红：免费节点真实可用率本来就低，20% 不算异常
+        realEl.classList.toggle('weak', pct < 10);
+        realEl.hidden = false;
       }
 
       const url = node.querySelector('.url');

@@ -75,6 +75,16 @@ jobs:
         timeout-minutes: 40
         run: python3 nodecheck.py
 
+      # 评分与地区分类：只统计 nodecheck 里测过的节点，没测过的一律不算可用。
+      # 内部还会跑一次重渲染，把「真实可用 X/Y」写进卡片——检测在采集之后，
+      # 不重渲染的话页面要等下一轮才看得到
+      - name: 节点评分与分类
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
+        run: |
+          python3 nodescore.py
+          python3 collector.py --render
+
       - name: 提交更新
         if: steps.gate.outputs.skip != 'true'
         run: |
