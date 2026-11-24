@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24 21:09",
+ "updated": "2026-11-24 21:26",
  "formats": [
   "clash",
   "singbox",
@@ -10,46 +10,71 @@
   {
    "key": "all",
    "label": "全部节点",
-   "count": 10216,
+   "count": 10352,
    "files": {
     "clash": {
      "file": "all.yaml",
-     "verified": 10216
+     "verified": 10352
     },
     "singbox": {
      "file": "all.json",
-     "verified": 10216
+     "verified": 10352
+    },
+    "uri": {
+     "file": "all.txt",
+     "verified": 10352
+    },
+    "b64": {
+     "file": "all.b64",
+     "verified": 10352
     }
    }
   },
   {
    "key": "best",
    "label": "优选（真实可用且评分 B 以上）",
-   "count": 173,
+   "count": 193,
    "files": {
     "clash": {
      "file": "best.yaml",
-     "verified": 173
+     "verified": 193
     },
     "singbox": {
      "file": "best.json",
-     "verified": 173
+     "verified": 193
     },
     "uri": {
      "file": "best.txt",
-     "verified": 173
+     "verified": 193
     },
     "b64": {
      "file": "best.b64",
-     "verified": 173
+     "verified": 193
     }
    }
   },
   {
    "key": "stable",
    "label": "稳定（连续三轮可用）",
-   "count": 0,
-   "note": "无符合条件的节点"
+   "count": 110,
+   "files": {
+    "clash": {
+     "file": "stable.yaml",
+     "verified": 110
+    },
+    "singbox": {
+     "file": "stable.json",
+     "verified": 110
+    },
+    "uri": {
+     "file": "stable.txt",
+     "verified": 110
+    },
+    "b64": {
+     "file": "stable.b64",
+     "verified": 110
+    }
+   }
   },
   {
    "key": "lowlat",
@@ -77,192 +102,189 @@
   {
    "key": "fast",
    "label": "高速（≥2MB/s）",
-   "count": 3,
+   "count": 4,
    "files": {
     "clash": {
      "file": "fast.yaml",
-     "verified": 3
+     "verified": 4
     },
     "singbox": {
      "file": "fast.json",
-     "verified": 3
+     "verified": 4
     },
     "uri": {
      "file": "fast.txt",
-     "verified": 3
+     "verified": 4
     },
     "b64": {
      "file": "fast.b64",
-     "verified": 3
+     "verified": 4
     }
    }
   },
   {
    "key": "hk",
    "label": "香港",
-   "count": 12,
+   "count": 14,
    "files": {
     "clash": {
      "file": "hk.yaml",
-     "verified": 12
+     "verified": 14
     },
     "singbox": {
      "file": "hk.json",
-     "verified": 12
+     "verified": 14
     },
     "uri": {
      "file": "hk.txt",
-     "verified": 12
+     "verified": 14
     },
     "b64": {
      "file": "hk.b64",
-     "verified": 12
+     "verified": 14
     }
    }
   },
   {
    "key": "tw",
    "label": "中国台湾",
-   "count": 11,
+   "count": 15,
    "files": {
     "clash": {
      "file": "tw.yaml",
-     "verified": 11
+     "verified": 15
     },
     "singbox": {
      "file": "tw.json",
-     "verified": 11
+     "verified": 15
     },
     "uri": {
      "file": "tw.txt",
-     "verified": 11
+     "verified": 15
     },
     "b64": {
      "file": "tw.b64",
-     "verified": 11
+     "verified": 15
     }
    }
   },
   {
    "key": "jp",
    "label": "日本",
-   "count": 9,
+   "count": 7,
    "files": {
     "clash": {
      "file": "jp.yaml",
-     "verified": 9
+     "verified": 7
     },
     "singbox": {
      "file": "jp.json",
-     "verified": 9
+     "verified": 7
     },
     "uri": {
      "file": "jp.txt",
-     "verified": 9
+     "verified": 7
     },
     "b64": {
      "file": "jp.b64",
-     "verified": 9
+     "verified": 7
     }
    }
   },
   {
    "key": "sg",
    "label": "新加坡",
-   "count": 13,
+   "count": 14,
    "files": {
     "clash": {
      "file": "sg.yaml",
-     "verified": 13
+     "verified": 14
     },
     "singbox": {
      "file": "sg.json",
-     "verified": 13
+     "verified": 14
     },
     "uri": {
      "file": "sg.txt",
-     "verified": 13
+     "verified": 14
     },
     "b64": {
      "file": "sg.b64",
-     "verified": 13
+     "verified": 14
     }
    }
   },
   {
    "key": "us",
    "label": "美国",
-   "count": 94,
+   "count": 76,
    "files": {
     "clash": {
      "file": "us.yaml",
-     "verified": 94
+     "verified": 76
     },
     "singbox": {
      "file": "us.json",
-     "verified": 94
+     "verified": 76
     },
     "uri": {
      "file": "us.txt",
-     "verified": 94
+     "verified": 76
     },
     "b64": {
      "file": "us.b64",
-     "verified": 94
+     "verified": 76
     }
    }
   },
   {
    "key": "kr",
    "label": "韩国",
-   "count": 7,
+   "count": 11,
    "files": {
     "clash": {
      "file": "kr.yaml",
-     "verified": 7
+     "verified": 11
     },
     "singbox": {
      "file": "kr.json",
-     "verified": 7
+     "verified": 11
     },
     "uri": {
      "file": "kr.txt",
-     "verified": 7
+     "verified": 11
     },
     "b64": {
      "file": "kr.b64",
-     "verified": 7
+     "verified": 11
     }
    }
   },
   {
    "key": "eu",
    "label": "欧洲",
-   "count": 130,
+   "count": 134,
    "files": {
     "clash": {
      "file": "eu.yaml",
-     "verified": 130
+     "verified": 134
     },
     "singbox": {
      "file": "eu.json",
-     "verified": 130
+     "verified": 134
     },
     "uri": {
      "file": "eu.txt",
-     "verified": 130
+     "verified": 134
     },
     "b64": {
      "file": "eu.b64",
-     "verified": 130
+     "verified": 134
     }
    }
   }
  ],
- "failed": [
-  "all.txt: 10198 条可解析（期望 10216）",
-  "all.b64: 解出 10198 条（期望 10216）"
- ],
+ "failed": [],
  "not_implemented": {
   "streaming": "需要流媒体解锁检测，P6 未实现",
   "ai": "需要 AI 服务可用性检测，P6 未实现"
