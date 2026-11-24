@@ -119,7 +119,11 @@ def _sb_out(n, tag):
         tls["reality"] = {"enabled": True, "public_key": n.get("public_key") or "",
                           "short_id": n.get("short_id") or ""}
         tls["utls"] = {"enabled": True, "fingerprint": n.get("fingerprint") or "chrome"}
-    if tls or n.get("tls"):
+    # hysteria2 / tuic / anytls 的 TLS 是协议的一部分，不是可选参数：
+    # 这三类节点如果源里没写 sni，tls 会是个空 dict，`if tls` 判假、不写 tls 块，
+    # sing-box 直接 `initialize outbound[N]: TLS required` 拒绝整份配置。
+    # 之前只测到「我们自己读得回来」，这类错误只有客户端内核才拦得住。
+    if tls or n.get("tls") or t in ("trojan", "hysteria2", "tuic", "anytls"):
         tls.setdefault("enabled", True)
         # 与 nodecheck 同口径：免费节点大量用自签证书，强制校验会让它们全部导入失败
         tls["insecure"] = True
@@ -149,7 +153,12 @@ def _sb_out(n, tag):
     elif t == "vless":
         o["uuid"] = cred
         if n.get("flow"):
-            o["flow"] = n["flow"]
+            # sing-box 只认 `xtls-rprx-vision`。源里混着 Xray 的变体写法
+            # `xtls-rprx-vision-udp443`（意思是 vision + 放行 udp/443），
+            # 直接透传会让 sing-box 报 `unsupported flow` 并拒绝整份配置。
+            # 丢掉后缀语义不变——那个开关在 sing-box 里没有对应项。
+            flow = str(n["flow"])
+            o["flow"] = "xtls-rprx-vision" if flow.startswith("xtls-rprx-vision") else flow
     elif t == "trojan":
         o["password"] = cred
     elif t == "hysteria2":

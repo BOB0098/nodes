@@ -185,7 +185,9 @@ def to_proxy(n, name):
         return p
 
     if t == "trojan":
-        p.update({"password": cred, "udp": True})
+        # trojan 的 TLS 是协议内建的。mihomo 默认 tls=true，但显式写出来
+        # 才能让「配置里看到的」和「实际连的」一致
+        p.update({"password": cred, "udp": True, "tls": True})
         if n.get("sni"):
             p["sni"] = n["sni"]
         p["skip-cert-verify"] = True

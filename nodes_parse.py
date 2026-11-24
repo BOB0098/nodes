@@ -50,7 +50,15 @@ REASON = {
     # 生成不出能被解析回来的链接 = 用户拿了也用不了。这种节点不能入库，
     # 否则 all.txt 会比库里少几条，而且少得莫名其妙
     "no_uri": "无法生成可解析的订阅链接",
+    # reality 缺公钥：握手必然失败，而且 sing-box 会因为一条坏记录拒绝整份配置
+    "no_key": "reality 缺少公钥（pbk），无法完成握手",
+    # vmess/vless 的 id 必须是 UUID。上游偶尔把占位符（monacoVPN、@Geek_Spot）
+    # 当 id 发出来，这类节点 100% 连不上，而且会让 Xray 拒绝整份配置
+    "bad_uuid": "凭据不是合法 UUID（vmess/vless 无法握手）",
 }
+
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-"
+                      r"[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
 
 
 def _b64d(s):
@@ -296,8 +304,15 @@ def _ws_params(p):
     grpc = p.get("grpc-opts") or {}
     if isinstance(grpc, dict):
         out["path"] = grpc.get("grpc-service-name") or out.get("path", "")
-    ro = p.get("reality-opts") or {}
-    if isinstance(ro, dict):
+    # 必须判「非空 dict」。写成 `p.get("reality-opts") or {}` 再 isinstance，
+    # 一个没有 reality-opts 的普通节点也会走进这个分支：空 dict 是 dict，
+    # 于是每条 Clash 节点都被标成 reality、public_key 清空。
+    # 后果是 2,374 条被误标（其中 1,987 条公钥为空），sing-box 直接拒绝整份
+    # 订阅（invalid public_key），真实检测也全部握手失败——anaer 2% 的可用率
+    # 就是这么来的。这个 bug 是靠客户端实测才暴露的：我们自己的解析器读得回来，
+    # 只是读回来的是错的东西。
+    ro = p.get("reality-opts")
+    if isinstance(ro, dict) and ro:
         out["public_key"] = ro.get("public-key") or ""
         out["short_id"] = ro.get("short-id") or ""
         out["security"] = "reality"
@@ -617,13 +632,50 @@ def _why_drop(n):
         return REASON["plaintext"]
     if not is_public_host(n["server"]):
         return REASON["nonpublic"]
+    if (n.get("security") or "").lower() == "reality" and \
+            not (n.get("public_key") or "").strip():
+        return REASON["no_key"]
+    if n.get("type") in ("vmess", "vless"):
+        if not _UUID_RE.match(str(n.get("cred") or "")):
+            return REASON["bad_uuid"]
+    if n.get("type") == "tuic":
+        # tuic 的 cred 是 uuid:password，只看冒号前
+        if not _UUID_RE.match(str(n.get("cred") or "").split(":", 1)[0]):
+            return REASON["bad_uuid"]
     return ""
+
+
+NET_OK = {"tcp", "raw", "ws", "websocket", "grpc", "h2", "http",
+          "httpupgrade", "xhttp", "kcp", "quic", "none"}
+
+
+def _norm_net(v):
+    """规范传输层名字。
+
+    上游数据里存在 `type=ws%23🍪100@xxx` 这种把 fragment 编码进 query 的写法——
+    解码后 network 变成 `ws#🍪100@xxx`，原样写进客户端配置会让整份订阅
+    因为一个「未知传输协议」被拒绝。这里只认白名单里的名字，
+    被污染的值取第一个能匹配的前缀。
+    """
+    v = (v or "").strip().lower()
+    if v in NET_OK:
+        if v == "none":
+            return "tcp"
+        return "ws" if v == "websocket" else v
+    for k in ("httpupgrade", "websocket", "grpc", "xhttp", "http", "quic",
+              "kcp", "raw", "ws", "tcp"):
+        if v.startswith(k):
+            return "ws" if k in ("websocket", "ws") else k
+    return "tcp"
 
 
 def _finalize(nodes, rejects=None):
     """补齐 uri / fp / addr；丢弃回环、私有地址与无地址条目。"""
     out = []
     for n in nodes:
+        # 必须在 make_fp 之前做：network 进了指纹，规范化后再算才不会
+        # 让「同一个节点的脏写法和干净写法」算成两条
+        n["network"] = _norm_net(n.get("network"))
         why = _why_drop(n)
         if why:
             if rejects is not None:
