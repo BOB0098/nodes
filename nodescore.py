@@ -71,11 +71,15 @@ def update_history(results, hist):
     nodes = hist.setdefault("nodes", {})
     for fp, r in results.items():
         h = nodes.setdefault(fp, {"ok_streak": 0, "fail_streak": 0,
-                                  "last_ok": None, "checked": 0})
+                                  "last_ok": None, "checked": 0, "ever_ok": False})
         h["checked"] = h.get("checked", 0) + 1
         if r.get("ok"):
             h["ok_streak"] = h.get("ok_streak", 0) + 1
             h["fail_streak"] = 0
+            # 「曾经成功过」是区分「不稳定」和「一直就没通过」的唯一依据。
+            # 不记这个，一个从没连上过的节点连续两轮失败也会被标成「不稳定」，
+            # 读起来像「它曾经好过、后来坏了」，与事实不符。
+            h["ever_ok"] = True
         else:
             h["fail_streak"] = h.get("fail_streak", 0) + 1
             h["ok_streak"] = 0
@@ -88,11 +92,14 @@ def score_one(rec, h):
     tags = []
     if not rec.get("ok"):
         fs = (h or {}).get("fail_streak", 1)
+        ever = (h or {}).get("ever_ok", False)
         if fs >= 3:
             tags.append("隔离")
-        elif fs == 2:
+        elif fs == 2 and ever:
+            # 只有「曾经能用、现在连续两轮不行」才叫不稳定
             tags.append("不稳定")
         else:
+            # 从没连上过的节点，两轮失败不叫不稳定，叫还没验证成功过
             tags.append("待复测")
         return 0.0, tags
 
@@ -233,9 +240,14 @@ def selftest():
     chk("机房 IP" in t2 and "低延迟" not in t2, "机房标签")
 
     dead = {"ok": False}
-    chk(score_one(dead, {"fail_streak": 3})[1] == ["隔离"], "连续三轮失败 → 隔离")
-    chk(score_one(dead, {"fail_streak": 2})[1] == ["不稳定"], "两轮失败 → 不稳定")
-    chk(score_one(dead, {"fail_streak": 1})[1] == ["待复测"], "一轮失败 → 待复测")
+    chk(score_one(dead, {"fail_streak": 3, "ever_ok": True})[1] == ["隔离"],
+        "连续三轮失败 → 隔离")
+    chk(score_one(dead, {"fail_streak": 2, "ever_ok": True})[1] == ["不稳定"],
+        "曾能用 + 两轮失败 → 不稳定")
+    chk(score_one(dead, {"fail_streak": 2, "ever_ok": False})[1] == ["待复测"],
+        "从未成功 + 两轮失败 → 仍是待复测，不叫不稳定")
+    chk(score_one(dead, {"fail_streak": 1, "ever_ok": True})[1] == ["待复测"],
+        "一轮失败 → 待复测")
 
     chk(grade_of(95, True) == "S" and grade_of(0, False) == "—", "等级边界")
     chk(REGION["JP"] == "日本" and REGION.get("ZZ", "其他") == "其他", "地区映射")
@@ -245,6 +257,8 @@ def selftest():
     h = update_history({"a": {"ok": True}}, h)
     chk(h["nodes"]["a"]["ok_streak"] == 2 and h["nodes"]["b"]["ok_streak"] == 0,
         "连续成功计数，未测节点保持原状")
+    chk(h["nodes"]["a"]["ever_ok"] and not h["nodes"]["b"]["ever_ok"],
+        "ever_ok 只对真正成功过的节点置位")
 
     print("\n" + ("全部通过" if ok else "有失败项"))
     return 0 if ok else 1

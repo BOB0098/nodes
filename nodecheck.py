@@ -54,7 +54,18 @@ IP_URL = ("http://ip-api.com/json/?fields=status,country,countryCode,"
 # 每源配额 + 总量上限，按源均分，保证小源也能拿到样本。
 PER_SRC = 90
 MAX_TOTAL = 1200
-SEED = 20261125       # 固定随机种子：同样的库，同样的抽样，结果可复现
+SEED = 20261125       # 种子基数
+
+
+def daily_seed(now=None):
+    """按天轮换的抽样种子。
+
+    固定种子会让每轮都测同一批节点：省事，但那些节点之外的部分永远没人验证，
+    「稳定」这个标签也就只对几百条成立。按天换种子，一周能把全库覆盖一遍；
+    同一天内的多次采集仍然抽到同一批，这样两轮之间的波动才有可比性。
+    """
+    days = int((now or time.time()) // 86400)
+    return SEED + days
 
 
 def ensure_mihomo():
@@ -302,7 +313,7 @@ def exit_info(port, timeout=TIMEOUT):
         return None
 
 
-def speed_test(port, timeout=15, size=524288):
+def speed_test(port, timeout=10, size=524288):
     """下载测速（字节/秒）。只对已经握手的节点做，避免无谓流量。"""
     proxy = f"socks5h://127.0.0.1:{port}"
     url = f"https://speed.cloudflare.com/__down?bytes={size}"
@@ -394,7 +405,10 @@ def run_batch(items, base_port, do_speed=False):
                             rec.update({"exit_ip": g["ip"], "cc": g["cc"],
                                         "country": g["country"], "city": g["city"],
                                         "asn": g["asn"], "isp": g["isp"]})
-                        if do_speed:
+                        # 只对延迟已经合格的节点测速。慢节点跑 512KB 往往耗到
+                        # 超时才返回，把整轮时间拖长一倍，而它本来也进不了 any
+                        # 分组——延迟 3 秒的节点，带宽再高也没人用
+                        if do_speed and (rec["ms"] or 9999) < 1500:
                             rec["bps"] = speed_test(ports[name])
                     out[n["fp"]] = rec
             return out
@@ -408,10 +422,10 @@ def run_batch(items, base_port, do_speed=False):
 
 # ── 抽样与主流程 ────────────────────────────────────────────────────────────
 
-def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=SEED):
+def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None):
     """按来源分层抽样。分层而不是纯随机：小源只有几十条，纯随机可能一条都抽不到，
     「这个源真实可用率 0%」就成了「没抽到」的假象。"""
-    rnd = random.Random(seed)
+    rnd = random.Random(daily_seed() if seed is None else seed)
     by_src = {}
     for n in nodes:
         by_src.setdefault(n.get("src") or "?", []).append(n)
@@ -483,6 +497,10 @@ def main():
 
     per_src = arg("--per-src", PER_SRC)
     max_total = arg("--limit", MAX_TOTAL)
+    # 分片：把同一份抽样切成 n 份，每份跑一个 runner。目前单机 8 分钟能跑完，
+    # 用不上；但源和节点数再涨一倍时，这是唯一不用重写逻辑的加速方式
+    shard = arg("--shard", 0)
+    shards = max(1, arg("--shards", 1))
 
     nodes = load_nodes()
     if not nodes:
@@ -499,8 +517,11 @@ def main():
         return 2
 
     picked = sample(nodes, per_src=per_src, total=max_total)
+    if shards > 1:
+        picked = picked[shard::shards]
     print(f"真实检测：备选 {len(nodes)} 条，抽样 {len(picked)} 条"
-          f"（每源上限 {per_src}，总量上限 {max_total}）")
+          f"（每源上限 {per_src}，总量上限 {max_total}"
+          + (f"，分片 {shard + 1}/{shards}" if shards > 1 else "") + "）")
 
     results, t0 = {}, time.time()
     for i in range(0, len(picked), BATCH):
@@ -514,6 +535,15 @@ def main():
         print(f"  {done:>4}/{len(picked)}  可用 {s['ok']}（{s['ok_pct']}%）"
               f"  中位延迟 {s['ms_median']}ms  {time.time() - t0:.0f}s")
 
+    if shards > 1:
+        out = OUT.replace(".json", f".shard{shard}.json")
+        json.dump({"updated": time.strftime("%Y-%m-%d %H:%M"), "env": "ci",
+                   "summary": summarize(results), "nodes": results,
+                   "shard": shard, "shards": shards},
+                  open(out, "w", encoding="utf-8"), ensure_ascii=False,
+                  separators=(",", ":"))
+        print(f"\n分片结果 -> {os.path.relpath(out, BASE)}")
+        return 0
     doc = save(results, {"budget": max_total, "per_src": per_src})
     s = doc["summary"]
     print(f"\n完成：测 {s['tested']}，真实可用 {s['ok']}（{s['ok_pct']}%），"

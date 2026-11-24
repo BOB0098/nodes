@@ -47,6 +47,9 @@ REASON = {
     "plaintext": DROP_TYPES["http"],
     "unknown_type": "不支持的协议类型",
     "bad_record": "条目结构异常（不是对象或字段类型不对）",
+    # 生成不出能被解析回来的链接 = 用户拿了也用不了。这种节点不能入库，
+    # 否则 all.txt 会比库里少几条，而且少得莫名其妙
+    "no_uri": "无法生成可解析的订阅链接",
 }
 
 
@@ -116,6 +119,15 @@ def _frag(name):
     return "#" + up.quote(name or "", safe="") if name else ""
 
 
+def _hp(host, port):
+    """host:port 的正确写法。IPv6 必须带方括号，否则 urlsplit 会把最后一段
+    当成端口：`2001:db8::1:443` 会被解析成 host=`2001:db8::1`、port 缺失，
+    整条链接就此不可用。实测全量里有 18 条节点是这么坏的（14 条 hysteria2、
+    4 条 vless），全是 IPv6。"""
+    h = f"[{host}]" if ":" in str(host) and not str(host).startswith("[") else str(host)
+    return f"{h}:{port}"
+
+
 def to_uri(n):
     """把统一模型合成为标准分享链接。不支持的组合返回空串。"""
     t = n.get("type")
@@ -127,7 +139,7 @@ def to_uri(n):
     if t == "ss":
         method = n.get("method") or n.get("cipher") or "aes-256-gcm"
         userinfo = _b64e(f"{method}:{n.get('cred', '')}")
-        return f"ss://{userinfo}@{host}:{port}{_frag(name)}"
+        return f"ss://{userinfo}@{_hp(host, port)}{_frag(name)}"
 
     if t == "vmess":
         j = {"v": "2", "ps": name, "add": host, "port": str(port),
@@ -142,40 +154,40 @@ def to_uri(n):
                 sni=n.get("sni"), type=n.get("network") or "tcp", path=n.get("path"),
                 host=n.get("host"), flow=n.get("flow"), pbk=n.get("public_key"),
                 sid=n.get("short_id"), fp=n.get("fingerprint"), alpn=n.get("alpn"))
-        return f"vless://{n.get('cred') or n.get('uuid', '')}@{host}:{port}{q}{_frag(name)}"
+        return f"vless://{n.get('cred') or n.get('uuid', '')}@{_hp(host, port)}{q}{_frag(name)}"
 
     if t == "trojan":
         q = _qs(security="tls", sni=n.get("sni"), type=n.get("network") or "tcp",
                 path=n.get("path"), host=n.get("host"), alpn=n.get("alpn"))
-        return f"trojan://{up.quote(str(n.get('cred', '')), safe='')}@{host}:{port}{q}{_frag(name)}"
+        return f"trojan://{up.quote(str(n.get('cred', '')), safe='')}@{_hp(host, port)}{q}{_frag(name)}"
 
     if t == "hysteria2":
         q = _qs(sni=n.get("sni"), obfs=n.get("obfs"), **{"obfs-password": n.get("obfs_password")})
-        return f"hysteria2://{up.quote(str(n.get('cred', '')), safe='')}@{host}:{port}{q}{_frag(name)}"
+        return f"hysteria2://{up.quote(str(n.get('cred', '')), safe='')}@{_hp(host, port)}{q}{_frag(name)}"
 
     if t == "tuic":
         q = _qs(sni=n.get("sni"), alpn=n.get("alpn"),
                 congestion_control=n.get("congestion"), **{"allow_insecure": 1 if n.get("insecure") else None})
         cred = n.get("cred") or n.get("uuid", "")
-        return f"tuic://{cred}@{host}:{port}{q}{_frag(name)}"
+        return f"tuic://{cred}@{_hp(host, port)}{q}{_frag(name)}"
 
     if t == "socks5":
         cred = n.get("cred") or ""
         auth = (up.quote(cred, safe=":") + "@") if cred else ""
-        return f"socks5://{auth}{host}:{port}{_frag(name)}"
+        return f"socks5://{auth}{_hp(host, port)}{_frag(name)}"
 
     if t == "anytls":
         # AnyTLS 就是「TLS 里套一层自适应填充」，参数只有 sni / 证书校验 / 指纹
         q = _qs(sni=n.get("sni"), insecure=1 if n.get("insecure") else None,
                 fp=n.get("fingerprint"))
-        return f"anytls://{up.quote(str(n.get('cred', '')), safe='')}@{host}:{port}{q}{_frag(name)}"
+        return f"anytls://{up.quote(str(n.get('cred', '')), safe='')}@{_hp(host, port)}{q}{_frag(name)}"
 
     # http 只用于「解析得出来但被隔离」的统计口径，不参与正常导出
     if t == "http":
         cred = n.get("cred") or ""
         auth = (up.quote(cred, safe=":") + "@") if cred else ""
         scheme = "https" if n.get("tls") else "http"
-        return f"{scheme}://{auth}{host}:{port}{_frag(name)}"
+        return f"{scheme}://{auth}{_hp(host, port)}{_frag(name)}"
 
     return ""
 
@@ -623,6 +635,22 @@ def _finalize(nodes, rejects=None):
         n.setdefault("name", "")
         n["fp"] = make_fp(n)
         n["addr"] = addr_of(n)
-        n["uri"] = n.pop("_raw_uri", None) or to_uri(n)
+        # 原样保留源站的分享链接；但必须验一遍它能不能被解析回来。
+        # 实测全量里有 18 条 URI（12216 里）自己解析不回来——base64 里带换行、
+        # 或参数残缺。它们留在库里只会让「库里 10,216 条 / 导出 10,198 条」
+        # 这种差额永远说不清，所以宁可在这里就拦下。
+        uri = n.pop("_raw_uri", None) or ""
+        if not uri or not parse_uri(uri):
+            rebuilt = to_uri(n)
+            uri = rebuilt if rebuilt and parse_uri(rebuilt) else ""
+        if not uri:
+            if rejects is not None:
+                rejects.append({"kind": "node", "type": n.get("type") or "",
+                                "name": (n.get("name") or "")[:40],
+                                "server": (n.get("server") or "")[:60],
+                                "port": n.get("port") or 0,
+                                "reason": REASON["no_uri"]})
+            continue
+        n["uri"] = uri
         out.append(n)
     return out

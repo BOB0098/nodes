@@ -66,6 +66,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 collector.py
 
+      # mihomo 二进制 21MB，每轮重下要 20-40 秒。版本号进 key，
+      # 升级时自动失效，不会拿着旧内核测新协议
+      - name: 缓存 mihomo
+        if: steps.gate.outputs.skip != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ../.nodes-cache/mihomo
+          key: mihomo-v1.19.34
+
       # 真实代理检测：TCP 端口能连不等于代理可用。抽样后交给 mihomo 真握手，
       # 能不能出网、延迟多少、出口在哪个国家，都从这条真实链路里量。
       # 自检（DIRECT）不通过时脚本会自己中止，避免把机房网络故障写成「节点全挂」。
