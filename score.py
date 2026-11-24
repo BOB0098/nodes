@@ -235,9 +235,15 @@ def env_name():
 
 
 def save_history(doc, force=None):
-    """CI 里落盘，本地默认只打印。评分依赖历史，本地出口网络差异大，
-    写进去会污染「连续几轮」的判定。NODES_FORCE_WRITE=1 可强制写（调试/回放）。"""
-    force = (os.environ.get("NODES_FORCE_WRITE") == "1") if force is None else force
+    """CI 里落盘，本地只打印。评分依赖历史，本地出口网络差异大，
+    写进去会污染「连续几轮」的判定。NODES_FORCE_WRITE=1 可强制写（调试/回放）。
+
+    注意这里必须认 GITHUB_ACTIONS：漏了它，CI 读完历史算完级却不写回，
+    下一轮又读到同一份旧历史，「连续三轮」永远数不到——状态机会静默失效。
+    """
+    if force is None:
+        force = (os.environ.get("GITHUB_ACTIONS") == "true"
+                 or os.environ.get("NODES_FORCE_WRITE") == "1")
     if not force:
         print("  （本地运行，不写入 source_history.json）")
         return False
