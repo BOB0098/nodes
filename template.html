@@ -287,6 +287,19 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
   vertical-align:1px;white-space:nowrap}
 .flagx[hidden]{display:none}
 .flagx.cnf{color:var(--bad-ink);background:var(--bad-bg)}
+/* 来源评级（P4 评分）：S/A/B/C/D。只作参考，不参与卡片排序——
+   排序用的是「可连率 × 条数」，那个数直接对应用户能多拿到几个节点 */
+.gchip{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;
+  font-size:10px;font-weight:800;line-height:1;border-radius:5px;padding:0 4px;
+  color:var(--ink-3);background:var(--surf-flat);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.gchip[hidden]{display:none}
+.gchip[data-g="S"]{color:var(--ok-ink);background:var(--ok-bg);border:1px solid var(--ok-line)}
+.gchip[data-g="A"]{color:var(--ok-ink);background:var(--ok-bg)}
+.gchip[data-g="B"]{color:var(--accent);background:var(--surf-flat);border:1px solid var(--card-line)}
+.gchip[data-g="C"]{color:var(--warn-ink);background:var(--warn-bg)}
+.gchip[data-g="D"]{color:var(--bad-ink);background:var(--bad-bg)}
+/* 已隔离：虚框 + 降透明度。仍然可复制——隔离是「我们不推荐」，不是「禁止使用」 */
+.card.iso{opacity:.72;border-style:dashed}
 
 
 /* ── 链接框与复制按钮 ──────────────────────────────────────────────────── */
@@ -410,7 +423,7 @@ html.lock,html.lock body{overflow:hidden}
 
 <template id="tpl-card">
   <article class="card">
-    <div class="ch"><div class="chl"><span class="idx"></span><h3 class="tag"></h3><span class="flagx" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span></div><span class="freq"></span></div>
+    <div class="ch"><div class="chl"><span class="idx"></span><h3 class="tag"></h3><span class="gchip" hidden></span><span class="flagx stb" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span><span class="flagx iso" hidden>已隔离</span></div><span class="freq"></span></div>
     <p class="cnum"><b></b><span>条节点</span></p>
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
@@ -706,13 +719,31 @@ html.lock,html.lock body{overflow:hidden}
       const node = tpl.content.firstElementChild.cloneNode(true);
       const bad = (it.streak || 0) >= 2;
       const cnf = !!it.cnbad;
+      const iso = it.src_state === 'isolated';
       node.className = 'card' + (it.tag.indexOf('推荐') === 0 ? ' hi' : '') + (bad || cnf ? ' dim' : '');
 
       node.dataset.gi = gi;
       node._it = it;                                  // 筛选时读原始数据，不解析 DOM
       node.querySelector('.tag').textContent = it.tag;
-      node.querySelector('.flagx:not(.cnf)').hidden = !bad;
+      // 等级：没有评分就整个不出现，不写占位符「—」，那只会让人以为是数据坏了
+      const chip = node.querySelector('.gchip');
+      if (it.grade) {
+        chip.textContent = it.grade;
+        chip.dataset.g = it.grade;
+        chip.title = `来源评级 ${it.grade} · ${it.grade_score} 分（评分依据见质量报告）`;
+        chip.hidden = false;
+      }
+      // 异常标记分三档：单轮异常 / 连续两轮降级 / 三轮以上隔离。
+      // 混成一个「近期不稳」会让人分不清「刚抖了一下」和「已经不值得用」
+      const st = it.src_state;
+      const stb = node.querySelector('.flagx.stb');
+      if (st === 'watch') { stb.textContent = '单轮异常'; stb.hidden = false; }
+      else if (st === 'degraded') { stb.textContent = '连续失败·已降级'; stb.hidden = false; }
+      else if (st === 'recovering') { stb.textContent = '恢复观察中'; stb.hidden = false; }
+      else stb.hidden = !bad;
       node.querySelector('.flagx.cnf').hidden = !cnf;
+      node.querySelector('.flagx.iso').hidden = !iso;
+      if (iso) node.classList.add('iso');
       node.querySelector('.freq').textContent = it.freq;
       // 用 == null 同时接住 null 和 undefined：源拉取失败时 count 可能是 null，
       // 只判 === null 会漏成页面上显示「undefined 条节点」

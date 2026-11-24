@@ -130,9 +130,11 @@ def save_stats(rows, updated=None, in_ci=None):
     """rows: [{id, ...}]。CI 里落盘，本地只打印摘要。
 
     与 health.json 同理：本地出口网络与机房差异极大，本地数据不具可比性。
+    NODES_FORCE_WRITE=1 强制落盘，用于本地验证评分链路（数据会被下一轮 CI 覆盖）。
     """
     import json
-    in_ci = os.environ.get("GITHUB_ACTIONS") == "true" if in_ci is None else in_ci
+    force = os.environ.get("NODES_FORCE_WRITE") == "1"
+    in_ci = (os.environ.get("GITHUB_ACTIONS") == "true" or force) if in_ci is None else in_ci
     doc = {"updated": updated, "sources": rows}
     if in_ci:
         os.makedirs(os.path.dirname(STATS_PATH), exist_ok=True)

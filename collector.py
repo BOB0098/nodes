@@ -24,6 +24,7 @@ os.makedirs(OUT_DATA, exist_ok=True)
 
 sys.path.insert(0, BASE)
 import nodes_parse  # noqa: E402  同目录模块，负责把 YAML/JSON/URI 统一解析成节点
+import score as scoring  # noqa: E402  来源评分与淘汰状态机（P4）
 import sources_io  # noqa: E402  来源登记表读取（sources.yaml）
 
 # ── 来源清单：唯一事实来源是 sources.yaml ──────────────────────────
@@ -118,6 +119,21 @@ def collect(use_cache=False):
     stats.sort(key=lambda x: order.index(x["name"]))
     raw_total = sum(s.get("declared") or 0 for s in stats)
 
+    # 每个源的指纹集合 + 全局出现次数。用来算「独立新增」：
+    # 只被这一个源包含的指纹才是它真正带来的新东西，与采集顺序无关。
+    # 旧口径用 kept（先到先得）会把排序靠前的源算得虚高，换个顺序数字就变。
+    from collections import Counter
+    fp_appear = Counter()
+    src_fps = {}
+    for name, ns in results.items():
+        fps = {n["fp"] for n in ns}
+        src_fps[name] = fps
+        fp_appear.update(fps)
+    uniq = {name: sum(1 for fp in fps if fp_appear[fp] == 1)
+            for name, fps in src_fps.items()}
+    for s in stats:
+        s["unique"] = uniq.get(s["name"])
+
     seen, kept = set(), []
     for name in order:
         for n in results.get(name, []):
@@ -128,7 +144,7 @@ def collect(use_cache=False):
                          "proto": PROTO_LABEL.get(n["type"], "其他"),
                          "region": region_of(n["name"]),
                          "name": n["name"][:40], "addr": n["addr"]})
-    return kept, stats, errors, raw_total
+    return kept, stats, errors, raw_total, uniq
 
 
 TEMPLATE_PATH = os.path.join(BASE, "template.html")
@@ -402,12 +418,16 @@ def update_health(old, probes, fps=None):
     return new
 
 
-def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, prev=None):
+def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, prev=None,
+                       uniq=None, declared=None):
     """按任务书 §4 的字段口径，为每个启用的源生成一行动态记录。
 
     与页面上那点数字的区别：这里记的是「这一轮采集的原始事实」——
     解析出多少、去重后实际留下多少、抽样可连多少、HTTP 几、连续失败几次。
     页面只展示其中一部分，全量落在 data/sources_stats.json 供 P4 评分使用。
+
+    declared: {name: 源文件自己声明的条数}。与 parsed 分开记，
+    因为「声明 2169 条、实际解析 2133 条」本身就是源的可靠性证据。
     """
     from collections import Counter
     kept = Counter(n["src"] for n in nodes)
@@ -443,13 +463,16 @@ def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, pr
             "http": code, "http_ms": http.get("ms"),
             "source_age_h": _age_of(meta, health, u),
             "parsed": parsed,                 # 解析出的节点数
+            "declared": (declared or {}).get(s["name"]),   # 源文件自己声明的条数
             "kept": kept_n,                   # 去重后实际入库归属该源的条数
+            "unique": ((uniq or {}).get(s["name"]) if isinstance(parsed, int) else None),
             "dup": (parsed - kept_n) if isinstance(parsed, int) else None,
             "probe_total": total, "probe_ok": ok,
             "alive_pct": round(rate) if rate is not None else None,
             "fails_total": fails_total, "fails_streak": fails_streak,
             "last_error": err,
-            # quality 暂用抽样可连率；P4 会替换为加权分（更新频率/可用率/独立新增）
+            # 抽样可连率。P4 的综合评分是 score 字段，两者不要混用：
+            # quality 回答「它发的节点通不通」，score 回答「这个源值不值得留」
             "quality": round(rate) if rate is not None else None,
         })
     rows.sort(key=lambda r: (-(r.get("quality") or -1), -(r.get("kept") or 0)))
@@ -457,13 +480,15 @@ def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, pr
 
 
 def print_source_stats(rows):
-    print("\n来源统计（解析 → 去重后入库 → 抽样可连）")
-    print(f"  {'来源':<18}{'解析':>7}{'入库':>7}{'重复':>7}{'可连':>7}{'HTTP':>7}{'失败':>6}")
-    for r in rows:
-        print(f"  {r['name'][:17]:<18}{str(r['parsed'] or '—'):>7}{r['kept']:>7}"
+    print("\n来源质量（评分见 docs/P4-source-quality.md）")
+    print(f"  {'来源':<17}{'等级':>4}{'分':>5}{'原始':>7}{'独立':>7}{'重复':>7}"
+          f"{'可连':>7}{'HTTP':>7}{'失败':>5}  状态")
+    for r in sorted(rows, key=lambda x: -(x.get("score") or 0)):
+        print(f"  {r['name'][:16]:<17}{r.get('grade', '—'):>4}{r.get('score', 0):>5}"
+              f"{str(r['parsed'] or '—'):>7}{str(r.get('unique') if r.get('unique') is not None else '—'):>7}"
               f"{str(r['dup'] if r['dup'] is not None else '—'):>7}"
               f"{(str(r['alive_pct']) + '%') if r['alive_pct'] is not None else '—':>7}"
-              f"{str(r['http'] or '—'):>7}{r['fails_streak']:>6}")
+              f"{str(r['http'] or '—'):>7}{r['fails_streak']:>5}  {r.get('state_label', '')}")
 
 
 def _age_of(meta, health, url):
@@ -488,16 +513,20 @@ def _rank(item, counts, probes):
 
 
 def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None,
-             meta=None, include_uri=False):
+             meta=None, include_uri=False, grades=None):
     """组装页面数据。
 
     include_uri=False（默认）时节点不带 uri 字段：uri 里含 uuid/password 等
     完整凭据，落盘到公开仓库等于把 3500 多个节点的账号密码公开托管。
     页面本身不需要 uri（卡片只显示源站链接），所以默认脱敏。
+
+    grades: {url: stats_row}，把 P4 的等级/状态带给页面。页面不作为评分依据，
+    只是让用户知道「这张卡背后的源目前被判成什么水平」。
     """
     probes = probes or {}
     srcstat = srcstat or {}
     meta = meta or {}
+    grades = grades or {}
     groups = []
     for g in GROUPS:
         items = [{"tag": i["tag"], "note": i["note"],
@@ -508,10 +537,18 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "src_http": srcstat.get(i["url"]),
                   "age_h": _age_of(meta, health, i["url"]),
                   "score": round(_rank(i, counts, probes)),
-                  "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0)
+                  "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0),
+                  "grade": (grades.get(i["url"]) or {}).get("grade"),
+                  "grade_score": (grades.get(i["url"]) or {}).get("score"),
+                  "src_state": (grades.get(i["url"]) or {}).get("state"),
+                  "src_state_label": (grades.get(i["url"]) or {}).get("state_label"),
+                  "prio": (grades.get(i["url"]) or {}).get("priority_eff"),
                   } for i in g["items"]]
-        # 国内直连不通的固定沉底；其余按「可连率 × 条数」降序，同分保持清单原顺序
-        items.sort(key=lambda it: (it["cnbad"], -it["score"]))
+        # 国内直连不通的固定沉底；已隔离的再沉一层（不是删除，是「先别信」）；
+        # 其余按「可连率 × 条数」降序。同分时才看 P4 优先级——
+        # 连续三轮没带来新节点且在变差的源，不该和同水平的源平起平坐
+        items.sort(key=lambda it: (it["cnbad"], it.get("src_state") == "isolated",
+                                   -it["score"], it.get("prio") or 0))
         groups.append({"title": g["title"], "kern": g["kern"],
                        "clients": g["clients"], "items": items})
     return {
@@ -527,8 +564,9 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
 
 
 def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
-               health=None, srcstat=None, meta=None):
-    data = assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat, meta)
+               health=None, srcstat=None, meta=None, grades=None):
+    data = assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat, meta,
+                    grades=grades)
     page = {k: v for k, v in data.items() if k != "nodes"}
     open(os.path.join(BASE, "index.html"), "w", encoding="utf-8").write(render_page(page))
     open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
@@ -546,7 +584,7 @@ def rerender():
     """只按 data/nodes.json 重渲染 index.html：不联网、不改节点数据。
     改模板后本地预览用，避免为了看一眼样式又跑一遍采集。"""
     old = json.load(open(os.path.join(OUT_DATA, "nodes.json"), encoding="utf-8"))
-    counts, probes, health, srcstat, meta = {}, {}, {}, {}, {}
+    counts, probes, health, srcstat, meta, grades = {}, {}, {}, {}, {}, {}
     for g in old.get("groups", []):
         for it in g.get("items", []):
             counts[it["url"]] = it.get("count")
@@ -557,8 +595,12 @@ def rerender():
             if it.get("age_h") is not None:
                 meta[it["url"]] = {"age_h": it["age_h"]}
             health[it["url"]] = {"streak_bad": it.get("streak") or 0}
+            if it.get("grade"):
+                grades[it["url"]] = {"grade": it.get("grade"), "score": it.get("grade_score"),
+                                     "state": it.get("src_state"),
+                                     "priority_eff": it.get("prio")}
     data = assemble(old.get("nodes") or [], old.get("raw") or 0, old.get("errors") or [],
-                    counts, probes, old.get("delta"), health, srcstat, meta)
+                    counts, probes, old.get("delta"), health, srcstat, meta, grades=grades)
     data["updated"], data["ts"] = old.get("updated"), old.get("ts")
     page = {k: v for k, v in data.items() if k != "nodes"}
     out = os.path.join(BASE, "index.html")
@@ -572,7 +614,7 @@ def main():
         return
     use_cache = "--cache" in sys.argv
     print("开始采集节点...")
-    nodes, stats, errors, raw = collect(use_cache)
+    nodes, stats, errors, raw, uniq = collect(use_cache)
 
     old_json = os.path.join(OUT_DATA, "nodes.json")
     delta = None
@@ -607,15 +649,22 @@ def main():
         if h.get("streak_bad"):
             print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
 
-    build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat, meta)
-
     # 每源动态统计：任务书 §4 要求的原始/解析/重复/新增/有效节点数与失败次数
     rows = build_source_stats(SOURCES_ALL, counts, probes, srcstat, meta, health, nodes,
-                              sources_io.load_stats().get("sources"))
+                              sources_io.load_stats().get("sources"), uniq=uniq,
+                              declared={s["name"]: s.get("declared") for s in stats})
+    # P4：加权评分 + 连续失败状态机（单轮异常 / 两轮降级 / 三轮隔离）。
+    # 先评分再渲染，页面卡片才能带上等级；顺序反了页面会全是 null。
+    stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M")
+    rows, hist = scoring.annotate(rows, scoring.load_history(), stamp=stamp)
     print_source_stats(rows)
-    sources_io.save_stats(
-        rows,
-        updated=datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"))
+    sources_io.save_stats(rows, updated=stamp)
+    open(scoring.REPORT_PATH, "w", encoding="utf-8").write(scoring.render_report(rows, hist))
+    print(f"  评分报告 -> {os.path.relpath(scoring.REPORT_PATH, BASE)}")
+
+    grades = {r["url"]: r for r in rows}
+    build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat, meta,
+               grades=grades)
 
     # 全量导出口：含完整凭据，只能留在本地/CI 产物里，绝不能进仓库
     # （2024-11 曾提交到公开仓库 78 次，已重写历史清除；export/ 已在 .gitignore）
@@ -626,6 +675,19 @@ def main():
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
     with open(os.path.join(exp, "全部节点 明文.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(uris))
+
+    # 优选导出：剔除「已隔离」的来源。任务书 §8 要求失败/未验证节点不进优选，
+    # 但全量导出保持完整——隔离是「先别信」，不是「删掉」，两条出口各司其职。
+    iso = {r["name"] for r in rows if r.get("state") == "isolated"}
+    best = [n["uri"] for n in nodes if n["src"] not in iso]
+    if iso:
+        with open(os.path.join(exp, "优选节点 明文.txt"), "w", encoding="utf-8") as f:
+            f.write("\n".join(best))
+        with open(os.path.join(exp, "优选节点 base64.txt"), "w", encoding="utf-8") as f:
+            f.write(base64.b64encode("\n".join(best).encode()).decode())
+        print(f"      优选导出 {len(best)} 条（剔除隔离源 {len(iso)} 个：{'、'.join(sorted(iso))}）")
+    else:
+        print("      优选导出 = 全量（无隔离源）")
 
     print(f"\n完成: 校验 {raw} 条，去重后 {len(nodes)} 条")
     print("输出: index.html / data/nodes.json（脱敏，不含凭据）")
