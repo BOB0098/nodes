@@ -1,8 +1,8 @@
 {
- "updated": "11-25 07:17",
- "ts": 1795562265,
+ "updated": "11-25 07:37",
+ "ts": 1795563453,
  "life_span": 1,
- "raw": 15354,
+ "raw": 15356,
  "errors": [],
  "groups": [
   {
@@ -27,9 +27,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 33
+      "ms": 31
      },
-     "age_h": 2.8,
+     "age_h": 3.1,
      "score": 1180,
      "streak": 0,
      "grade": "A",
@@ -59,9 +59,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 36
+      "ms": 19
      },
-     "age_h": 83.3,
+     "age_h": 83.6,
      "score": 1151,
      "streak": 0,
      "grade": "A",
@@ -69,7 +69,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 6,
-     "rok": 45,
+     "rok": 48,
      "rtest": 90,
      "new7": 749,
      "med_age": 1
@@ -91,9 +91,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 342
+      "ms": 307
      },
-     "age_h": 3.7,
+     "age_h": 4.1,
      "score": 251,
      "streak": 0,
      "grade": "B",
@@ -101,7 +101,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 8,
-     "rok": 13,
+     "rok": 12,
      "rtest": 65,
      "new7": 65,
      "med_age": 1
@@ -123,9 +123,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 318
+      "ms": 289
      },
-     "age_h": 3.7,
+     "age_h": 4.1,
      "score": 201,
      "streak": 0,
      "grade": "B",
@@ -133,7 +133,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 10,
-     "rok": 60,
+     "rok": 61,
      "rtest": 90,
      "new7": 213,
      "med_age": 1
@@ -155,9 +155,9 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 74
+      "ms": 49
      },
-     "age_h": 3.7,
+     "age_h": 4.1,
      "score": 495,
      "streak": 0,
      "grade": "B",
@@ -165,7 +165,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 9,
-     "rok": 86,
+     "rok": 85,
      "rtest": 90,
      "new7": 360,
      "med_age": 1
@@ -188,7 +188,7 @@
      "no": [],
      "freq": "每日更新",
      "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
-     "count": 4664,
+     "count": 4666,
      "probe": {
       "ok": 13,
       "total": 24
@@ -196,19 +196,19 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 35
+      "ms": 13
      },
-     "age_h": 0.2,
-     "score": 2526,
+     "age_h": 0.0,
+     "score": 2527,
      "streak": 0,
      "grade": "A",
      "grade_score": 89.5,
      "src_state": "ok",
      "src_state_label": null,
      "prio": 8,
-     "rok": 5,
+     "rok": 7,
      "rtest": 90,
-     "new7": 4375,
+     "new7": 4376,
      "med_age": 1
     },
     {
@@ -229,9 +229,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 13
+      "ms": 15
      },
-     "age_h": 1.1,
+     "age_h": 1.4,
      "score": 2104,
      "streak": 0,
      "grade": "A",
@@ -256,16 +256,16 @@
      "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
      "count": 332,
      "probe": {
-      "ok": 20,
+      "ok": 21,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 305
+      "ms": 293
      },
-     "age_h": 3.7,
-     "score": 277,
+     "age_h": 4.1,
+     "score": 290,
      "streak": 0,
      "grade": "S",
      "grade_score": 91.7,
@@ -295,9 +295,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 265
+      "ms": 20
      },
-     "age_h": 17.9,
+     "age_h": 18.2,
      "score": 161,
      "streak": 0,
      "grade": "A",
@@ -305,7 +305,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 6,
-     "rok": 26,
+     "rok": 27,
      "rtest": 90,
      "new7": 152,
      "med_age": 1
@@ -328,9 +328,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 12
+      "ms": 13
      },
-     "age_h": 3.9,
+     "age_h": 4.2,
      "score": 13,
      "streak": 0,
      "grade": "A",
@@ -361,9 +361,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 111
+      "ms": 28
      },
-     "age_h": 0.2,
+     "age_h": 0.6,
      "score": 5,
      "streak": 0,
      "grade": "B",
@@ -401,9 +401,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 34
+      "ms": 14
      },
-     "age_h": 6.8,
+     "age_h": 7.1,
      "score": 323,
      "streak": 0,
      "grade": "A",
@@ -411,7 +411,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 8,
-     "rok": 26,
+     "rok": 28,
      "rtest": 90,
      "new7": 181,
      "med_age": 1
@@ -434,9 +434,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 37
+      "ms": 12
      },
-     "age_h": 15.5,
+     "age_h": 15.8,
      "score": 35,
      "streak": 0,
      "grade": "A",
@@ -444,7 +444,7 @@
      "src_state": "ok",
      "src_state_label": null,
      "prio": 7,
-     "rok": 19,
+     "rok": 17,
      "rtest": 21,
      "new7": 21,
      "med_age": 1
@@ -467,9 +467,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 33
+      "ms": 14
      },
-     "age_h": 0.6,
+     "age_h": 0.9,
      "score": 20,
      "streak": 0,
      "grade": "A",
@@ -500,9 +500,9 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 71
+      "ms": 73
      },
-     "age_h": 3.7,
+     "age_h": 4.1,
      "score": 495,
      "streak": 0,
      "grade": "B",
@@ -519,83 +519,84 @@
   }
  ],
  "delta": {
-  "add": 0,
-  "drop": 137
+  "add": 1,
+  "drop": 0
  },
  "stats": {
-  "raw": 15354,
-  "dedup": 9845,
+  "raw": 15356,
+  "dedup": 9846,
   "real_tested": 930,
-  "real_ok": 316,
+  "real_ok": 321,
   "regions": {
-   "欧洲": 123,
-   "美国": 63,
-   "未知": 40,
-   "其他": 25,
-   "香港": 15,
-   "日本": 14,
+   "欧洲": 122,
+   "美国": 65,
+   "未知": 33,
+   "其他": 30,
+   "日本": 18,
+   "香港": 16,
    "韩国": 13,
    "中国台湾": 13,
-   "新加坡": 10
+   "新加坡": 11
   },
   "tags": {
-   "待复测": 435,
-   "可用": 316,
-   "非机房": 232,
-   "隔离": 179,
-   "稳定": 97,
-   "机房 IP": 84,
-   "低延迟": 24,
-   "高速": 7
+   "待复测": 377,
+   "可用": 321,
+   "非机房": 233,
+   "隔离": 230,
+   "稳定": 123,
+   "机房 IP": 88,
+   "低延迟": 33,
+   "高速": 24,
+   "不稳定": 2
   },
-  "checked_at": "11-24 23:32",
+  "checked_at": "11-25 07:50",
   "subs": {
    "all": {
-    "count": 10271,
+    "count": 9845,
     "label": "全部节点"
    },
    "best": {
-    "count": 232,
+    "count": 174,
     "label": "优选（真实可用且评分 B 以上）"
    },
    "stable": {
-    "count": 251,
+    "count": 97,
     "label": "稳定（连续三轮可用）"
    },
    "lowlat": {
-    "count": 22,
+    "count": 24,
     "label": "低延迟（<200ms）"
    },
    "fast": {
-    "count": 15,
+    "count": 7,
     "label": "高速（≥2MB/s）"
    },
    "hk": {
-    "count": 14,
+    "count": 15,
     "label": "香港"
    },
    "tw": {
-    "count": 15,
+    "count": 13,
     "label": "中国台湾"
    },
    "jp": {
-    "count": 9,
+    "count": 14,
     "label": "日本"
    },
    "sg": {
-    "count": 14,
+    "count": 10,
     "label": "新加坡"
    },
    "us": {
-    "count": 88,
+    "count": 63,
     "label": "美国"
    },
    "kr": {
-    "count": 9,
+    "count": 13,
     "label": "韩国"
    },
    "eu": {
-    "count": 135,
+    "count": 123,
     "label": "欧洲"
    }
   },
@@ -607,7 +608,7 @@
   "isolated": 0,
   "protos": {
    "VMess": 5485,
-   "VLESS": 2059,
+   "VLESS": 2060,
    "Shadowsocks": 1056,
    "Trojan": 961,
    "Hysteria2": 208,
@@ -23865,6 +23866,13 @@
    "src": "ALIILAPRO"
   },
   {
+   "name": "🇩🇪𝙏𝙚𝙡𝙚𝙜𝙧𝙖𝙢⫸@𝙫𝟮𝙧𝙖𝙮𝙉𝙂_𝙈𝙖𝙩𝙨𝙪𝙧𝙞",
+   "proto": "VMess",
+   "region": "其他",
+   "addr": "154.47.19.225:1270",
+   "src": "ALIILAPRO"
+  },
+  {
    "name": "%F0%9F%87%A6%F0%9F%87%B9AT_10_@Surfboard",
    "proto": "VMess",
    "region": "其他",
@@ -23974,13 +23982,6 @@
    "proto": "VMess",
    "region": "其他",
    "addr": "109.70.74.94:54738",
-   "src": "ALIILAPRO"
-  },
-  {
-   "name": "@V2ray_Alpha🍺 7",
-   "proto": "VMess",
-   "region": "其他",
-   "addr": "154.47.19.225:1270",
    "src": "ALIILAPRO"
   },
   {
@@ -49121,9 +49122,9 @@
    "src": "ALIILAPRO"
   },
   {
-   "name": "FI 🇫🇮 | @Raydikalx | 875198",
+   "name": "DE 🇩🇪 | @Raydikalx | 875198",
    "proto": "VMess",
-   "region": "芬兰",
+   "region": "德国",
    "addr": "tgju.org:8080",
    "src": "ALIILAPRO"
   },
@@ -51757,6 +51758,13 @@
    "proto": "VMess",
    "region": "韩国",
    "addr": "zwrcf79gexd13vgh.v.3dns.vip:443",
+   "src": "ALIILAPRO"
+  },
+  {
+   "name": "Channel : @Daily_Configs ",
+   "proto": "VLESS",
+   "region": "其他",
+   "addr": "87.120.92.186:2087",
    "src": "ALIILAPRO"
   },
   {
