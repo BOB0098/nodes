@@ -226,6 +226,9 @@ python3 score.py --report       # 用现有 stats 重算评分并重写质量报
 python3 lifecycle.py            # 看节点存活统计（跟踪数/近 7 天新增/中位存活）
 python3 netsafe.py              # 出网边界自测（SSRF/大小/超时/脱敏/原子写，30 项）
 python3 restore.py list         # 看数据文件最近改了什么
+python3 bench.py                # 规模压测（500/2k/5k/10k，写 docs/P14-bench.md）
+python3 drill.py                # 故障演练七项（写 docs/P14-drills.md）
+python3 clienttest.py           # 用 Mihomo / sing-box / Xray 真实导入订阅
 open index.html                 # 或直接双击
 ```
 

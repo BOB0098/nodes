@@ -1,0 +1,22 @@
+{
+ "500": {
+  "n": 500,
+  "sec": 140.3,
+  "ok": 15,
+  "ok_pct": 3.0,
+  "timeout_pct": 0.0,
+  "fail_pct": 97.0,
+  "net_mb": 12.59,
+  "per_node_kb": 25.8
+ },
+ "2000": {
+  "n": 2000,
+  "sec": 555.0,
+  "ok": 45,
+  "ok_pct": 2.2,
+  "timeout_pct": 0.0,
+  "fail_pct": 97.8,
+  "net_mb": 107.35,
+  "per_node_kb": 55.0
+ }
+}

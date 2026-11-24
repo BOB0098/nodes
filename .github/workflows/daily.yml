@@ -68,6 +68,9 @@ jobs:
 
       - name: 采集并重建页面
         if: steps.gate.outputs.skip != 'true'
+        # 单源 150s 预算 × 15 源 / 6 并发，最坏约 6 分钟。给到 15 分钟：
+        # 卡死时宁可这步失败、保留上一轮数据，也不要挂到 workflow 上限
+        timeout-minutes: 15
         env:
           # 查「源最后提交时间」要打 14 次 GitHub API：带 token 5000/小时，不带只有 60
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

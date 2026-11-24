@@ -69,7 +69,7 @@ def wjson(path, obj, indent=None):
     netsafe.write_atomic(path, json.dumps(obj, ensure_ascii=False, indent=indent))
 
 
-def fetch(urls, name, use_cache=False):
+def fetch(urls, name, use_cache=False, budget=150):
     """拉一个源的原文。
 
     出网统一走 netsafe：协议只留 HTTP/HTTPS、目标必须是公网地址、每跳重定向
@@ -84,11 +84,20 @@ def fetch(urls, name, use_cache=False):
         return open(path, "rb").read()
     if isinstance(urls, str):
         urls = [urls]
+    # 单源总预算。重试 2 次 × 多镜像 × 每次 90s 读预算，最坏能到 10 分钟以上：
+    # 一个半死的源能把整轮采集拖到 workflow 超时。150 秒封顶，
+    # 15 个源 6 并发最坏约 6 分钟，采集步骤单独给了 15 分钟余量。
+    deadline = time.time() + budget
     last = None
     for u in urls:
         for _ in range(2):
+            left = deadline - time.time()
+            if left < 5:
+                raise last or TimeoutError(f"{name}：单源预算 {budget}s 已用尽")
             try:
-                data = netsafe.open_url(u)
+                data = netsafe.open_url(
+                    u, timeout=min(netsafe.CONNECT_TIMEOUT, left),
+                    total_timeout=min(netsafe.TOTAL_TIMEOUT, left))
                 if len(data) > 200:
                     netsafe.write_atomic(path, data)
                     return data

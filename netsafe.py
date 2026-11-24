@@ -314,6 +314,29 @@ def mask_text(s):
 
 # ---- 原子写 ---------------------------------------------------------------
 
+def _clean_stale(dirpath, older=3600):
+    """清掉别的进程留下的半截临时文件。
+
+    `write_atomic` 的异常分支会 unlink 自己的临时文件，但 SIGKILL 走不到
+    异常分支——进程被 kill -9 / 容器被强制停止时，`.tmp-xxx.part` 就留在
+    那儿了。不清的话跑一年能攒出几个 GB（每次写完不删，只是不再被引用）。
+    """
+    now = time.time()
+    try:
+        names = os.listdir(dirpath)
+    except OSError:
+        return
+    for name in names:
+        if not (name.startswith(".tmp-") and name.endswith(".part")):
+            continue
+        p = os.path.join(dirpath, name)
+        try:
+            if now - os.path.getmtime(p) > older:
+                os.unlink(p)
+        except OSError:
+            pass
+
+
 def write_atomic(path, data, encoding="utf-8"):
     """先写同目录临时文件再 rename。
 
@@ -324,6 +347,7 @@ def write_atomic(path, data, encoding="utf-8"):
     """
     d = os.path.dirname(os.path.abspath(path)) or "."
     os.makedirs(d, exist_ok=True)
+    _clean_stale(d)
     fd, tmp = tempfile.mkstemp(dir=d, prefix=".tmp-", suffix=".part")
     try:
         mode = "wb" if isinstance(data, (bytes, bytearray)) else "w"
