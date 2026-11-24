@@ -1,6 +1,6 @@
 {
- "updated": "11-25 03:32",
- "ts": 1795548766,
+ "updated": "11-25 03:36",
+ "ts": 1795549006,
  "raw": 15654,
  "errors": [],
  "groups": [
@@ -20,16 +20,16 @@
      "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
      "count": 2133,
      "probe": {
-      "ok": 20,
+      "ok": 21,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 40
+      "ms": 43
      },
-     "age_h": 21.6,
-     "score": 1778,
+     "age_h": 21.7,
+     "score": 1866,
      "streak": 0,
      "grade": "A",
      "grade_score": 86.0,
@@ -54,7 +54,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 54
+      "ms": 48
      },
      "age_h": 79.6,
      "score": 1152,
@@ -76,16 +76,16 @@
      "url": "https://blog.ermao.net/sub/clash/ermao.net",
      "count": 267,
      "probe": {
-      "ok": 21,
+      "ok": 20,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 299
+      "ms": 35
      },
-     "age_h": 0.0,
-     "score": 234,
+     "age_h": 0.1,
+     "score": 222,
      "streak": 0,
      "grade": "A",
      "grade_score": 83.9,
@@ -110,9 +110,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 391
+      "ms": 667
      },
-     "age_h": 0.0,
+     "age_h": 0.1,
      "score": 182,
      "streak": 0,
      "grade": "B",
@@ -140,7 +140,7 @@
       "code": 200,
       "ms": 165
      },
-     "age_h": 0.0,
+     "age_h": 0.1,
      "score": 495,
      "streak": 0,
      "grade": "B",
@@ -175,9 +175,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 41
+      "ms": 33
      },
-     "age_h": 0.0,
+     "age_h": 0.1,
      "score": 2630,
      "streak": 0,
      "grade": "A",
@@ -198,19 +198,19 @@
      "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
      "count": 3969,
      "probe": {
-      "ok": 11,
+      "ok": 10,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 46
+      "ms": 35
      },
      "age_h": 7.6,
-     "score": 1819,
+     "score": 1654,
      "streak": 0,
      "grade": "B",
-     "grade_score": 77.7,
+     "grade_score": 75.7,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 4
@@ -233,9 +233,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 298
+      "ms": 1616
      },
-     "age_h": 0.0,
+     "age_h": 0.1,
      "score": 270,
      "streak": 0,
      "grade": "S",
@@ -262,9 +262,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 52
+      "ms": 41
      },
-     "age_h": 14.1,
+     "age_h": 14.2,
      "score": 152,
      "streak": 0,
      "grade": "A",
@@ -291,9 +291,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 52
+      "ms": 26
      },
-     "age_h": 0.1,
+     "age_h": 0.2,
      "score": 13,
      "streak": 0,
      "grade": "A",
@@ -320,7 +320,7 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 39
+      "ms": 40
      },
      "age_h": 0.5,
      "score": 7,
@@ -356,9 +356,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 181
+      "ms": 27
      },
-     "age_h": 3.0,
+     "age_h": 3.1,
      "score": 323,
      "streak": 0,
      "grade": "A",
@@ -385,9 +385,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 52
+      "ms": 24
      },
-     "age_h": 11.7,
+     "age_h": 11.8,
      "score": 35,
      "streak": 0,
      "grade": "A",
@@ -414,9 +414,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 50
+      "ms": 24
      },
-     "age_h": 1.0,
+     "age_h": 0.1,
      "score": 20,
      "streak": 0,
      "grade": "A",
@@ -443,9 +443,9 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 166
+      "ms": 163
      },
-     "age_h": 0.0,
+     "age_h": 0.1,
      "score": 495,
      "streak": 0,
      "grade": "B",
@@ -458,7 +458,7 @@
   }
  ],
  "delta": {
-  "add": 1,
+  "add": 0,
   "drop": 0
  },
  "nodes": [
@@ -73784,63 +73784,63 @@
    "name": "02 🇪🇺 02 • обход глушилок #2 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "rowan.kryonix.space:443",
+   "addr": "tenet.ultraveltrion.cyou:443",
    "src": "Andrejewild"
   },
   {
    "name": "03 🇪🇺 03 • обход глушилок #3 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "willow.kryonix.space:443",
+   "addr": "poplar.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "04 🇪🇺 04 • обход глушилок #4 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "maple.kryonix.space:443",
+   "addr": "rowan.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "05 🇪🇺 05 • обход глушилок #5 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "tenet.ultraveltrion.cyou:443",
+   "addr": "owl.zentaris.website:443",
    "src": "Andrejewild"
   },
   {
    "name": "06 🇪🇺 06 • обход глушилок #6 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "poplar.kryonix.space:443",
+   "addr": "willow.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "07 🇪🇺 07 • обход глушилок #7 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "linden.kryonix.space:443",
+   "addr": "monte.quantumveritas.monster:443",
    "src": "Andrejewild"
   },
   {
    "name": "08 🇪🇺 08 • обход глушилок #8 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "monte.quantumveritas.monster:443",
+   "addr": "maple.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "09 🇪🇺 09 • обход глушилок #9 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "cedar.kryonix.space:443",
+   "addr": "gain.novacelestia.live:443",
    "src": "Andrejewild"
   },
   {
    "name": "10 🇪🇺 10 • обход глушилок #10 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "elm.kryonix.space:443",
+   "addr": "linden.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
@@ -73861,42 +73861,42 @@
    "name": "13 🇪🇺 13 • обход глушилок #13 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "owl.zentaris.website:443",
+   "addr": "hazel.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "14 🇪🇺 14 • обход глушилок #14 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "gain.novacelestia.live:443",
+   "addr": "elm.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "15 🇪🇺 15 • обход глушилок #15 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "hazel.kryonix.space:443",
+   "addr": "juniper.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "16 🇪🇺 16 • обход глушилок #16 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "juniper.kryonix.space:443",
+   "addr": "cedar.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "17 🇪🇺 17 • обход глушилок #17 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "stremnina.online:443",
+   "addr": "231ccd11c72e7354.topology.gslb.yccdn.ru:443",
    "src": "Andrejewild"
   },
   {
    "name": "18 🇪🇺 18 • обход глушилок #18 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "231ccd11c72e7354.topology.gslb.yccdn.ru:443",
+   "addr": "stremnina.online:443",
    "src": "Andrejewild"
   }
  ]

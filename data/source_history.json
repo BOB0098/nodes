@@ -1,33 +1,63 @@
 {
- "updated": "2026-11-25 03:25",
+ "updated": "2026-11-25 03:36",
  "rounds": 30,
  "sources": {
+  "radarhub-clash": [
+   {
+    "ts": "2026-11-25 03:36",
+    "score": 78.6,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 495,
+    "unique": 60,
+    "alive_pct": 100,
+    "fails_streak": 0,
+    "penalty": 0
+   }
+  ],
+  "radarhub-singbox": [
+   {
+    "ts": "2026-11-25 03:36",
+    "score": 79.6,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 495,
+    "unique": 77,
+    "alive_pct": 100,
+    "fails_streak": 0,
+    "penalty": 0
+   }
+  ],
+  "awesome-vpn": [
+   {
+    "ts": "2026-11-25 03:36",
+    "score": 83.0,
+    "grade": "A",
+    "state": "ok",
+    "parsed": 35,
+    "unique": 20,
+    "alive_pct": 100,
+    "fails_streak": 0,
+    "penalty": 0
+   }
+  ],
+  "andrejewild": [
+   {
+    "ts": "2026-11-25 03:36",
+    "score": 85.8,
+    "grade": "A",
+    "state": "ok",
+    "parsed": 20,
+    "unique": 18,
+    "alive_pct": 100,
+    "fails_streak": 0,
+    "penalty": 0
+   }
+  ],
   "pawdroid": [
    {
-    "ts": "2026-11-25 03:20",
+    "ts": "2026-11-25 03:36",
     "score": 76.4,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 7,
-    "unique": 1,
-    "alive_pct": 100,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 76.4,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 7,
-    "unique": 1,
-    "alive_pct": 100,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 79.4,
     "grade": "B",
     "state": "ok",
     "parsed": 7,
@@ -37,36 +67,53 @@
     "penalty": 0
    }
   ],
+  "bzfq21": [
+   {
+    "ts": "2026-11-25 03:36",
+    "score": 85.0,
+    "grade": "A",
+    "state": "ok",
+    "parsed": 337,
+    "unique": 184,
+    "alive_pct": 96,
+    "fails_streak": 0,
+    "penalty": 0
+   }
+  ],
+  "ermao-clash-reachable": [
+   {
+    "ts": "2026-11-25 03:36",
+    "score": 74.0,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 199,
+    "unique": 0,
+    "alive_pct": 92,
+    "fails_streak": 0,
+    "penalty": 0
+   }
+  ],
   "free18": [
    {
-    "ts": "2026-11-25 03:20",
+    "ts": "2026-11-25 03:36",
     "score": 85.2,
     "grade": "A",
     "state": "ok",
     "parsed": 166,
     "unique": 145,
-    "alive_pct": 88,
+    "alive_pct": 92,
     "fails_streak": 0,
     "penalty": 0
-   },
+   }
+  ],
+  "anaer": [
    {
-    "ts": "2026-11-25 03:22",
-    "score": 85.2,
+    "ts": "2026-11-25 03:36",
+    "score": 86.0,
     "grade": "A",
     "state": "ok",
-    "parsed": 166,
-    "unique": 145,
-    "alive_pct": 88,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 88.2,
-    "grade": "A",
-    "state": "ok",
-    "parsed": 166,
-    "unique": 145,
+    "parsed": 2133,
+    "unique": 2084,
     "alive_pct": 88,
     "fails_streak": 0,
     "penalty": 0
@@ -74,7 +121,7 @@
   ],
   "barabama": [
    {
-    "ts": "2026-11-25 03:20",
+    "ts": "2026-11-25 03:36",
     "score": 83.2,
     "grade": "A",
     "state": "ok",
@@ -83,25 +130,29 @@
     "alive_pct": 83,
     "fails_streak": 0,
     "penalty": 0
-   },
+   }
+  ],
+  "ermao-v2ray": [
    {
-    "ts": "2026-11-25 03:22",
-    "score": 83.2,
-    "grade": "A",
+    "ts": "2026-11-25 03:36",
+    "score": 90.8,
+    "grade": "S",
     "state": "ok",
-    "parsed": 1383,
-    "unique": 730,
+    "parsed": 324,
+    "unique": 213,
     "alive_pct": 83,
     "fails_streak": 0,
     "penalty": 0
-   },
+   }
+  ],
+  "ermao-clash-full": [
    {
-    "ts": "2026-11-25 03:25",
-    "score": 86.2,
+    "ts": "2026-11-25 03:36",
+    "score": 83.9,
     "grade": "A",
     "state": "ok",
-    "parsed": 1383,
-    "unique": 730,
+    "parsed": 267,
+    "unique": 55,
     "alive_pct": 83,
     "fails_streak": 0,
     "penalty": 0
@@ -109,424 +160,43 @@
   ],
   "v2rayfree": [
    {
-    "ts": "2026-11-25 03:20",
-    "score": 77.7,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 21,
-    "unique": 7,
-    "alive_pct": 82,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 77.7,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 21,
-    "unique": 7,
-    "alive_pct": 82,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 84.7,
+    "ts": "2026-11-25 03:36",
+    "score": 80.9,
     "grade": "A",
     "state": "ok",
-    "parsed": 21,
-    "unique": 7,
-    "alive_pct": 82,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "bzfq21": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 83.6,
-    "grade": "A",
-    "state": "ok",
-    "parsed": 337,
-    "unique": 184,
-    "alive_pct": 67,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 83.6,
-    "grade": "A",
-    "state": "ok",
-    "parsed": 337,
-    "unique": 184,
-    "alive_pct": 67,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 84.3,
-    "grade": "A",
-    "state": "ok",
-    "parsed": 337,
-    "unique": 184,
-    "alive_pct": 62,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "ermao-v2ray": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 77.4,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 324,
-    "unique": 214,
-    "alive_pct": 42,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 77.4,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 324,
-    "unique": 214,
-    "alive_pct": 42,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 80.4,
-    "grade": "A",
-    "state": "ok",
-    "parsed": 324,
-    "unique": 214,
-    "alive_pct": 42,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "ermao-clash-reachable": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 60.6,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 199,
-    "unique": 0,
-    "alive_pct": 42,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 60.6,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 199,
-    "unique": 0,
-    "alive_pct": 42,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 63.6,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 199,
-    "unique": 0,
-    "alive_pct": 42,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "anaer": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 70.5,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 2133,
-    "unique": 2084,
-    "alive_pct": 38,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 70.5,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 2133,
-    "unique": 2084,
-    "alive_pct": 38,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 73.5,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 2133,
-    "unique": 2084,
-    "alive_pct": 38,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "ermao-clash-full": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 68.4,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 267,
-    "unique": 55,
-    "alive_pct": 38,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 68.4,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 267,
-    "unique": 55,
-    "alive_pct": 38,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 71.4,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 267,
-    "unique": 55,
-    "alive_pct": 38,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "matinghanbari": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 66.7,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 3969,
-    "unique": 1768,
-    "alive_pct": 25,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 66.7,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 3969,
-    "unique": 1768,
-    "alive_pct": 25,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 69.7,
-    "grade": "B",
-    "state": "ok",
-    "parsed": 3969,
-    "unique": 1768,
-    "alive_pct": 25,
+    "parsed": 16,
+    "unique": 5,
+    "alive_pct": 81,
     "fails_streak": 0,
     "penalty": 0
    }
   ],
   "aliilapro": [
    {
-    "ts": "2026-11-25 03:20",
-    "score": 61.1,
-    "grade": "C",
+    "ts": "2026-11-25 03:36",
+    "score": 86.5,
+    "grade": "A",
     "state": "ok",
-    "parsed": 4855,
-    "unique": 2561,
-    "alive_pct": 8,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 61.1,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 4855,
-    "unique": 2561,
-    "alive_pct": 8,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 64.1,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 4855,
-    "unique": 2561,
-    "alive_pct": 8,
+    "parsed": 4856,
+    "unique": 2562,
+    "alive_pct": 54,
     "fails_streak": 0,
     "penalty": 0
    }
   ],
-  "andrejewild": [
+  "matinghanbari": [
    {
-    "ts": "2026-11-25 03:20",
-    "score": 51.4,
-    "grade": "C",
+    "ts": "2026-11-25 03:36",
+    "score": 75.7,
+    "grade": "B",
     "state": "ok",
-    "parsed": 20,
-    "unique": 18,
-    "alive_pct": 6,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 51.4,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 20,
-    "unique": 18,
-    "alive_pct": 6,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 54.4,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 20,
-    "unique": 18,
-    "alive_pct": 6,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "awesome-vpn": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 47.1,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 35,
-    "unique": 20,
-    "alive_pct": 4,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 47.1,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 35,
-    "unique": 20,
-    "alive_pct": 4,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 50.1,
-    "grade": "C",
-    "state": "ok",
-    "parsed": 35,
-    "unique": 20,
-    "alive_pct": 4,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "radarhub-clash": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 38.6,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 495,
-    "unique": 60,
-    "alive_pct": 0,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 38.6,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 495,
-    "unique": 60,
-    "alive_pct": 0,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 41.6,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 495,
-    "unique": 60,
-    "alive_pct": 0,
-    "fails_streak": 0,
-    "penalty": 0
-   }
-  ],
-  "radarhub-singbox": [
-   {
-    "ts": "2026-11-25 03:20",
-    "score": 39.6,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 495,
-    "unique": 77,
-    "alive_pct": 0,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:22",
-    "score": 39.6,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 495,
-    "unique": 77,
-    "alive_pct": 0,
-    "fails_streak": 0,
-    "penalty": 0
-   },
-   {
-    "ts": "2026-11-25 03:25",
-    "score": 42.6,
-    "grade": "D",
-    "state": "ok",
-    "parsed": 495,
-    "unique": 77,
-    "alive_pct": 0,
+    "parsed": 3969,
+    "unique": 1768,
+    "alive_pct": 42,
     "fails_streak": 0,
     "penalty": 0
    }
   ]
  },
- "env": "local"
+ "env": "ci"
 }
