@@ -44,8 +44,11 @@
    · data/status.json           每条源的 HTTP 状态码与耗时
    · data/health.json           连通率历史与内容指纹（只在 CI 里写，本地不写）
    · og.png                     分享卡片图（1200x630，静态，不随采集变）
-   · 订阅 全部节点 base64.txt    全量去重清单，可直接导入 v2rayNG / Shadowrocket
-   · 订阅 全部节点 明文.txt      同上，明文 URI 列表
+   · export/全部节点 base64.txt  全量去重清单，可导入 v2rayNG / Shadowrocket
+   · export/全部节点 明文.txt    同上，明文 URI 列表
+
+   注意：export/ 里是完整凭据（uuid / password），已在 .gitignore 中，只留在本地
+   或 CI 产物里。data/nodes.json 已脱敏，不含 URI。
 
 五、发布到自己的 GitHub（可选，想换成自己的域名时用）
    1. 新建仓库，把本目录全部文件 push 上去
@@ -65,4 +68,5 @@
 七、注意
    · 免费节点随时失效，一条不好用就换下一条
    · 全程只访问公开仓库和公开订阅地址，不涉及任何账号
-   · 仓库里那两份「订阅 全部节点」txt 是全量导出，不保证可用；页面链接仍是各仓库原样地址
+   · 仓库里不再托管任何节点凭据；全量导出只在本地 export/ 或 CI 产物里，不保证可用
+   · 页面链接仍是各仓库原样地址

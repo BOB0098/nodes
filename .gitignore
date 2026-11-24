@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# 全量订阅导出：含完整凭据（uuid / password），只允许留在本地，绝不入库
+export/
+订阅 全部节点 *.txt

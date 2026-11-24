@@ -65,13 +65,25 @@ jobs:
         run: |
           git config user.name "node-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add index.html data/ "订阅 全部节点 base64.txt" "订阅 全部节点 明文.txt"
+          # 只提交页面与脱敏数据。全量导出含凭据，已移到 export/ 并 gitignore，
+          # 通过下面的 artifact 步骤交付，不入库
+          git add index.html data/
           if git diff --cached --quiet; then
             echo "内容无变化，不提交"
             exit 0
           fi
           git commit -m "chore: 更新节点 $(date '+%Y-%m-%d %H:%M')"
           git push
+
+      # 全量订阅导出含完整凭据，只作为本次 run 的产物保留 1 天，不进仓库
+      - name: 上传订阅导出（含凭据，不入库）
+        if: steps.gate.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: subscription-export
+          path: export/
+          retention-days: 1
+          if-no-files-found: ignore
 
       # jsDelivr 有 12 小时缓存，push 后主动清一次，备用入口才能立刻看到新内容
       - name: 清理 jsDelivr 缓存

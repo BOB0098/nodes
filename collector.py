@@ -594,7 +594,13 @@ def _rank(item, counts, probes):
 
 
 def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None,
-             meta=None):
+             meta=None, include_uri=False):
+    """组装页面数据。
+
+    include_uri=False（默认）时节点不带 uri 字段：uri 里含 uuid/password 等
+    完整凭据，落盘到公开仓库等于把 3500 多个节点的账号密码公开托管。
+    页面本身不需要 uri（卡片只显示源站链接），所以默认脱敏。
+    """
     probes = probes or {}
     srcstat = srcstat or {}
     meta = meta or {}
@@ -618,8 +624,11 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
         "ts": int(time.time()),
         "raw": raw_total, "errors": errors, "groups": groups, "delta": delta,
-        "nodes": [{"name": n["name"], "proto": n["proto"], "region": n["region"],
-                   "addr": n["addr"], "src": n["src"], "uri": n["uri"]} for n in nodes],
+        "nodes": [({"name": n["name"], "proto": n["proto"], "region": n["region"],
+                    "addr": n["addr"], "src": n["src"], "uri": n["uri"]}
+                   if include_uri else
+                   {"name": n["name"], "proto": n["proto"], "region": n["region"],
+                    "addr": n["addr"], "src": n["src"]}) for n in nodes],
     }
 
 
@@ -705,14 +714,20 @@ def main():
             print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
 
     build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat, meta)
+
+    # 全量导出口：含完整凭据，只能留在本地/CI 产物里，绝不能进仓库
+    # （2024-11 曾提交到公开仓库 78 次，已重写历史清除；export/ 已在 .gitignore）
     uris = [n["uri"] for n in nodes]
-    with open(os.path.join(BASE, "订阅 全部节点 base64.txt"), "w", encoding="utf-8") as f:
+    exp = os.path.join(BASE, "export")
+    os.makedirs(exp, exist_ok=True)
+    with open(os.path.join(exp, "全部节点 base64.txt"), "w", encoding="utf-8") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
-    with open(os.path.join(BASE, "订阅 全部节点 明文.txt"), "w", encoding="utf-8") as f:
+    with open(os.path.join(exp, "全部节点 明文.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(uris))
 
     print(f"\n完成: 校验 {raw} 条，去重后 {len(nodes)} 条")
-    print("输出: index.html / data/nodes.json")
+    print("输出: index.html / data/nodes.json（脱敏，不含凭据）")
+    print(f"      导出 {len(uris)} 条完整订阅 -> export/（本地文件，不入库）")
     if errors:
         print("失败源:", "; ".join(errors))
 
