@@ -73,7 +73,9 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         continue-on-error: true      # 检测失败不该拖垮整轮采集，保留上一轮结果
         timeout-minutes: 40
-        run: python3 nodecheck.py
+        # --speed 只对已经握手成功的节点下载 512KB 测速。不测的话评分里
+        # 速度那 20 分恒为 0，可用节点的分数上限只有 75，最优选永远凑不够
+        run: python3 nodecheck.py --speed
 
       # 评分与地区分类：只统计 nodecheck 里测过的节点，没测过的一律不算可用。
       # 内部还会跑一次重渲染，把「真实可用 X/Y」写进卡片——检测在采集之后，

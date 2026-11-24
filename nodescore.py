@@ -17,6 +17,7 @@ IP 质量 10 / 流媒体与 AI 5。其中**流媒体与 AI 这一项本模块恒
 """
 
 import json
+import math
 import os
 import time
 from collections import Counter
@@ -99,15 +100,20 @@ def score_one(rec, h):
     tags.append("可用")
 
     ms = rec.get("ms") or 3000
-    # 100ms 内满分，800ms 归零。再慢的节点不是「慢」，是基本不能用
-    s += 20 * max(0.0, min(1.0, (800 - ms) / 700))
+    # 150ms 内满分，1500ms 归零。这个尺度是按实测分布定的：
+    # 本轮 P50 675ms、P90 3010ms，超过 1.5 秒的节点在实际使用中已经接近不可用。
+    # 第一版用的是 100/800ms，结果 675ms 只能拿 3 分，绝大多数可用节点被压到 C 级，
+    # best 分组只剩 4 条——那不是节点差，是尺度和现实分布不匹配。
+    s += 20 * max(0.0, min(1.0, (1500 - ms) / 1350))
     if ms < 200:
         tags.append("低延迟")
 
     bps = rec.get("bps")
     if bps:
-        # 5 MB/s 封顶。免费节点到这个量级已经很难再快
-        s += 20 * max(0.0, min(1.0, bps / 5_000_000))
+        # 速度用对数刻度。带宽差异是数量级的（50KB/s 到 20MB/s），
+        # 线性刻度会让「2MB/s」和「200KB/s」看起来差不多，而实际体验差十倍。
+        # 50KB/s 记 0 分，5MB/s 记满分。
+        s += 20 * max(0.0, min(1.0, math.log10(max(bps, 1) / 50_000) / math.log10(100)))
         if bps >= 2_000_000:
             tags.append("高速")
 
