@@ -152,7 +152,11 @@ def collect(use_cache=False):
             kept.append({"src": name, "uri": n["uri"], "fp": n["fp"],
                          "proto": PROTO_LABEL.get(n["type"], "其他"),
                          "region": region_of(n["name"]),
-                         "name": n["name"][:40], "addr": n["addr"]})
+                         "name": n["name"][:40], "addr": n["addr"],
+                         # 完整参数留给 nodecheck.py 做真实检测：只测端口不需要这些，
+                         # 但要让 mihomo 真的连上，必须有 network/sni/flow/reality 这些。
+                         # 不进页面、不进 data/nodes.json，只进 gitignore 的 export/
+                         "cfg": {k: v for k, v in n.items() if k != "uri"}})
     return kept, stats, errors, raw_total, uniq, rejects
 
 
@@ -739,6 +743,13 @@ def main():
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
     with open(os.path.join(exp, "全部节点 明文.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(uris))
+
+    # 完整参数导出：nodecheck.py 拿它做真实代理检测（mihomo 需要 network/sni/flow
+    # 这些结构化的参数，光有 URI 还得再解析一遍）。同样含凭据，同样不入库。
+    json.dump([{"src": n["src"], "fp": n["fp"], "uri": n["uri"], **n["cfg"]}
+               for n in nodes],
+              open(os.path.join(exp, "nodes_full.json"), "w", encoding="utf-8"),
+              ensure_ascii=False)
 
     # 优选导出：剔除「已隔离」的来源。任务书 §8 要求失败/未验证节点不进优选，
     # 但全量导出保持完整——隔离是「先别信」，不是「删掉」，两条出口各司其职。

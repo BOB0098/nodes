@@ -66,6 +66,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 collector.py
 
+      # 真实代理检测：TCP 端口能连不等于代理可用。抽样后交给 mihomo 真握手，
+      # 能不能出网、延迟多少、出口在哪个国家，都从这条真实链路里量。
+      # 自检（DIRECT）不通过时脚本会自己中止，避免把机房网络故障写成「节点全挂」。
+      - name: 真实代理检测
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true      # 检测失败不该拖垮整轮采集，保留上一轮结果
+        timeout-minutes: 40
+        run: python3 nodecheck.py
+
       - name: 提交更新
         if: steps.gate.outputs.skip != 'true'
         run: |
