@@ -10,6 +10,11 @@ on:
 permissions:
   contents: write
 
+# runner 默认 UTC。页面上的时间是给人看的，统一按东八区渲染，
+# 否则会出现「数据 07:17 更新 / 检测 23:32」这种自相矛盾的并排显示
+env:
+  TZ: Asia/Shanghai
+
 # 同一时间只允许一个采集任务，避免两个 run 同时 push 冲突
 concurrency:
   group: collect

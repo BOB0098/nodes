@@ -29,10 +29,21 @@ import sys
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timedelta, timezone
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import netsafe  # noqa: E402
+
+# 时间戳一律用东八区。CI runner 是 UTC，直接用 time.strftime 会让页面出现
+# 「数据更新于 07:17」和「检测于 23:32」并排（其实是同一时刻，差 8 小时），
+# 用户读到第一反应是「检测数据是昨天的」。
+CST = timezone(timedelta(hours=8))
+
+
+def now_str():
+    return datetime.now(CST).strftime("%Y-%m-%d %H:%M")
+
 
 def write_json(path, obj):
     """原子写：中断时留下的是旧文件，不是半个 JSON。"""
@@ -497,7 +508,7 @@ def save(results, extra=None):
     仍然通），但会让 340 条掉到 30 条。没有这道闸门，一次环境抖动就会
     把上一轮的 340 条有效结论永久抹掉，第二天再好回来也读不到了。
     """
-    doc = {"updated": time.strftime("%Y-%m-%d %H:%M"), "env":
+    doc = {"updated": now_str(), "env":
            "ci" if os.environ.get("GITHUB_ACTIONS") == "true" else "local",
            "summary": summarize(results), "nodes": results}
     if extra:
@@ -594,7 +605,7 @@ def main():
 
     if shards > 1:
         out = OUT.replace(".json", f".shard{shard}.json")
-        write_json(out, {"updated": time.strftime("%Y-%m-%d %H:%M"), "env": "ci",
+        write_json(out, {"updated": now_str(), "env": "ci",
                          "summary": summarize(results), "nodes": results,
                          "shard": shard, "shards": shards})
         print(f"\n分片结果 -> {os.path.relpath(out, BASE)}")
