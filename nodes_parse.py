@@ -308,9 +308,14 @@ def _ws_params(p):
     # 一个没有 reality-opts 的普通节点也会走进这个分支：空 dict 是 dict，
     # 于是每条 Clash 节点都被标成 reality、public_key 清空。
     # 后果是 2,374 条被误标（其中 1,987 条公钥为空），sing-box 直接拒绝整份
-    # 订阅（invalid public_key），真实检测也全部握手失败——anaer 2% 的可用率
-    # 就是这么来的。这个 bug 是靠客户端实测才暴露的：我们自己的解析器读得回来，
-    # 只是读回来的是错的东西。
+    # 订阅（invalid public_key）。页面上的「安全方式」标注也跟着全错。
+    # 这个 bug 是靠客户端实测才暴露的：我们自己的解析器读得回来，只是读回来的
+    # 是错的东西。
+    #
+    # 一开始我把它当成 anaer 可用率低的根因（那个源 90 条只通 2 条）。修完再测，
+    # anaer 仍是 0/90——mihomo 对缺公钥的 reality 会当普通 TLS 处理，照样能连。
+    # 所以低可用率是节点本身的问题，不是这个 bug。这种「改一个 bug 顺手解释
+    # 另一个现象」的推断最危险，记在这里提醒自己。
     ro = p.get("reality-opts")
     if isinstance(ro, dict) and ro:
         out["public_key"] = ro.get("public-key") or ""
