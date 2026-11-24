@@ -60,6 +60,9 @@ step() {                            # step <名字> <必须成功 1/0> <命令..
   return 0
 }
 
+# 安全层先自测：这层挂了，采集会在不知不觉中读到不该读的东西。
+# 和 CI 里那一步是同一件事，顺序也一样。
+step "安全边界自测"    1 python3 netsafe.py
 step "采集+解析+去重"  1 python3 collector.py
 step "真实握手检测"    0 python3 nodecheck.py --speed
 step "评分与分类"      0 python3 nodescore.py

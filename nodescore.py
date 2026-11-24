@@ -22,6 +22,8 @@ import os
 import time
 from collections import Counter
 
+import netsafe
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 NODECHECK = os.path.join(BASE, "data", "nodecheck.json")
 OUT = os.path.join(BASE, "data", "node_scores.json")
@@ -201,11 +203,13 @@ def main():
     if not force:
         print("  （本地运行，不写入 node_scores.json）")
     else:
-        json.dump(doc, open(OUT, "w", encoding="utf-8"), ensure_ascii=False,
-                  separators=(",", ":"))
+        # 原子写：两个文件都是页面与订阅的数据源，写到一半被中断会留下
+        # 截断的 JSON，下一轮 collector 读到就整页空白
+        netsafe.write_atomic(OUT, json.dumps(doc, ensure_ascii=False,
+                                             separators=(",", ":")))
         hist["updated"] = check.get("updated")
-        json.dump(hist, open(HIST, "w", encoding="utf-8"), ensure_ascii=False,
-                  separators=(",", ":"))
+        netsafe.write_atomic(HIST, json.dumps(hist, ensure_ascii=False,
+                                              separators=(",", ":")))
         print(f"  节点评分 -> {os.path.relpath(OUT, BASE)}")
 
     # 打印按源的真实可用率：这是 P7 对页面最有用的一个数

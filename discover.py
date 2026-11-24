@@ -25,6 +25,7 @@ from datetime import date, datetime, timedelta, timezone
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import sources_io  # noqa: E402
+import netsafe  # noqa: E402
 
 OUT = os.path.join(BASE, "data", "candidates.json")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
@@ -56,9 +57,14 @@ def api(path):
         hdr["Authorization"] = "Bearer " + TOKEN
     for attempt in range(2):
         try:
+            # 搜索接口的 URL 由本模块拼装（词表在代码里），正常不会越界；
+            # 但 GitHub 返回的 next 链接是外部内容，万一被拿来当 path 传进来，
+            # 没有 check_url 就等于把出网目标交给响应体决定。
+            netsafe.check_url(url)
             req = urllib.request.Request(url, headers=hdr)
-            with urllib.request.urlopen(req, timeout=25) as r:
-                return json.loads(r.read()), dict(r.headers)
+            with netsafe.opener().open(req, timeout=25) as r:
+                body = netsafe.read_capped(r, dict(r.headers), max_bytes=8 << 20)
+                return json.loads(body), dict(r.headers)
         except urllib.error.HTTPError as e:
             if e.code in (403, 429):
                 time.sleep(15)          # 触发搜索限流，等一档
@@ -105,8 +111,11 @@ def looks_like_subscription(url, limit=120_000):
     data = None
     for u in cand_urls:
         try:
+            # 候选仓库里的文件属于不可信内容。截断式读取（read(limit)）
+            # 本身不会吃满内存，但协议与地址仍然要卡。
+            netsafe.check_url(u)
             req = urllib.request.Request(u, headers={"User-Agent": "nodes-discover"})
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with netsafe.opener().open(req, timeout=10) as resp:
                 data = resp.read(limit)
             break
         except Exception:

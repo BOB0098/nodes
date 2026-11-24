@@ -21,6 +21,8 @@ import json
 import os
 from datetime import datetime, timedelta, timezone
 
+import netsafe
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, "data")
 STATS_PATH = os.path.join(DATA, "sources_stats.json")
@@ -247,9 +249,7 @@ def save_history(doc, force=None):
     if not force:
         print("  （本地运行，不写入 source_history.json）")
         return False
-    os.makedirs(DATA, exist_ok=True)
-    json.dump(doc, open(HISTORY_PATH, "w", encoding="utf-8"),
-              ensure_ascii=False, indent=1)
+    netsafe.write_atomic(HISTORY_PATH, json.dumps(doc, ensure_ascii=False, indent=1))
     return True
 
 
@@ -540,8 +540,7 @@ def main():
     hist = load_history()
     rows, hist = annotate(rows, hist, persist="--no-write" not in sys.argv)
     if "--report" in sys.argv:
-        os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)
-        open(REPORT_PATH, "w", encoding="utf-8").write(render_report(rows, hist))
+        netsafe.write_atomic(REPORT_PATH, render_report(rows, hist))
         print(f"已生成 {REPORT_PATH}")
     print(f"\n{'等级':<4}{'分数':>6}  {'来源':<18}{'原始':>7}{'独立':>7}{'可连':>7}  状态")
     for r in sorted(rows, key=lambda x: -(x.get("score") or 0)):

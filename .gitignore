@@ -11,3 +11,4 @@ data/logs/
 
 # 体检结果默认落在本地；要留证据就显式 git add -f probe/xxx.json
 probe/*.json
+.restore-backup/

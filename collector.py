@@ -27,6 +27,7 @@ os.makedirs(OUT_DATA, exist_ok=True)
 sys.path.insert(0, BASE)
 import nodes_parse  # noqa: E402  同目录模块，负责把 YAML/JSON/URI 统一解析成节点
 import lifecycle  # noqa: E402  节点首次/最近出现时间（P5）
+import netsafe  # noqa: E402  出网边界与日志脱敏（P13）
 import score as scoring  # noqa: E402  来源评分与淘汰状态机（P4）
 import sources_io  # noqa: E402  来源登记表读取（sources.yaml）
 
@@ -63,7 +64,21 @@ REGIONS = [("香港", "香港"), ("HK", "香港"), ("Hong Kong", "香港"), ("�
            ("罗马尼亚", "罗马尼亚"), ("RO", "罗马尼亚"), ("白俄罗斯", "白俄罗斯"), ("BY", "白俄罗斯")]
 
 
+def wjson(path, obj, indent=None):
+    """JSON 原子写。indent=1 让 diff 按行走，只改一行不会整文件重写。"""
+    netsafe.write_atomic(path, json.dumps(obj, ensure_ascii=False, indent=indent))
+
+
 def fetch(urls, name, use_cache=False):
+    """拉一个源的原文。
+
+    出网统一走 netsafe：协议只留 HTTP/HTTPS、目标必须是公网地址、每跳重定向
+    都重查、单源 12MB 上限、整体 90s 预算。这里不再直接用 urlopen——旧实现
+    的 `.read()` 没有上限，一个坏源就能把 runner 的内存吃干净。
+
+    安全检查失败不重试：同一个地址再试两次还是被拦，只是把「源配错了」
+    拖成三倍时间，还会在日志里刷三行同样的错。
+    """
     path = os.path.join(CACHE, re.sub(r"[^\w\-]", "_", name) + ".txt")
     if use_cache and os.path.exists(path):
         return open(path, "rb").read()
@@ -73,11 +88,15 @@ def fetch(urls, name, use_cache=False):
     for u in urls:
         for _ in range(2):
             try:
-                req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 v2rayN/6.0"})
-                data = urllib.request.urlopen(req, timeout=25).read()
+                data = netsafe.open_url(u)
                 if len(data) > 200:
-                    open(path, "wb").write(data)
+                    netsafe.write_atomic(path, data)
                     return data
+                # 200 字节以下基本是错误页/占位文件。留着会让解析器
+                # 得到 0 条，看起来像「源今天没更新」。
+                last = RuntimeError(f"只拿到 {len(data)} 字节，不像订阅文件")
+            except netsafe.Blocked:
+                raise
             except Exception as e:
                 last = e
     raise last or RuntimeError("全部地址失败")
@@ -123,8 +142,11 @@ def collect(use_cache=False):
                               "declared": declared})
                 print(f"  ✔ {n:<10} {len(nodes):>5} / {declared:<5} 条  {ms}ms")
             except Exception as e:
-                errors.append(f"{name}: {str(e)[:50]}")
-                print(f"  ✘ {name:<10} 失败 {str(e)[:40]}")
+                # 异常文本里可能带完整 URL（HTTPError 的 str 就是 URL），
+                # 订阅地址的 query 常放 token，所以统一过 mask_text
+                msg = netsafe.mask_text(str(e))
+                errors.append(f"{name}: {msg[:50]}")
+                print(f"  ✘ {name:<10} 失败 {msg[:40]}")
 
     order = [s[0] for s in SOURCES]
     stats.sort(key=lambda x: order.index(x["name"]))
@@ -209,10 +231,14 @@ def http_probe(url, timeout=12):
     """
     t0 = time.time()
     try:
+        netsafe.check_url(url)
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 v2rayN/6.0"})
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with netsafe.opener().open(req, timeout=timeout) as r:
             r.read(512)
             return {"code": r.status, "ms": int((time.time() - t0) * 1000)}
+    except netsafe.Blocked:
+        # 被安全规则拦下的地址，页面标「不可达」比标「超时」误导性小
+        return {"code": 0, "ms": int((time.time() - t0) * 1000), "err": "Blocked"}
     except urllib.error.HTTPError as e:
         return {"code": e.code, "ms": int((time.time() - t0) * 1000)}
     except Exception as e:
@@ -243,7 +269,7 @@ def probe_sources(items):
     for u, r in zip(urls, res):
         out[u] = r
         flag = "✔" if r["code"] == 200 else ("✘" if not r["code"] else f"✘{r['code']}")
-        print(f"  {flag} 源站 {r['ms']:>5}ms  {u[:60]}")
+        print(f"  {flag} 源站 {r['ms']:>5}ms  {netsafe.mask_url(u)[:60]}")
     return out
 
 
@@ -264,9 +290,11 @@ def src_meta(url, timeout=10):
         if token:
             hdr["Authorization"] = "Bearer " + token
         try:
-            req = urllib.request.Request(api, headers=hdr)
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                arr = json.loads(r.read().decode("utf-8", "ignore"))
+            # 走 netsafe：这段响应里没有凭据，但 api 地址由源 URL 拼出来，
+            # 同样是外部输入。CI 里带了 GITHUB_TOKEN，更不能让它顺手连到别处。
+            body = netsafe.open_url(api, timeout=timeout, headers={
+                k: v for k, v in hdr.items() if k.lower() != "user-agent"})
+            arr = json.loads(body.decode("utf-8", "ignore"))
             if arr:
                 dt = datetime.strptime(arr[0]["commit"]["committer"]["date"],
                                        "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
@@ -275,8 +303,9 @@ def src_meta(url, timeout=10):
         except Exception:
             return None
     try:
+        netsafe.check_url(url)
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}, method="HEAD")
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with netsafe.opener().open(req, timeout=timeout) as r:
             lm = r.headers.get("Last-Modified")
         if lm:
             dt = datetime.strptime(lm, "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
@@ -295,9 +324,9 @@ def probe_meta(items):
     for it, r in zip(items, res):
         if r:
             out[it["url"]] = r
-            print(f"  · 源更新于 {r['age_h']:>5.1f}h 前  {it['url'][:56]}")
+            print(f"  · 源更新于 {r['age_h']:>5.1f}h 前  {netsafe.mask_url(it['url'])[:56]}")
         else:
-            print(f"  · 源更新时间未知        {it['url'][:56]}")
+            print(f"  · 源更新时间未知        {netsafe.mask_url(it['url'])[:56]}")
     return out
 
 
@@ -320,9 +349,9 @@ def measure(items, use_cache=False):
                 counts[u] = n
                 addrs[u] = a
                 fps[u] = fp
-                print(f"  · {n if n else '—':>5} 条 / {len(a):>4} 个地址可测  {u[:56]}")
+                print(f"  · {n if n else '—':>5} 条 / {len(a):>4} 个地址可测  {netsafe.mask_url(u)[:56]}")
             except Exception as e:
-                print(f"  ✘ 计数失败 {str(e)[:40]}")
+                print(f"  ✘ 计数失败 {netsafe.mask_text(str(e))[:40]}")
 
     probes = probe_all(addrs)
     return counts, probes, fps
@@ -380,7 +409,7 @@ def probe_all(addrs, sample=24, timeout=3.0):
                 pass
     for u, t in sorted(tally.items(), key=lambda x: -x[1]["total"]):
         rate = t["ok"] / t["total"] * 100 if t["total"] else 0
-        print(f"  ↳ 抽样 {t['total']:>2} 个，可连 {t['ok']:>2} 个（{rate:.0f}%）  {u[:56]}")
+        print(f"  ↳ 抽样 {t['total']:>2} 个，可连 {t['ok']:>2} 个（{rate:.0f}%）  {netsafe.mask_url(u)[:56]}")
     return tally
 
 
@@ -426,8 +455,7 @@ def update_health(old, probes, fps=None):
         new.setdefault(url, h)
     # 只在 CI（美国机房）里落盘：本地出口网络差异极大，会污染健康记录
     if os.environ.get("GITHUB_ACTIONS") == "true":
-        json.dump(new, open(HEALTH_PATH, "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
+        wjson(HEALTH_PATH, new, 1)
     else:
         print("  （本地运行，不写入健康记录）")
     return new
@@ -671,15 +699,13 @@ def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
     data = assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat, meta,
                     grades=grades, fresh=fresh, life_span=life_span)
     page = {k: v for k, v in data.items() if k != "nodes"}
-    open(os.path.join(BASE, "index.html"), "w", encoding="utf-8").write(render_page(page))
-    open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
-        json.dumps(data, ensure_ascii=False, indent=1))
+    netsafe.write_atomic(os.path.join(BASE, "index.html"), render_page(page))
+    wjson(os.path.join(OUT_DATA, "nodes.json"), data, 1)
     if srcstat:
         # 给第三方/自己监控用的机器可读状态：每条源的 HTTP 码与耗时
-        json.dump({"updated": data["updated"], "ts": data["ts"],
-                   "sources": [{"url": u, **v} for u, v in srcstat.items()]},
-                  open(os.path.join(OUT_DATA, "status.json"), "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
+        wjson(os.path.join(OUT_DATA, "status.json"),
+              {"updated": data["updated"], "ts": data["ts"],
+               "sources": [{"url": u, **v} for u, v in srcstat.items()]}, 1)
     return data
 
 
@@ -713,11 +739,10 @@ def rerender():
     data["updated"], data["ts"] = old.get("updated"), old.get("ts")
     page = {k: v for k, v in data.items() if k != "nodes"}
     out = os.path.join(BASE, "index.html")
-    open(out, "w", encoding="utf-8").write(render_page(page))
+    netsafe.write_atomic(out, render_page(page))
     # 同步写回 nodes.json：真实检测汇总（rok/rtest）是渲染时才读进来的，
     # 只改 index.html 会让两份数据对不上
-    open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
-        json.dumps(data, ensure_ascii=False, indent=1))
+    wjson(os.path.join(OUT_DATA, "nodes.json"), data, 1)
     print(f"已重渲染 {out}（数据保持 {data['updated']}，未联网）")
 
 
@@ -742,8 +767,7 @@ def write_quarantine(rejects, stamp):
     rows.sort(key=lambda x: -x["count"])
     doc = {"updated": stamp, "total": total, "by_reason": by_reason,
            "sources": rows, "samples": samples[:300]}
-    json.dump(doc, open(os.path.join(OUT_DATA, "quarantine.json"), "w", encoding="utf-8"),
-              ensure_ascii=False, indent=1)
+    wjson(os.path.join(OUT_DATA, "quarantine.json"), doc, 1)
     if total:
         detail = "，".join(f"{k} {v}" for k, v in
                           sorted(by_reason.items(), key=lambda kv: -kv[1]))
@@ -790,7 +814,7 @@ def main():
     health = update_health(load_health(), probes, fps)
     for u, h in health.items():
         if h.get("streak_bad"):
-            print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
+            print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{netsafe.mask_url(u)[:60]}")
 
     # P5：节点生命周期。先 update 再 annotate，顺序反了拿不到 first/last。
     # update 会顺手清掉 45 天没再出现的指纹，避免历史文件无限增长。
@@ -813,7 +837,7 @@ def main():
     rows, hist = scoring.annotate(rows, scoring.load_history(), stamp=stamp)
     print_source_stats(rows)
     sources_io.save_stats(rows, updated=stamp)
-    open(scoring.REPORT_PATH, "w", encoding="utf-8").write(scoring.render_report(rows, hist))
+    netsafe.write_atomic(scoring.REPORT_PATH, scoring.render_report(rows, hist))
     print(f"  评分报告 -> {os.path.relpath(scoring.REPORT_PATH, BASE)}")
 
     grades = {r["url"]: r for r in rows}
@@ -825,27 +849,37 @@ def main():
     uris = [n["uri"] for n in nodes]
     exp = os.path.join(BASE, "export")
     os.makedirs(exp, exist_ok=True)
-    with open(os.path.join(exp, "全部节点 base64.txt"), "w", encoding="utf-8") as f:
-        f.write(base64.b64encode("\n".join(uris).encode()).decode())
-    with open(os.path.join(exp, "全部节点 明文.txt"), "w", encoding="utf-8") as f:
-        f.write("\n".join(uris))
+    # 这里要写的东西含全量凭据：同机器上的其它用户读不到比较稳妥。
+    # 容器里通常只有一个用户，属于顺手加固（失败不阻断）。
+    try:
+        os.chmod(exp, 0o700)
+    except OSError:
+        pass
+    netsafe.write_atomic(os.path.join(exp, "全部节点 base64.txt"),
+                         base64.b64encode("\n".join(uris).encode()).decode())
+    netsafe.write_atomic(os.path.join(exp, "全部节点 明文.txt"), "\n".join(uris))
 
     # 完整参数导出：nodecheck.py 拿它做真实代理检测（mihomo 需要 network/sni/flow
     # 这些结构化的参数，光有 URI 还得再解析一遍）。同样含凭据，同样不入库。
-    json.dump([{"src": n["src"], "fp": n["fp"], "uri": n["uri"], **n["cfg"]}
-               for n in nodes],
-              open(os.path.join(exp, "nodes_full.json"), "w", encoding="utf-8"),
-              ensure_ascii=False)
+    # 完整参数：每条节点都要带凭据，写出后立刻 chmod 600，
+    # 同机器上的其它用户读不到（容器里通常只有一个用户，属于顺手加固）
+    full = os.path.join(exp, "nodes_full.json")
+    netsafe.write_atomic(full, json.dumps(
+        [{"src": n["src"], "fp": n["fp"], "uri": n["uri"], **n["cfg"]} for n in nodes],
+        ensure_ascii=False))
+    try:
+        os.chmod(full, 0o600)
+    except OSError:
+        pass
 
     # 优选导出：剔除「已隔离」的来源。任务书 §8 要求失败/未验证节点不进优选，
     # 但全量导出保持完整——隔离是「先别信」，不是「删掉」，两条出口各司其职。
     iso = {r["name"] for r in rows if r.get("state") == "isolated"}
     best = [n["uri"] for n in nodes if n["src"] not in iso]
     if iso:
-        with open(os.path.join(exp, "优选节点 明文.txt"), "w", encoding="utf-8") as f:
-            f.write("\n".join(best))
-        with open(os.path.join(exp, "优选节点 base64.txt"), "w", encoding="utf-8") as f:
-            f.write(base64.b64encode("\n".join(best).encode()).decode())
+        netsafe.write_atomic(os.path.join(exp, "优选节点 明文.txt"), "\n".join(best))
+        netsafe.write_atomic(os.path.join(exp, "优选节点 base64.txt"),
+                             base64.b64encode("\n".join(best).encode()).decode())
         print(f"      优选导出 {len(best)} 条（剔除隔离源 {len(iso)} 个：{'、'.join(sorted(iso))}）")
     else:
         print("      优选导出 = 全量（无隔离源）")

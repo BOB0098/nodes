@@ -31,6 +31,14 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, BASE)
+import netsafe  # noqa: E402
+
+def write_json(path, obj):
+    """原子写：中断时留下的是旧文件，不是半个 JSON。"""
+    netsafe.write_atomic(path, json.dumps(obj, ensure_ascii=False,
+                                          separators=(",", ":")))
+
 OUT = os.path.join(BASE, "data", "nodecheck.json")
 # 默认把 mihomo 放在仓库上一级，不进版本库。容器里上一级是 /（不可写），
 # 所以允许用 NODES_CACHE 覆盖到挂载出来的目录——否则 Docker 部署第一次
@@ -48,6 +56,7 @@ MIHOMO_URLS = [
 BATCH = 40            # 每批节点数：一批一个 mihomo 进程，太多会吃内存
 CONC = 20             # 单批内并发
 TIMEOUT = 8           # 单节点总超时（秒）
+MIN_KEEP_RATIO = 0.4  # 回归闸门：本轮可用数低于上轮这个比例就不覆盖
 BASE_PORT = 23000 + (os.getpid() % 200) * 60   # 避开并发跑的其它实例
 TEST_URL = "https://www.gstatic.com/generate_204"
 IP_URL = ("http://ip-api.com/json/?fields=status,country,countryCode,"
@@ -79,8 +88,18 @@ def ensure_mihomo():
     for u in MIHOMO_URLS:
         try:
             print(f"  下载 mihomo… {u.split('/')[2]}")
-            subprocess.run(["curl", "-sL", "--max-time", "180", "-o", MIHOMO + ".gz", u],
+            # 三道限制缺一不可：--proto 只留 http(s)，--max-redirs 防重定向环，
+            # --max-filesize 防一个坏镜像返回超大响应把磁盘写满。
+            # 少了 --max-filesize 时，curl 会老老实实把能读到的东西全写下来。
+            subprocess.run(["curl", "-sL", "--max-time", "180", "--max-redirs", "3",
+                            "--proto", "=https,http", "--max-filesize", "67108864",
+                            "-o", MIHOMO + ".gz", u],
                            check=True, timeout=200)
+            # 22MB 左右是正常体积。几百 KB 的多半是错误页/重定向页，
+            # 解压出来是个坏二进制，要到第一批节点全挂才会发现。
+            size = os.path.getsize(MIHOMO + ".gz")
+            if not (4 << 20) <= size <= (64 << 20):
+                raise RuntimeError(f"下载体积异常：{size} 字节")
             subprocess.run(["gunzip", "-f", MIHOMO + ".gz"], check=True, timeout=60)
             os.chmod(MIHOMO, 0o755)
             v = subprocess.run([MIHOMO, "-v"], capture_output=True, text=True, timeout=30)
@@ -469,6 +488,12 @@ def save(results, extra=None):
     与 health / lifecycle 同一口径：本地出口的连通性与机房不可比，
     写进去会让页面上的「真实可用率」变成环境的函数而不是节点的函数。
     NODES_FORCE_WRITE=1 可强制（调试用）。
+
+    写之前过一道**回归闸门**：本轮可用数不到上一轮的四成、而上一轮本身
+    测得过，就不覆盖。这挡的是「mihomo 下载到了坏包」「机房出口被限速」
+    「某个协议实现整批崩了」这类事故——它们不会让 selfcheck 失败（DIRECT
+    仍然通），但会让 340 条掉到 30 条。没有这道闸门，一次环境抖动就会
+    把上一轮的 340 条有效结论永久抹掉，第二天再好回来也读不到了。
     """
     doc = {"updated": time.strftime("%Y-%m-%d %H:%M"), "env":
            "ci" if os.environ.get("GITHUB_ACTIONS") == "true" else "local",
@@ -480,10 +505,37 @@ def save(results, extra=None):
     if not force:
         print("  （本地运行，不写入 nodecheck.json）")
         return doc
+
+    cur = doc["summary"]
+    prev = load_prev_summary()
+    if prev and not os.environ.get("NODES_SKIP_GATE"):
+        pt, pct = prev.get("tested") or 0, prev.get("ok") or 0
+        # 只有「上一轮本身测够了」才拿来比。上一轮只测了 5 条时，
+        # 4 成的阈值没有统计意义。
+        if pt >= 200 and pct > 0 and cur["ok"] < pct * MIN_KEEP_RATIO:
+            print(f"  ⚠ 回归闸门：本轮可用 {cur['ok']}，上一轮 {pct}（{pt} 条）"
+                  f"，不足 {int(MIN_KEEP_RATIO * 100)}%，判定为环境异常")
+            print("  ⚠ 不覆盖 nodecheck.json，上一轮结果保持有效。"
+                  "确认无误可设 NODES_SKIP_GATE=1 强制写入")
+            raise GateFail(f"可用数从 {pct} 掉到 {cur['ok']}")
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    json.dump(doc, open(OUT, "w", encoding="utf-8"), ensure_ascii=False,
-              separators=(",", ":"))
+    write_json(OUT, doc)
     return doc
+
+
+class GateFail(Exception):
+    """回归闸门拦下写盘。和「跑失败了」不同：数据是好的，只是不敢信这一轮。"""
+
+
+def load_prev_summary():
+    """读上一轮的 summary，读不到返回 None（第一轮、文件损坏都算没有）。"""
+    try:
+        d = json.load(open(OUT, encoding="utf-8"))
+        s = d.get("summary")
+        return s if isinstance(s, dict) and s.get("tested") else None
+    except Exception:
+        return None
 
 
 def main():
@@ -540,14 +592,17 @@ def main():
 
     if shards > 1:
         out = OUT.replace(".json", f".shard{shard}.json")
-        json.dump({"updated": time.strftime("%Y-%m-%d %H:%M"), "env": "ci",
-                   "summary": summarize(results), "nodes": results,
-                   "shard": shard, "shards": shards},
-                  open(out, "w", encoding="utf-8"), ensure_ascii=False,
-                  separators=(",", ":"))
+        write_json(out, {"updated": time.strftime("%Y-%m-%d %H:%M"), "env": "ci",
+                         "summary": summarize(results), "nodes": results,
+                         "shard": shard, "shards": shards})
         print(f"\n分片结果 -> {os.path.relpath(out, BASE)}")
         return 0
-    doc = save(results, {"budget": max_total, "per_src": per_src})
+    try:
+        doc = save(results, {"budget": max_total, "per_src": per_src})
+    except GateFail as e:
+        print(f"\n本轮结果未写入 nodecheck.json：{e}")
+        print("页面继续使用上一轮的有效数据。")
+        return 3
     s = doc["summary"]
     print(f"\n完成：测 {s['tested']}，真实可用 {s['ok']}（{s['ok_pct']}%），"
           f"中位延迟 {s['ms_median']}ms")

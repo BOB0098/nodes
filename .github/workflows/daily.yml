@@ -59,6 +59,13 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         run: pip install -r requirements.txt
 
+      # 出网边界自测：SSRF 拦截、大小/时长上限、日志脱敏、原子写。
+      # 30 项，不到 1 秒。放在采集前面——这一层如果坏了，采集会在
+      # 不知不觉中读到不该读的东西（或者把 10MB 的错误页当成订阅）。
+      - name: 安全边界自测
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 netsafe.py
+
       - name: 采集并重建页面
         if: steps.gate.outputs.skip != 'true'
         env:

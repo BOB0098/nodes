@@ -29,6 +29,7 @@ import sys
 
 import yaml
 
+import netsafe
 import nodes_parse
 from nodecheck import to_proxy
 
@@ -238,6 +239,12 @@ def main():
     sc = scores.get("nodes") or {}
 
     os.makedirs(SUBS, exist_ok=True)
+    # 生成物每一行都是一个可用凭据。目录只给属主，别的用户列不出来
+    for d in (os.path.dirname(SUBS), SUBS):
+        try:
+            os.chmod(d, 0o700)
+        except OSError:
+            pass
     manifest = {"updated": check.get("updated"), "formats": ["clash", "singbox", "uri", "b64"],
                 "groups": [], "failed": []}
 
@@ -273,7 +280,7 @@ def main():
                 manifest["failed"].append(f"{key}.{ext}: {why}（期望 {len(picked)}）")
                 continue
             path = os.path.join(SUBS, f"{key}.{ext}")
-            open(path, "w", encoding="utf-8").write(text)
+            netsafe.write_atomic(path, text)
             row["files"][fmt] = {"file": f"{key}.{ext}", "verified": got}
 
         # Base64 版本给只吃整体编码的客户端（v2rayN 的「订阅内容」）
@@ -281,7 +288,7 @@ def main():
         b64 = base64.b64encode(uri_text.encode()).decode()
         ok, got, why = verify("b64", b64, len(picked))
         if ok:
-            open(os.path.join(SUBS, f"{key}.b64"), "w", encoding="utf-8").write(b64)
+            netsafe.write_atomic(os.path.join(SUBS, f"{key}.b64"), b64)
             row["files"]["b64"] = {"file": f"{key}.b64", "verified": got}
         else:
             manifest["failed"].append(f"{key}.b64: {why}（期望 {len(picked)}）")
@@ -297,8 +304,7 @@ def main():
     force = (os.environ.get("GITHUB_ACTIONS") == "true"
              or os.environ.get("NODES_FORCE_WRITE") == "1")
     if force:
-        json.dump(manifest, open(MANIFEST, "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
+        netsafe.write_atomic(MANIFEST, json.dumps(manifest, ensure_ascii=False, indent=1))
 
     print(f"\n订阅输出 -> {os.path.relpath(SUBS, BASE)}")
     print(f"  {'分组':<8}{'条数':>7}  格式校验")

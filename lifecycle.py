@@ -20,6 +20,8 @@ import os
 import time
 from datetime import datetime, timedelta, timezone
 
+import netsafe
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 PATH = os.path.join(BASE, "data", "node_lifecycle.json")
 
@@ -172,9 +174,8 @@ def save(doc, force=None):
         print("  （本地运行，不写入 node_lifecycle.json）")
         return False
     doc["updated"] = datetime.now(CST).strftime("%Y-%m-%d %H:%M")
-    os.makedirs(os.path.dirname(PATH), exist_ok=True)
-    with open(PATH, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
+    netsafe.write_atomic(PATH, json.dumps(doc, ensure_ascii=False,
+                                          separators=(",", ":")))
     return True
 
 

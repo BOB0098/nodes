@@ -5,9 +5,12 @@
 collector.py 和 screen.py 共用这一层，保证「页面展示的源」与「实际采集的源」
 是同一份清单 —— 旧代码里这是两张表，直接导致 7 张卡片没有统计数据。
 """
+import json
 import os
 
 import yaml
+
+import netsafe
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_PATH = os.path.join(BASE, "sources.yaml")
@@ -132,14 +135,11 @@ def save_stats(rows, updated=None, in_ci=None):
     与 health.json 同理：本地出口网络与机房差异极大，本地数据不具可比性。
     NODES_FORCE_WRITE=1 强制落盘，用于本地验证评分链路（数据会被下一轮 CI 覆盖）。
     """
-    import json
     force = os.environ.get("NODES_FORCE_WRITE") == "1"
     in_ci = (os.environ.get("GITHUB_ACTIONS") == "true" or force) if in_ci is None else in_ci
     doc = {"updated": updated, "sources": rows}
     if in_ci:
-        os.makedirs(os.path.dirname(STATS_PATH), exist_ok=True)
-        json.dump(doc, open(STATS_PATH, "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
+        netsafe.write_atomic(STATS_PATH, json.dumps(doc, ensure_ascii=False, indent=1))
     else:
         print("  （本地运行，不写入 sources_stats.json）")
     return doc

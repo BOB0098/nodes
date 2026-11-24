@@ -28,6 +28,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
+import netsafe  # noqa: E402
 import nodes_parse  # noqa: E402
 import sources_io  # noqa: E402
 
@@ -142,10 +143,20 @@ def fetch_any(url, rounds=2):
 
 
 def fetch(url, limit=LIMIT, timeout=20):
+    """限流量拉取（默认 12 MB）。
+
+    读 limit+1 字节就停：既拿到「有没有超限」的判断，又不会把整个大文件
+    读进内存。地址与协议仍然过 netsafe——候选源是外部输入，包括重定向。
+    """
     t0 = time.time()
+    try:
+        netsafe.check_url(url)
+    except netsafe.Blocked as e:
+        return {"code": 0, "ms": int((time.time() - t0) * 1000), "data": b"", "size": 0,
+                "err": "Blocked:" + str(e)[:40]}
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with netsafe.opener().open(req, timeout=timeout) as r:
             data = r.read(limit + 1)
             return {"code": r.status, "ms": int((time.time() - t0) * 1000),
                     "data": data[:limit], "size": len(data),

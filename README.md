@@ -143,6 +143,28 @@ Hysteria2 / TUIC / SOCKS5 / AnyTLS。
 | V2Ray 系 | Xray | v2rayNG（安卓）、v2rayN（电脑）、Shadowrocket（iOS）、Karing |
 | sing-box 系 | sing-box | Hiddify（手机/电脑）、sing-box（安卓/苹果） |
 
+## 安全与回滚
+
+外部输入全是别人仓库里的文本，所以出网统一走 `netsafe`：只允许 HTTP/HTTPS、
+目标必须是公网地址（解析结果逐个比对）、每跳重定向都重查、单源 12 MB 上限、
+整体 90 秒预算。日志里所有 URL 与节点 URI 都过脱敏——订阅地址的 query 常放
+token，`print(e)` 一次就可能把凭据写进公开的 Actions 日志。
+
+真实检测失败不会覆盖上一轮的有效结果：本轮可用数掉到上轮的 40% 以下时判定为
+环境异常，`nodecheck.json` 保持不动，页面继续用旧数据。所有 JSON 都是原子写
+（先写临时文件再 rename），中断时留下的是旧文件而不是半个 JSON。
+
+数据回滚不用记 git 命令：
+
+```bash
+python3 restore.py list                 # 最近 20 次数据改动
+python3 restore.py to <sha> --dry-run   # 只看会改什么
+python3 restore.py to <sha>             # 恢复（当前内容自动备份）
+python3 restore.py undo                 # 撤销上一次恢复
+```
+
+细节与残余风险见 [docs/P13-security.md](docs/P13-security.md)。
+
 ## 说明
 
 - 卡片链接均为各仓库原样发布，本项目不改写、不合并。节点库为了统计与去重会把各源解析成统一模型，但不会回写源文件。
@@ -202,6 +224,8 @@ python3 screen.py               # 审核候选源（试采集→解析→去重�
 python3 discover.py --dry-run   # 检索新的候选仓库，只看结果不落盘
 python3 score.py --report       # 用现有 stats 重算评分并重写质量报告
 python3 lifecycle.py            # 看节点存活统计（跟踪数/近 7 天新增/中位存活）
+python3 netsafe.py              # 出网边界自测（SSRF/大小/超时/脱敏/原子写，30 项）
+python3 restore.py list         # 看数据文件最近改了什么
 open index.html                 # 或直接双击
 ```
 
