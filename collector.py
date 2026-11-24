@@ -22,6 +22,9 @@ OUT_DATA = os.path.join(BASE, "data")
 os.makedirs(CACHE, exist_ok=True)
 os.makedirs(OUT_DATA, exist_ok=True)
 
+sys.path.insert(0, BASE)
+import nodes_parse  # noqa: E402  同目录模块，负责把 YAML/JSON/URI 统一解析成节点
+
 # ── 订阅清单：页面按此结构展示，url 均为仓库原版地址 ──────────────
 GROUPS = [
     {
@@ -118,7 +121,6 @@ SOURCES = [
                     "https://cdn.jsdelivr.net/gh/zhuhaiuk/free-nodes@main/nodes.txt"]),
 ]
 
-VALID_PROTO = {"vmess", "vless", "ss", "ssr", "trojan", "hysteria", "hysteria2", "hy2", "tuic", "socks5"}
 PROTO_LABEL = {"vmess": "VMess", "vless": "VLESS", "ss": "Shadowsocks", "ssr": "SSR",
                "trojan": "Trojan", "hysteria": "Hysteria", "hysteria2": "Hysteria2", "hy2": "Hysteria2",
                "tuic": "TUIC", "socks5": "Socks5"}
@@ -160,50 +162,6 @@ def fetch(urls, name, use_cache=False):
     raise last or RuntimeError("全部地址失败")
 
 
-def to_text(data):
-    t = data.decode("utf-8", "ignore").strip()
-    if "://" in t:
-        return t
-    try:
-        return base64.b64decode(t + "=" * (-len(t) % 4)).decode("utf-8", "ignore")
-    except Exception:
-        return ""
-
-
-def addr_key(line):
-    try:
-        if line.startswith("vmess://"):
-            b = line[8:].split("#")[0]
-            j = json.loads(base64.b64decode(b + "=" * (-len(b) % 4)).decode("utf-8", "ignore"))
-            return f"{j.get('add','')}:{j.get('port','')}"
-        body = line.split("#")[0]
-        m = re.search(r"@([^@/?#]+?):(\d+)", body)
-        if m:
-            return m.group(1) + ":" + m.group(2)
-        m = re.search(r"([a-zA-Z0-9][a-zA-Z0-9.\-]*\.[a-zA-Z]{2,}|\d{1,3}(?:\.\d{1,3}){3}):(\d{2,5})", body)
-        if m:
-            return m.group(1) + ":" + m.group(2)
-    except Exception:
-        pass
-    if line.startswith("ss://"):
-        try:
-            b = line[5:].split("#")[0].rstrip("/")
-            t = base64.b64decode(b + "=" * (-len(b) % 4)).decode("utf-8", "ignore")
-            m = re.search(r"@?([^@:/]+):(\d+)", t.split("@")[-1])
-            if m:
-                return m.group(1) + ":" + m.group(2)
-        except Exception:
-            pass
-    return None
-
-
-def node_name(line):
-    if "#" in line:
-        import urllib.parse
-        return urllib.parse.unquote(line.split("#", 1)[1])[:40]
-    return ""
-
-
 def region_of(name):
     for k, v in REGIONS:
         if k in name:
@@ -212,46 +170,50 @@ def region_of(name):
 
 
 def collect(use_cache=False):
-    raw, stats, errors, results = [], [], [], {}
+    """拉取全部源并解析成统一节点模型。
+
+    解析交给 nodes_parse：Clash YAML、sing-box JSON、URI 列表三种载体都能入库。
+    旧实现只保留含 "://" 的行，导致 YAML/JSON 源一条都进不来。
+    去重改用全参数指纹，不再用 host:port（那会误杀同机不同凭据的节点）。
+    """
+    stats, errors, results = [], [], {}
 
     def work(item):
         name, urls = item
         t0 = time.time()
         data = fetch(urls, name, use_cache)
-        lines = [l.strip() for l in to_text(data).splitlines() if "://" in l]
-        lines = [l for l in lines if l.split("://")[0].lower() in VALID_PROTO]
-        return name, lines, int((time.time() - t0) * 1000)
+        nodes, declared = nodes_parse.parse_any(data)
+        return name, nodes, declared, int((time.time() - t0) * 1000)
 
     with ThreadPoolExecutor(max_workers=6) as ex:
         futs = {ex.submit(work, it): it for it in SOURCES}
         for fu in as_completed(futs):
             name = futs[fu][0]
             try:
-                n, lines, ms = fu.result()
-                results[n] = lines
-                stats.append({"name": n, "count": len(lines), "ms": ms})
-                print(f"  ✔ {n:<10} {len(lines):>5} 条  {ms}ms")
+                n, nodes, declared, ms = fu.result()
+                results[n] = nodes
+                stats.append({"name": n, "count": len(nodes), "ms": ms,
+                              "declared": declared})
+                print(f"  ✔ {n:<10} {len(nodes):>5} / {declared:<5} 条  {ms}ms")
             except Exception as e:
                 errors.append(f"{name}: {str(e)[:50]}")
                 print(f"  ✘ {name:<10} 失败 {str(e)[:40]}")
 
     order = [s[0] for s in SOURCES]
     stats.sort(key=lambda x: order.index(x["name"]))
-    for name in order:
-        for l in results.get(name, []):
-            raw.append((name, l))
+    raw_total = sum(s.get("declared") or 0 for s in stats)
 
     seen, kept = set(), []
-    for src, line in raw:
-        k = addr_key(line) or line
-        if k in seen:
-            continue
-        seen.add(k)
-        nm = node_name(line)
-        kept.append({"src": src, "uri": line, "proto": PROTO_LABEL.get(line.split("://")[0].lower(), "其他"),
-                     "region": region_of(nm), "name": nm,
-                     "addr": k if not k.startswith(("ss://", "vmess://", "vless://", "trojan://")) else "—"})
-    return kept, stats, errors, len(raw)
+    for name in order:
+        for n in results.get(name, []):
+            if n["fp"] in seen:
+                continue
+            seen.add(n["fp"])
+            kept.append({"src": name, "uri": n["uri"],
+                         "proto": PROTO_LABEL.get(n["type"], "其他"),
+                         "region": region_of(n["name"]),
+                         "name": n["name"][:40], "addr": n["addr"]})
+    return kept, stats, errors, raw_total
 
 
 TEMPLATE_PATH = os.path.join(BASE, "template.html")
@@ -279,37 +241,17 @@ def render_page(page):
 
 
 def count_of(data):
-    """按内容格式统计节点条数：Clash 数 proxies、sing-box 数 outbounds、其余数 URI 行"""
-    t = data.decode("utf-8", "ignore").strip()
-    m = re.search(r"^proxies:", t, re.M)
-    if m:
-        n = 0
-        for line in t[m.end():].splitlines():
-            if not line.strip():
-                continue
-            s = line.lstrip()
-            if s.startswith("- "):            # 列表项（缩进与否都算节点）
-                n += 1
-                continue
-            if line[:1] not in (" ", "\t"):   # 顶层键 → proxies 段结束
-                break
-        return n or None
-    if t[:1] == "{":
-        try:
-            j = json.loads(t)
-            if isinstance(j.get("outbounds"), list):
-                skip = {"selector", "urltest", "direct", "block", "dns", "relay"}
-                return sum(1 for o in j["outbounds"] if isinstance(o, dict) and o.get("type") not in skip) or None
-        except Exception:
-            pass
-    if "://" not in t:
-        try:
-            t = base64.b64decode(t + "=" * (-len(t) % 4)).decode("utf-8", "ignore")
-        except Exception:
-            return None
-    ls = [l for l in t.splitlines() if "://" in l]
-    ls = [l for l in ls if l.split("://")[0].lower() in VALID_PROTO]
-    return len(ls) or None
+    """卡片上显示的条数 = 该源能解析出的有效节点数。
+
+    走和 collect() 完全相同的解析路径，保证「页面写的数」和「库里存的数」
+    是同一个口径。旧实现只数 proxies 的 "- " 行，YAML 源显示 2144 条，
+    实际一条都进不了库——两个数互相解释不了。
+    """
+    try:
+        nodes, _ = nodes_parse.parse_any(data)
+        return len(nodes) or None
+    except Exception:
+        return None
 
 
 def http_probe(url, timeout=12):
@@ -426,62 +368,20 @@ def measure(items, use_cache=False):
 
 
 def extract_addrs(data):
-    """从订阅内容里抽出 host:port 列表（兼容 Clash YAML / sing-box JSON / URI 明文）"""
-    t = data.decode("utf-8", "ignore")
-    out = []
+    """从订阅内容里抽 host:port 供 TCP 抽样，走和入库同一套解析器。
 
-    # 1. Clash YAML：截取 proxies 段，按 server / port 顺序配对
-    m = re.search(r"^proxies:", t, re.M)
-    if m:
-        seg = []
-        for line in t[m.end():].splitlines():
-            if line and line[0] not in (" ", "\t", "-"):
-                break
-            seg.append(line)
-        body = "\n".join(seg)
-        servers = re.findall(r"^\s*server:\s*[\"']?([^\"'\s,}]+)", body, re.M)
-        ports = re.findall(r"^\s*port:\s*[\"']?(\d+)", body, re.M)
-        for s, p in zip(servers, ports):
-            out.append(f"{s}:{p}")
-        if out:
-            return out
+    旧实现用正则截 proxies 段、按 server/port 出现顺序 zip 配对，字段顺序
+    一变就错位；现在直接复用 nodes_parse，顺带白拿「回环地址已过滤」。
 
-    # 2. sing-box JSON
-    if t.lstrip()[:1] == "{":
-        try:
-            j = json.loads(t)
-            for o in j.get("outbounds", []):
-                if not isinstance(o, dict):
-                    continue
-                s, p = o.get("server"), o.get("server_port")
-                if s and p:
-                    out.append(f"{s}:{p}")
-            if out:
-                return out
-        except Exception:
-            pass
-
-    # 3. URI 明文 / Base64
-    body = t
-    if "://" not in body:
-        try:
-            body = base64.b64decode(body.strip() + "=" * (-len(body.strip()) % 4)).decode("utf-8", "ignore")
-        except Exception:
-            return out
-    for line in body.splitlines():
-        line = line.strip()
-        if "://" not in line:
-            continue
-        proto = line.split("://")[0].lower()
-        if proto not in VALID_PROTO:
-            continue
-        # UDP 类协议（QUIC）没法用 TCP 探测，跳过，避免误判成"死节点"
-        if proto in ("hysteria", "hysteria2", "hy2", "tuic"):
-            continue
-        k = addr_key(line)
-        if k and ":" in k and not k.startswith(("ss://", "vmess://", "vless://", "trojan://")):
-            out.append(k)
-    return out
+    UDP 系（QUIC）没法用 TCP 握手探测，跳过，避免误判成死节点。
+    """
+    try:
+        nodes, _ = nodes_parse.parse_any(data)
+    except Exception:
+        return []
+    udp = {"hysteria", "hysteria2", "tuic"}
+    return [n["addr"] for n in nodes
+            if n.get("type") not in udp and n.get("addr") not in (None, "", "—")]
 
 
 def _tcp_ok(host, port, timeout):
