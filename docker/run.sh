@@ -39,13 +39,18 @@ fi
 
 step() {                            # step <名字> <必须成功 1/0> <命令...>
   local name="$1" must="$2"; shift 2
-  local t0; t0=$(date +%s)
+  local t0 rc
+  t0=$(date +%s)
   echo "[$(date '+%F %T')] ▶ $name"
-  if "$@"; then
+  # 必须先把 rc 抢下来再判断。写成 `if "$@"; then … fi` 之后再取 $?，
+  # 拿到的是 if 语句自己的返回值（没有 else 分支时 if 恒返回 0），
+  # 于是「失败」会被打印成「rc=0」——这行的第一个版本就是这么错的
+  "$@"
+  rc=$?
+  if [ "$rc" -eq 0 ]; then
     echo "[$(date '+%F %T')] ✔ $name，用时 $(( $(date +%s) - t0 ))s"
     return 0
   fi
-  local rc=$?
   echo "[$(date '+%F %T')] ✘ $name 失败（rc=$rc），用时 $(( $(date +%s) - t0 ))s"
   if [ "$must" = "1" ]; then
     echo "关键步骤失败，中止。上一轮数据保持不动。"

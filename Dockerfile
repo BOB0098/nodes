@@ -31,6 +31,9 @@ COPY template.html ./
 COPY og.png ./
 COPY docker/ ./docker/
 COPY dockerprobe/ ./dockerprobe/
+# collector 每轮会重写 docs/P4-source-quality.md（来源质量报告）。
+# 少了这个空目录，采集能跑完、检测能跑完，最后写报告时 FileNotFoundError
+COPY docs/ ./docs/
 
 # 非 root 运行。采集不需要写系统目录，给一个固定 uid 免得挂载出来的文件属主乱跳
 RUN useradd -u 10001 -m runner && mkdir -p /app/data /app/.cache && chown -R runner /app
