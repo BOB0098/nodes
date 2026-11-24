@@ -53,6 +53,12 @@ jobs:
         with:
           python-version: '3.11'
 
+      # 少了这一步，`import yaml` 会在启动时直接失败，而且失败得很安静：
+      # P2 之后连续多轮 CI 都挂在这里，页面数据其实是停的
+      - name: 安装依赖
+        if: steps.gate.outputs.skip != 'true'
+        run: pip install -r requirements.txt
+
       - name: 采集并重建页面
         if: steps.gate.outputs.skip != 'true'
         env:
