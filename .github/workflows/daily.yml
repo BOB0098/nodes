@@ -127,7 +127,20 @@ jobs:
             exit 0
           fi
           git commit -m "chore: 更新节点 $(date '+%Y-%m-%d %H:%M')"
-          git push
+          # 人工提交随时可能插进来（改代码、补文档），直接 push 会被拒。
+          # 这一轮跑了十几分钟，因为一个 push 冲突把数据丢掉不值得。
+          # 冲突时取本轮的数据：文件是刚生成的，远端那份一定是旧的。
+          for i in 1 2 3; do
+            git fetch -q origin main
+            if git merge-base --is-ancestor origin/main HEAD; then
+              if git push; then exit 0; fi
+            else
+              echo "远端有新提交，合并后重试（$i/3）"
+              git merge --no-edit -X ours origin/main
+            fi
+            sleep 5
+          done
+          echo "三次都没推上去，本轮数据未提交"; exit 1
 
       # 全量订阅导出含完整凭据，只作为本次 run 的产物保留 1 天，不进仓库
       - name: 上传订阅导出（含凭据，不入库）
