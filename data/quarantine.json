@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 04:32",
- "total": 831,
+ "updated": "2026-11-25 04:48",
+ "total": 822,
  "by_reason": {
   "条目结构异常（不是对象或字段类型不对）": 31,
-  "非公网地址（回环/私有/保留网段）": 54,
+  "非公网地址（回环/私有/保留网段）": 45,
   "明文代理（流量与凭据均可被链路上任何人读取）": 739,
   "不支持的协议类型": 6,
   "缺少地址或端口": 1
@@ -68,18 +68,18 @@
    }
   },
   {
-   "src": "anaer",
-   "count": 11,
-   "by_reason": {
-    "不支持的协议类型": 1,
-    "非公网地址（回环/私有/保留网段）": 10
-   }
-  },
-  {
    "src": "radarhub",
    "count": 2,
    "by_reason": {
     "不支持的协议类型": 2
+   }
+  },
+  {
+   "src": "anaer",
+   "count": 2,
+   "by_reason": {
+    "不支持的协议类型": 1,
+    "非公网地址（回环/私有/保留网段）": 1
    }
   },
   {
@@ -252,6 +252,24 @@
    "src": "尔毛子·全量Clash"
   },
   {
+   "kind": "clash",
+   "type": "vmess",
+   "name": "其他 075",
+   "server": "使用前记得更新订阅",
+   "port": 0,
+   "reason": "不支持的协议类型",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "vless",
+   "name": "其他 149",
+   "server": "127.0.0.1",
+   "port": 1080,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "anaer"
+  },
+  {
    "kind": "singbox",
    "type": "hysteria",
    "name": "🇫🇷 France 33",
@@ -313,60 +331,6 @@
    "port": 9002,
    "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
    "src": "bzfq21"
-  },
-  {
-   "kind": "clash",
-   "type": "vmess",
-   "name": "其他 086",
-   "server": "使用前记得更新订阅",
-   "port": 0,
-   "reason": "不支持的协议类型",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 001",
-   "server": "127.0.0.53",
-   "port": 80,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 002",
-   "server": "127.0.0.53",
-   "port": 81,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 003",
-   "server": "127.0.0.53",
-   "port": 82,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 004",
-   "server": "127.0.0.53",
-   "port": 83,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
-   "kind": "uri",
-   "type": "#support-url: https",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "Andrejewild"
   },
   {
    "kind": "node",
@@ -502,6 +466,15 @@
    "port": 83,
    "reason": "非公网地址（回环/私有/保留网段）",
    "src": "ALIILAPRO"
+  },
+  {
+   "kind": "uri",
+   "type": "#support-url: https",
+   "name": "",
+   "server": "",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "Andrejewild"
   }
  ]
 }
