@@ -1,81 +1,81 @@
 {
- "updated": "11-25 03:25",
- "ts": 1795548355,
+ "updated": "11-25 03:32",
+ "ts": 1795548766,
  "sources": [
   {
    "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
    "code": 200,
-   "ms": 1619
+   "ms": 391
   },
   {
    "url": "https://radarhub.top/clash.yaml",
    "code": 200,
-   "ms": 1068
+   "ms": 165
   },
   {
    "url": "https://blog.ermao.net/sub/clash/ermao.net",
    "code": 200,
-   "ms": 1630
+   "ms": 299
   },
   {
    "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
    "code": 200,
-   "ms": 3014
+   "ms": 40
   },
   {
    "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml",
    "code": 200,
-   "ms": 1100
+   "ms": 54
   },
   {
    "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
    "code": 200,
-   "ms": 1104
+   "ms": 39
   },
   {
    "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
    "code": 200,
-   "ms": 1229
+   "ms": 298
   },
   {
    "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
    "code": 200,
-   "ms": 1732
+   "ms": 41
   },
   {
    "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
    "code": 200,
-   "ms": 1789
+   "ms": 52
   },
   {
    "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
    "code": 200,
-   "ms": 756
+   "ms": 52
   },
   {
    "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
    "code": 200,
-   "ms": 745
+   "ms": 46
   },
   {
    "url": "https://radarhub.top/sing-box.json",
    "code": 200,
-   "ms": 712
+   "ms": 166
   },
   {
    "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json",
    "code": 200,
-   "ms": 7735
+   "ms": 181
   },
   {
    "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json",
    "code": 200,
-   "ms": 3027
+   "ms": 52
   },
   {
    "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt",
    "code": 200,
-   "ms": 713
+   "ms": 50
   }
  ]
 }
