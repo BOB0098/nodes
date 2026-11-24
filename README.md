@@ -92,6 +92,29 @@ P2 的实测结果（17 个候选）：
 完整公式、逐源明细与扣分点见 [`docs/P4-source-quality.md`](docs/P4-source-quality.md)，
 每轮采集自动重写。
 
+## 解析与去重
+
+一条订阅可能是 Clash YAML、sing-box JSON、URI 列表或整体 base64，三种载体都由
+`nodes_parse.py` 解析成同一套模型。当前支持 VMess / VLESS / Shadowsocks / Trojan /
+Hysteria2 / TUIC / SOCKS5 / AnyTLS。
+
+**明文 HTTP 代理不入库**：流量和凭据在链路上明文可读，这类条目绝大多数还是带广告的
+公开代理池。但它不会被静默丢掉——每轮被丢弃的条目会按原因写进
+`data/quarantine.json`（只记协议/地址/端口，不记原文），页面上「这个源少了几百条」
+因此有据可查。
+
+去重按**全参数指纹**（协议+地址+端口+凭据+传输参数一起哈希），不是 host:port。
+同一台机器上不同 uuid/不同 ws 路径的节点是不同节点，按地址去重会误杀 40%。
+
+## 节点存活多久
+
+`lifecycle.py` 按天记录每个指纹第一次和最近一次出现的时间，派生两个指标：
+卡片上的「近 7 天新增 N」和悬浮提示里的「中位存活天数」。
+
+前者回答「这个源还在产新节点吗」——总量大不代表还在更新，一个源连续几周零新增，
+通常只是旧节点在被到处转发。45 天没再出现的指纹会从历史里清掉，隔这么久又冒出来的
+按新节点算才合理。
+
 ## 客户端
 
 | 订阅类型 | 内核 | 客户端 |
@@ -121,6 +144,7 @@ python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不�
 python3 screen.py               # 审核候选源（试采集→解析→去重→真实检测）
 python3 discover.py --dry-run   # 检索新的候选仓库，只看结果不落盘
 python3 score.py --report       # 用现有 stats 重算评分并重写质量报告
+python3 lifecycle.py            # 看节点存活统计（跟踪数/近 7 天新增/中位存活）
 open index.html                 # 或直接双击
 ```
 

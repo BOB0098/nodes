@@ -260,6 +260,11 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
 .age{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
 .age[hidden]{display:none}
 .age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
+/* 生命周期：靠右与「源更新时间」同排。margin-left:auto 只给 .life，
+   第二个 auto 没有剩余空间可分，.age 会紧贴在它右边，间距由 .meta 的 gap 提供 */
+.life{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
+.life[hidden]{display:none}
+.life.stale{color:var(--warn-ink)}
 
 /* 可连率：原生 progress，自带 progressbar 角色与 aria 数值 */
 .probe{display:flex;align-items:center;gap:8px;margin:9px 0 0;font-size:11.5px;color:var(--ink-3)}
@@ -427,7 +432,7 @@ html.lock,html.lock body{overflow:hidden}
     <p class="cnum"><b></b><span>条节点</span></p>
     <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
-    <div class="meta"><div class="cls"></div><p class="age" hidden></p></div>
+    <div class="meta"><div class="cls"></div><p class="life" hidden></p><p class="age" hidden></p></div>
     <p class="srcbad" hidden></p>
     <code class="url"></code>
     <div class="acts">
@@ -758,6 +763,27 @@ html.lock,html.lock body{overflow:hidden}
         cls.append(b);
       });
       if (!cls.childNodes.length) cls.remove();
+
+      // 新鲜度：近 7 天有没有冒出新节点。总量大不等于还在更新——
+      // 一个源连续几周零新增，多半只是旧节点在被到处转发，本身早就停更了。
+      // 跟踪不足 7 天时不能报新增：那会儿所有节点都是「第一次见到」，
+      // 报出来只说明我们刚开始记录，不是源在产新节点。
+      const n7 = it.new7;
+      const lifeEl = node.querySelector('.life');
+      const span = DATA.life_span;
+      if (n7 !== null && n7 !== undefined) {
+        if (span != null && span < 7) {
+          lifeEl.textContent = `已跟踪 ${span} 天`;
+          lifeEl.title = '节点存活统计刚建立，满 7 天后改为显示新增节点数';
+        } else {
+          lifeEl.textContent = n7 > 0 ? `近 7 天新增 ${n7}` : '近 7 天无新增';
+          lifeEl.classList.toggle('stale', !n7);
+          if (it.med_age !== null && it.med_age !== undefined) {
+            lifeEl.title = `该源节点中位存活 ${it.med_age} 天`;
+          }
+        }
+        lifeEl.hidden = false;
+      }
 
       // 作者写的「每日更新」是承诺，这行是仓库最后一次提交，两个都摆出来才不误导
       const ag = it.age_h;

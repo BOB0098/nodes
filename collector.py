@@ -24,6 +24,7 @@ os.makedirs(OUT_DATA, exist_ok=True)
 
 sys.path.insert(0, BASE)
 import nodes_parse  # noqa: E402  同目录模块，负责把 YAML/JSON/URI 统一解析成节点
+import lifecycle  # noqa: E402  节点首次/最近出现时间（P5）
 import score as scoring  # noqa: E402  来源评分与淘汰状态机（P4）
 import sources_io  # noqa: E402  来源登记表读取（sources.yaml）
 
@@ -36,10 +37,12 @@ SOURCES = sources_io.collect_targets(SOURCES_ALL)
 # 网络抖动当成源挂了（NoMoreWalls 这类只有 GitHub raw 的源尤其明显）
 URLS_BY_URL = {s["url"]: [s["url"]] + [m for m in (s.get("mirrors") or []) if m]
                for s in SOURCES_ALL if s.get("enabled")}
+# 订阅地址 -> 源名：页面卡片按 url 索引，生命周期统计按源名索引，两边对上
+SRC_NAME_BY_URL = {s["url"]: s["name"] for s in SOURCES_ALL if s.get("enabled")}
 
 PROTO_LABEL = {"vmess": "VMess", "vless": "VLESS", "ss": "Shadowsocks", "ssr": "SSR",
                "trojan": "Trojan", "hysteria": "Hysteria", "hysteria2": "Hysteria2", "hy2": "Hysteria2",
-               "tuic": "TUIC", "socks5": "Socks5"}
+               "tuic": "TUIC", "socks5": "Socks5", "anytls": "AnyTLS", "http": "HTTP"}
 
 REGIONS = [("香港", "香港"), ("HK", "香港"), ("Hong Kong", "香港"), ("台湾", "中国台湾"), ("TW", "中国台湾"),
            ("日本", "日本"), ("JP", "日本"), ("Japan", "日本"), ("新加坡", "新加坡"), ("SG", "新加坡"),
@@ -92,22 +95,28 @@ def collect(use_cache=False):
     旧实现只保留含 "://" 的行，导致 YAML/JSON 源一条都进不来。
     去重改用全参数指纹，不再用 host:port（那会误杀同机不同凭据的节点）。
     """
-    stats, errors, results = [], [], {}
+    stats, errors, results, rejects = [], [], {}, {}
 
     def work(item):
         name, urls = item
         t0 = time.time()
         data = fetch(urls, name, use_cache)
-        nodes, declared = nodes_parse.parse_any(data)
-        return name, nodes, declared, int((time.time() - t0) * 1000)
+        # 每条被丢弃的条目都留个记录（不含凭据），否则页面上「这个源少了 800 条」
+        # 永远只能靠猜。rejects 是线程内的独立 list，不用担心并发串写。
+        rj = []
+        nodes, declared = nodes_parse.parse_any(data, rj)
+        for r in rj:
+            r["src"] = name
+        return name, nodes, declared, int((time.time() - t0) * 1000), rj
 
     with ThreadPoolExecutor(max_workers=6) as ex:
         futs = {ex.submit(work, it): it for it in SOURCES}
         for fu in as_completed(futs):
             name = futs[fu][0]
             try:
-                n, nodes, declared, ms = fu.result()
+                n, nodes, declared, ms, rj = fu.result()
                 results[n] = nodes
+                rejects[n] = rj
                 stats.append({"name": n, "count": len(nodes), "ms": ms,
                               "declared": declared})
                 print(f"  ✔ {n:<10} {len(nodes):>5} / {declared:<5} 条  {ms}ms")
@@ -140,11 +149,11 @@ def collect(use_cache=False):
             if n["fp"] in seen:
                 continue
             seen.add(n["fp"])
-            kept.append({"src": name, "uri": n["uri"],
+            kept.append({"src": name, "uri": n["uri"], "fp": n["fp"],
                          "proto": PROTO_LABEL.get(n["type"], "其他"),
                          "region": region_of(n["name"]),
                          "name": n["name"][:40], "addr": n["addr"]})
-    return kept, stats, errors, raw_total, uniq
+    return kept, stats, errors, raw_total, uniq, rejects
 
 
 TEMPLATE_PATH = os.path.join(BASE, "template.html")
@@ -513,7 +522,7 @@ def _rank(item, counts, probes):
 
 
 def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=None,
-             meta=None, include_uri=False, grades=None):
+             meta=None, include_uri=False, grades=None, fresh=None, life_span=None):
     """组装页面数据。
 
     include_uri=False（默认）时节点不带 uri 字段：uri 里含 uuid/password 等
@@ -522,11 +531,14 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
 
     grades: {url: stats_row}，把 P4 的等级/状态带给页面。页面不作为评分依据，
     只是让用户知道「这张卡背后的源目前被判成什么水平」。
+
+    fresh:  {源名: {new7, median_age}}，P5 的生命周期统计。
     """
     probes = probes or {}
     srcstat = srcstat or {}
     meta = meta or {}
     grades = grades or {}
+    fresh = fresh or {}
     groups = []
     for g in GROUPS:
         items = [{"tag": i["tag"], "note": i["note"],
@@ -543,6 +555,8 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "src_state": (grades.get(i["url"]) or {}).get("state"),
                   "src_state_label": (grades.get(i["url"]) or {}).get("state_label"),
                   "prio": (grades.get(i["url"]) or {}).get("priority_eff"),
+                  "new7": (fresh.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("new7"),
+                  "med_age": (fresh.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("median_age"),
                   } for i in g["items"]]
         # 国内直连不通的固定沉底；已隔离的再沉一层（不是删除，是「先别信」）；
         # 其余按「可连率 × 条数」降序。同分时才看 P4 优先级——
@@ -554,6 +568,9 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
     return {
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
         "ts": int(time.time()),
+        # 生命周期跟踪了几天。不足 7 天时页面不报「近 7 天新增」——
+        # 冷启动那轮所有节点都是首次见到，报出来是假的新增
+        "life_span": life_span,
         "raw": raw_total, "errors": errors, "groups": groups, "delta": delta,
         "nodes": [({"name": n["name"], "proto": n["proto"], "region": n["region"],
                     "addr": n["addr"], "src": n["src"], "uri": n["uri"]}
@@ -564,9 +581,9 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
 
 
 def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
-               health=None, srcstat=None, meta=None, grades=None):
+               health=None, srcstat=None, meta=None, grades=None, fresh=None, life_span=None):
     data = assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat, meta,
-                    grades=grades)
+                    grades=grades, fresh=fresh, life_span=life_span)
     page = {k: v for k, v in data.items() if k != "nodes"}
     open(os.path.join(BASE, "index.html"), "w", encoding="utf-8").write(render_page(page))
     open(os.path.join(OUT_DATA, "nodes.json"), "w", encoding="utf-8").write(
@@ -584,7 +601,7 @@ def rerender():
     """只按 data/nodes.json 重渲染 index.html：不联网、不改节点数据。
     改模板后本地预览用，避免为了看一眼样式又跑一遍采集。"""
     old = json.load(open(os.path.join(OUT_DATA, "nodes.json"), encoding="utf-8"))
-    counts, probes, health, srcstat, meta, grades = {}, {}, {}, {}, {}, {}
+    counts, probes, health, srcstat, meta, grades, fresh = {}, {}, {}, {}, {}, {}, {}
     for g in old.get("groups", []):
         for it in g.get("items", []):
             counts[it["url"]] = it.get("count")
@@ -599,13 +616,49 @@ def rerender():
                 grades[it["url"]] = {"grade": it.get("grade"), "score": it.get("grade_score"),
                                      "state": it.get("src_state"),
                                      "priority_eff": it.get("prio")}
+            # 生命周期统计按源名索引，重渲染不重算，沿用上次的值
+            if it.get("new7") is not None:
+                nm = SRC_NAME_BY_URL.get(it["url"])
+                if nm:
+                    fresh[nm] = {"new7": it.get("new7"), "median_age": it.get("med_age")}
     data = assemble(old.get("nodes") or [], old.get("raw") or 0, old.get("errors") or [],
-                    counts, probes, old.get("delta"), health, srcstat, meta, grades=grades)
+                    counts, probes, old.get("delta"), health, srcstat, meta, grades=grades,
+                    fresh=fresh, life_span=old.get("life_span"))
     data["updated"], data["ts"] = old.get("updated"), old.get("ts")
     page = {k: v for k, v in data.items() if k != "nodes"}
     out = os.path.join(BASE, "index.html")
     open(out, "w", encoding="utf-8").write(render_page(page))
     print(f"已重渲染 {out}（数据保持 {data['updated']}，未联网）")
+
+
+def write_quarantine(rejects, stamp):
+    """把本轮被丢弃的条目按原因汇总落盘，供排查「这个源为什么少了几百条」。
+
+    只留协议/名字/地址/端口，不留原始订阅行：那个文件要提交进公开仓库，
+    搬原文等于把 uuid、password 换个文件继续公开托管。
+    """
+    rows, by_reason, samples, total = [], {}, [], 0
+    for src, items in rejects.items():
+        if not items:
+            continue
+        c = {}
+        for r in items:
+            c[r["reason"]] = c.get(r["reason"], 0) + 1
+            by_reason[r["reason"]] = by_reason.get(r["reason"], 0) + 1
+        total += len(items)
+        rows.append({"src": src, "count": len(items), "by_reason": c})
+        # 每源抽 5 条做样本，避免样本全被条数最多的源占满
+        samples.extend(items[:5])
+    rows.sort(key=lambda x: -x["count"])
+    doc = {"updated": stamp, "total": total, "by_reason": by_reason,
+           "sources": rows, "samples": samples[:300]}
+    json.dump(doc, open(os.path.join(OUT_DATA, "quarantine.json"), "w", encoding="utf-8"),
+              ensure_ascii=False, indent=1)
+    if total:
+        detail = "，".join(f"{k} {v}" for k, v in
+                          sorted(by_reason.items(), key=lambda kv: -kv[1]))
+        print(f"  隔离区：{total} 条未入库（{detail}）")
+    return doc
 
 
 def main():
@@ -614,7 +667,7 @@ def main():
         return
     use_cache = "--cache" in sys.argv
     print("开始采集节点...")
-    nodes, stats, errors, raw, uniq = collect(use_cache)
+    nodes, stats, errors, raw, uniq, rejects = collect(use_cache)
 
     old_json = os.path.join(OUT_DATA, "nodes.json")
     delta = None
@@ -649,13 +702,24 @@ def main():
         if h.get("streak_bad"):
             print(f"  ⚠ 连续 {h['streak_bad']} 轮低连通：{u[:60]}")
 
+    # P5：节点生命周期。先 update 再 annotate，顺序反了拿不到 first/last。
+    # update 会顺手清掉 45 天没再出现的指纹，避免历史文件无限增长。
+    stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M")
+    life, lstat = lifecycle.update(nodes, lifecycle.load())
+    lifecycle.annotate(nodes, life)
+    fresh = lifecycle.freshness(nodes, life)
+    print("  " + lifecycle.stats_line(lstat))
+    lifecycle.save(life)
+
+    # P5：异常配置隔离区。被丢弃的条目不再静默消失，按原因留痕
+    write_quarantine(rejects, stamp)
+
     # 每源动态统计：任务书 §4 要求的原始/解析/重复/新增/有效节点数与失败次数
     rows = build_source_stats(SOURCES_ALL, counts, probes, srcstat, meta, health, nodes,
                               sources_io.load_stats().get("sources"), uniq=uniq,
                               declared={s["name"]: s.get("declared") for s in stats})
     # P4：加权评分 + 连续失败状态机（单轮异常 / 两轮降级 / 三轮隔离）。
     # 先评分再渲染，页面卡片才能带上等级；顺序反了页面会全是 null。
-    stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M")
     rows, hist = scoring.annotate(rows, scoring.load_history(), stamp=stamp)
     print_source_stats(rows)
     sources_io.save_stats(rows, updated=stamp)
@@ -664,7 +728,7 @@ def main():
 
     grades = {r["url"]: r for r in rows}
     build_html(nodes, stats, raw, errors, counts, probes, delta, health, srcstat, meta,
-               grades=grades)
+               grades=grades, fresh=fresh, life_span=fresh.get("_span"))
 
     # 全量导出口：含完整凭据，只能留在本地/CI 产物里，绝不能进仓库
     # （2024-11 曾提交到公开仓库 78 次，已重写历史清除；export/ 已在 .gitignore）

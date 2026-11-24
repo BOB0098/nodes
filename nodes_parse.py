@@ -29,9 +29,25 @@ import yaml
 FP_KEYS = ("type", "server", "port", "cred", "method", "cipher", "uuid",
            "network", "security", "tls", "sni", "alpn", "path", "host",
            "flow", "obfs", "obfs_password", "plugin", "plugin_opts",
-           "alter_id", "public_key", "short_id", "fingerprint", "congestion")
+           "alter_id", "public_key", "short_id", "fingerprint", "congestion",
+           "insecure")
 
 SKIP_SINGBOX = {"selector", "urltest", "direct", "block", "dns", "relay", "tor"}
+
+# 已知但主动不入库的协议：不是解析不出来，是不该收录
+#   http 明文代理：跨境链路上用户名密码与全部流量明文可读，且这类条目
+#   绝大多数是带广告的公开 http 代理池，收录等于给用户一个「看起来能用」的陷阱。
+#   但也不能静默丢掉——要进隔离区，让「为什么少了几百条」有据可查。
+DROP_TYPES = {"http": "明文代理（流量与凭据均可被链路上任何人读取）"}
+
+# 隔离区原因码 → 人话。键会被写进 data/quarantine.json，方便统计。
+REASON = {
+    "no_addr": "缺少地址或端口",
+    "nonpublic": "非公网地址（回环/私有/保留网段）",
+    "plaintext": DROP_TYPES["http"],
+    "unknown_type": "不支持的协议类型",
+    "bad_record": "条目结构异常（不是对象或字段类型不对）",
+}
 
 
 def _b64d(s):
@@ -148,6 +164,19 @@ def to_uri(n):
         auth = (up.quote(cred, safe=":") + "@") if cred else ""
         return f"socks5://{auth}{host}:{port}{_frag(name)}"
 
+    if t == "anytls":
+        # AnyTLS 就是「TLS 里套一层自适应填充」，参数只有 sni / 证书校验 / 指纹
+        q = _qs(sni=n.get("sni"), insecure=1 if n.get("insecure") else None,
+                fp=n.get("fingerprint"))
+        return f"anytls://{up.quote(str(n.get('cred', '')), safe='')}@{host}:{port}{q}{_frag(name)}"
+
+    # http 只用于「解析得出来但被隔离」的统计口径，不参与正常导出
+    if t == "http":
+        cred = n.get("cred") or ""
+        auth = (up.quote(cred, safe=":") + "@") if cred else ""
+        scheme = "https" if n.get("tls") else "http"
+        return f"{scheme}://{auth}{host}:{port}{_frag(name)}"
+
     return ""
 
 
@@ -201,8 +230,9 @@ def _parse_uri_body(scheme, body, name):
             return {"type": "ss", "name": name, "server": norm_host(host),
                     "port": int(re.sub(r"\D", "", port) or 0), "cred": pwd, "method": method}
 
-        if scheme in ("vless", "trojan", "hysteria2", "hy2", "tuic", "socks5"):
-            t = "hysteria2" if scheme == "hy2" else scheme
+        if scheme in ("vless", "trojan", "hysteria2", "hy2", "tuic", "socks5",
+                      "anytls", "http", "https"):
+            t = {"hy2": "hysteria2", "https": "http"}.get(scheme, scheme)
             u = up.urlsplit(body)
             q = {k: v[0] for k, v in up.parse_qs(u.query).items()}
             node = {"type": t, "name": name, "server": norm_host(u.hostname or ""),
@@ -223,6 +253,15 @@ def _parse_uri_body(scheme, body, name):
                 node["cred"] = f"{node['cred']}:{up.unquote(u.password)}" if node["cred"] else up.unquote(u.password)
             if t == "trojan" and ":" in node["cred"]:
                 node["cred"] = node["cred"].split(":", 1)[0]
+            if t == "http":
+                # http://user:pass@host:port —— 凭据在 userinfo 里，两个都要留
+                uu, pp = up.unquote(u.username or ""), up.unquote(u.password or "")
+                node["cred"] = f"{uu}:{pp}" if pp else uu
+                node["tls"] = "tls" if scheme == "https" else ""
+            if t == "anytls":
+                node["cred"] = up.unquote(u.username or "") or up.unquote(u.password or "")
+                node.setdefault("sni", "")
+                node["insecure"] = q.get("insecure") in ("1", "true") or q.get("allowInsecure") in ("1", "true")
             return node
     except Exception:
         return None
@@ -323,11 +362,26 @@ def _clash_one(p):
                      "tls": "tls" if p.get("tls") else ""})
         return base
 
-    # http 明文代理不做：跨境链路上毫无隐私，且绝大多数是占位/广告条目
+    if t == "anytls":
+        base.update({"type": "anytls", "cred": str(p.get("password") or p.get("uuid") or ""),
+                     "sni": p.get("sni") or p.get("servername") or "",
+                     "tls": "tls", "security": "tls",
+                     "insecure": bool(p.get("skip-cert-verify")),
+                     "fingerprint": p.get("client-fingerprint") or ""})
+        return base
+
+    if t in ("http", "https"):
+        # 解析得出来，但 _finalize 会以「明文代理」为由拦下并计入隔离区。
+        # 直接 return None 的话，页面上就只会看到「这个源条数莫名少了」。
+        base.update({"type": "http",
+                     "cred": f"{p.get('username', '')}:{p.get('password', '')}".strip(":"),
+                     "tls": "tls" if (t == "https" or p.get("tls")) else ""})
+        return base
+
     return None
 
 
-def parse_clash(text):
+def parse_clash(text, rejects=None):
     """解析 Clash / Mihomo YAML。返回 (nodes, 原始条目数)。"""
     try:
         doc = yaml.safe_load(text)
@@ -347,6 +401,8 @@ def parse_clash(text):
         n = _clash_one(p)
         if n:
             out.append(n)
+        elif rejects is not None:
+            rejects.append(_reject_of(p, "clash"))
     return out, len(proxies)
 
 
@@ -422,10 +478,40 @@ def _sb_one(o):
                      "sni": tls.get("server_name") or "",
                      "congestion": o.get("congestion_control") or ""})
         return base
+    if t == "anytls":
+        utls = tls.get("utls") if isinstance(tls.get("utls"), dict) else {}
+        base.update({"type": "anytls", "cred": str(o.get("password", "")),
+                     "sni": tls.get("server_name") or "",
+                     "tls": "tls", "security": "tls",
+                     "insecure": bool(tls.get("insecure")),
+                     "fingerprint": utls.get("fingerprint") or ""})
+        return base
+    if t in ("http", "https"):
+        base.update({"type": "http",
+                     "cred": f"{o.get('username', '')}:{o.get('password', '')}".strip(":"),
+                     "tls": "tls" if (t == "https" or tls.get("enabled")) else ""})
+        return base
     return None
 
 
-def parse_singbox(text):
+def _reject_of(raw, kind, reason=None):
+    """把一条被丢弃的原始条目压成隔离区记录。
+
+    只留协议/名字/地址/端口，**不留凭据**：隔离区要提交进公开仓库，
+    把 uuid、password 或原始订阅行写进去，等于换个文件继续泄密。
+    """
+    if not isinstance(raw, dict):
+        return {"kind": kind, "type": "", "name": "", "server": "", "port": 0,
+                "reason": REASON["bad_record"]}
+    t = str(raw.get("type") or "").lower()
+    return {"kind": kind, "type": t,
+            "name": str(raw.get("name") or raw.get("tag") or "")[:40],
+            "server": str(raw.get("server") or "")[:60],
+            "port": raw.get("port") or raw.get("server_port") or 0,
+            "reason": reason or (REASON["unknown_type"] if t else REASON["bad_record"])}
+
+
+def parse_singbox(text, rejects=None):
     try:
         doc = json.loads(text)
     except Exception:
@@ -435,33 +521,46 @@ def parse_singbox(text):
     obs = doc.get("outbounds")
     if not isinstance(obs, list):
         return [], 0
-    out = [n for n in (_sb_one(o) for o in obs) if n]
+    out = []
+    for o in obs:
+        n = _sb_one(o)
+        if n:
+            out.append(n)
+        elif rejects is not None and not (
+                isinstance(o, dict) and str(o.get("type", "")).lower() in SKIP_SINGBOX):
+            # selector/urltest 之类是路由构件，不是「被拒绝的节点」，不记
+            rejects.append(_reject_of(o, "singbox"))
     return out, len(obs)
 
 
 # ── 统一入口 ────────────────────────────────────────────────────────────────
 
-def parse_any(data):
+def parse_any(data, rejects=None):
     """自动识别格式并解析。
 
     返回 (nodes, raw_count)：
       nodes      统一模型列表，每条带 uri / fp / addr / type / name
       raw_count  文件里声明的条目总数（含被判定无效的），用于「收录/总数」比
+
+    rejects    传入 list 时，被丢弃的条目以 {type,name,server,port,reason}
+               的形式追加进去（不含凭据）。默认 None 不收集。
     """
-    text = data.decode("utf-8", "ignore").strip() if isinstance(data, bytes) else str(data)
+    # 不论入参是 bytes 还是 str 都要 strip：格式嗅探靠首个字符判断（text[:1] == "{"），
+    # 文件开头有个空行就会一路掉到「逐行 URI」分支，把整个 JSON 源当成 0 条。
+    text = (data.decode("utf-8", "ignore") if isinstance(data, bytes) else str(data)).strip()
 
     # 1) Clash YAML：看顶层是否出现 proxies:
     if re.search(r"^proxies\s*:", text, re.M):
-        nodes, raw = parse_clash(text)
+        nodes, raw = parse_clash(text, rejects)
         if nodes:
-            return _finalize(nodes), raw
+            return _finalize(nodes, rejects), raw
         # YAML 里没有可用节点，继续按其它格式尝试（有些文件两者混排）
 
     # 2) sing-box JSON
     if text[:1] == "{":
-        nodes, raw = parse_singbox(text)
+        nodes, raw = parse_singbox(text, rejects)
         if nodes:
-            return _finalize(nodes), raw
+            return _finalize(nodes, rejects), raw
         # 可能是单节点 JSON 或 base64，落到下面
 
     # 3) base64 包着的 URI 列表
@@ -482,16 +581,44 @@ def parse_any(data):
         n = parse_uri(line)
         if n:
             nodes.append(n)
-    return _finalize(nodes), raw
+        elif rejects is not None:
+            # 原文含凭据，只取协议与主机，不整行搬运
+            scheme = line.split("://")[0].lower()
+            rejects.append({"kind": "uri", "type": scheme, "name": "",
+                            "server": _host_of_uri(line), "port": 0,
+                            "reason": REASON["bad_record"]})
+    return _finalize(nodes, rejects), raw
 
 
-def _finalize(nodes):
+def _host_of_uri(line):
+    try:
+        return (up.urlsplit(line.split("#")[0]).hostname or "")[:60]
+    except Exception:
+        return ""
+
+
+def _why_drop(n):
+    """一条已解析的节点为什么不该入库。空串表示可以留。"""
+    if not n.get("server") or not n.get("port"):
+        return REASON["no_addr"]
+    if n.get("type") in DROP_TYPES:
+        return REASON["plaintext"]
+    if not is_public_host(n["server"]):
+        return REASON["nonpublic"]
+    return ""
+
+
+def _finalize(nodes, rejects=None):
     """补齐 uri / fp / addr；丢弃回环、私有地址与无地址条目。"""
     out = []
     for n in nodes:
-        if not n.get("server") or not n.get("port"):
-            continue
-        if not is_public_host(n["server"]):
+        why = _why_drop(n)
+        if why:
+            if rejects is not None:
+                rejects.append({"kind": "node", "type": n.get("type") or "",
+                                "name": (n.get("name") or "")[:40],
+                                "server": (n.get("server") or "")[:60],
+                                "port": n.get("port") or 0, "reason": why})
             continue
         n.setdefault("name", "")
         n["fp"] = make_fp(n)

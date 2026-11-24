@@ -289,7 +289,8 @@ def screen_one(cand, known, lib_size):
                    tried=r.get("tried"))
         return rec
     try:
-        nodes, declared = nodes_parse.parse_any(r["data"])
+        rj = []
+        nodes, declared = nodes_parse.parse_any(r["data"], rj)
     except Exception as e:
         rec.update(verdict="reject", reasons=[f"解析异常 {type(e).__name__}"])
         return rec
@@ -301,6 +302,13 @@ def screen_one(cand, known, lib_size):
                new_ratio=round(len(new_keys) / len(keys), 3) if keys else None,
                types={t: sum(1 for n in nodes if n["type"] == t)
                       for t in sorted({n["type"] for n in nodes})})
+    # 被隔离的条目（明文代理/非公网/未知协议）单独报，避免「声明 2000、
+    # 解析出 1200」这种差额只能靠猜
+    if rj:
+        q = {}
+        for x in rj:
+            q[x["reason"]] = q.get(x["reason"], 0) + 1
+        rec["quarantined"] = q
     p = probe(nodes)
     rec.update(probe_ok=p["ok"], probe_total=p["total"],
                alive_pct=round(p["ok"] / p["total"] * 100) if p["total"] else None)
