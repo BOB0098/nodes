@@ -1,81 +1,81 @@
 {
- "updated": "11-25 06:18",
- "ts": 1795558737,
+ "updated": "11-25 07:17",
+ "ts": 1795562265,
  "sources": [
   {
    "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
    "code": 200,
-   "ms": 529
+   "ms": 318
   },
   {
    "url": "https://radarhub.top/clash.yaml",
    "code": 200,
-   "ms": 62
+   "ms": 74
   },
   {
    "url": "https://blog.ermao.net/sub/clash/ermao.net",
    "code": 200,
-   "ms": 232
+   "ms": 342
   },
   {
    "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
    "code": 200,
-   "ms": 160
+   "ms": 33
   },
   {
    "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml",
    "code": 200,
-   "ms": 14
+   "ms": 36
   },
   {
    "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
    "code": 200,
-   "ms": 13
+   "ms": 111
   },
   {
    "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
    "code": 200,
-   "ms": 223
+   "ms": 305
   },
   {
    "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
    "code": 200,
-   "ms": 26
+   "ms": 35
   },
   {
    "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
    "code": 200,
-   "ms": 10
+   "ms": 12
   },
   {
    "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
    "code": 200,
-   "ms": 78
+   "ms": 265
   },
   {
    "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
    "code": 200,
-   "ms": 87
+   "ms": 13
   },
   {
    "url": "https://radarhub.top/sing-box.json",
    "code": 200,
-   "ms": 64
+   "ms": 71
   },
   {
    "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json",
    "code": 200,
-   "ms": 112
+   "ms": 34
   },
   {
    "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json",
    "code": 200,
-   "ms": 75
+   "ms": 37
   },
   {
    "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt",
    "code": 200,
-   "ms": 73
+   "ms": 33
   }
  ]
 }
