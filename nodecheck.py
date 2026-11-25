@@ -494,29 +494,100 @@ def run_batch(items, base_port, do_speed=False):
 
 # ── 抽样与主流程 ────────────────────────────────────────────────────────────
 
-def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None, tries=None):
-    """按来源分层抽样。分层而不是纯随机：小源只有几十条，纯随机可能一条都抽不到，
-    「这个源真实可用率 0%」就成了「没抽到」的假象。
+def classify(n, rec):
+    """P25：把节点按历史表现分成三类，供分层轮换。
 
-    tries 给定时（{指纹前16位: 已测次数}），同源内优先抽**测得少**的节点。
-    纯随机下每轮抽 12%，八轮只能覆盖 1-(1-0.12)^8 ≈ 64%，一个节点要攒到
-    「测过 3 次」平均需要 25 轮（三天）。按覆盖度优先，前八轮就能把全库走一遍，
-    之后才开始重复——同样预算下，稳定标签的判定提前约两倍。
+    只用真实历史字段，不编造：
+      - new     没测过（tries=0 或无记录）→ 优先覆盖，把全库走一遍
+      - retry   测过但成功率 < 50% → 复核是否已恢复（失败节点不能永久拉黑）
+      - stable  测过 ≥3 次且成功率 ≥ 80% → 少量复核，防止「稳定」标签过期
 
-    同 tries 的节点之间仍然随机，且随机数由种子决定，所以**同一轮同一种子
-    抽出的结果完全可复现**（selftest 有断言）。
+    rec 为历史记录 dict（tries/hits/last_ok/slots）。缺字段一律当 new，
+    绝不把「没数据」猜成「稳定」。
+    """
+    rec = rec or {}
+    tries = int(rec.get("tries") or 0)
+    if tries <= 0:
+        return "new"
+    hits = int(rec.get("hits") or 0)
+    if tries >= 3 and hits / tries >= 0.8:
+        return "stable"
+    if hits / tries < 0.5:
+        return "retry"
+    return "new"          # 成功率 50–80%：既不算稳定也不算失败，按常规覆盖处理
+
+
+def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None, tries=None,
+           history_records=None):
+    """按来源分层 + P25 三类轮换抽样。
+
+    分层而不是纯随机：小源只有几十条，纯随机可能一条都抽不到，「这个源
+    真实可用率 0%」就成了「没抽到」的假象。
+
+    每源配额按三类切分：新节点 60%、失败复核 25%、稳定复核 15%（向下取整，
+    余数回流到新节点）。这样：
+      - 新节点被优先覆盖，一周内把全库走一遍；
+      - 失败过的节点每轮都有复核名额，恢复后能被重新发现；
+      - 稳定标签会被持续抽样复核，不会一次打上就永远不验证。
+    某一类不足时名额回流给其他类，不浪费预算。
+
+    tries（旧参数，{fp16: 次数}）与 history_records（新参数，{fp16: 完整记录}）
+    都可给；history_records 优先。兼容旧调用：只给 tries 时等价于按覆盖度排序
+    （try 少的优先），行为与 P18 一致。
+
+    同种子抽出结果完全可复现（selftest 有断言）。
     """
     rnd = random.Random(daily_seed() if seed is None else seed)
     by_src = {}
     for n in nodes:
         by_src.setdefault(n.get("src") or "?", []).append(n)
+
+    def rec_of(n):
+        fp16 = (n.get("fp") or "")[:16]
+        if history_records is not None:
+            return history_records.get(fp16) or {}
+        if tries is not None:
+            return {"tries": tries.get(fp16, 0)}
+        return {}
+
     picked = []
     for src in sorted(by_src):
-        arr = by_src[src]
-        rnd.shuffle(arr)                      # 先打散，sorted 稳定，同权重保持随机顺序
-        if tries:
-            arr = sorted(arr, key=lambda n: tries.get((n.get("fp") or "")[:16], 0))
-        picked.extend(arr[:per_src])
+        arr = list(by_src[src])
+        rnd.shuffle(arr)                      # 先打散，保证同权重内随机且可复现
+        # 向后兼容：只有提供了完整 history_records 才启用三类轮换。
+        # 只给 tries（P18 旧调用）时保持纯覆盖度优先，不改老语义。
+        if history_records is None:
+            if tries is not None:
+                arr = sorted(arr, key=lambda n: tries.get((n.get("fp") or "")[:16], 0))
+            picked.extend(arr[:per_src])
+            continue
+        # P25：按三类分桶
+        buckets = {"new": [], "retry": [], "stable": []}
+        for n in arr:
+            buckets[classify(n, rec_of(n))].append(n)
+        # 配额：新 60% / 失败复核 25% / 稳定复核 15%，余数给 new
+        q_new = int(per_src * 0.60)
+        q_retry = int(per_src * 0.25)
+        q_stable = int(per_src * 0.15)
+        q_new += per_src - (q_new + q_retry + q_stable)
+        take = {}
+        for cat, quota in (("new", q_new), ("retry", q_retry), ("stable", q_stable)):
+            take[cat] = buckets[cat][:quota]
+        # 名额回流：不足的类别把剩余名额让给有余量的类别
+        used = sum(len(v) for v in take.values())
+        if used < per_src:
+            for cat in ("new", "retry", "stable"):
+                extra = buckets[cat][len(take[cat]):]
+                room = per_src - used
+                if room <= 0:
+                    break
+                add = extra[:room]
+                take[cat] = take[cat] + add
+                used += len(add)
+        src_pick = []
+        for cat in ("new", "retry", "stable"):
+            src_pick.extend(take[cat])
+        picked.extend(src_pick[:per_src])
     rnd.shuffle(picked)
     return picked[:total]
 
@@ -642,21 +713,26 @@ def main():
         print("  ⚠ 已中止，避免把环境故障写成数据结论")
         return 2
 
-    # 抽样优先覆盖「还没测过几次」的节点。历史文件读失败时退回纯随机的老行为，
-    # 不能让一个可选优化把整轮检测拖下水
+    # P25：读历史完整记录，做「新节点 / 失败复核 / 稳定复核」三类轮换。
+    # 历史文件读失败时退回纯随机，不能让一个可选优化把整轮检测拖下水。
+    hist_records = None
     tries = None
     try:
         import history as _hist
-        tries = {k: int(v.get("tries") or 0)
-                 for k, v in (_hist.load().get("nodes") or {}).items()}
-        if tries:
-            unseen = sum(1 for n in nodes
-                         if tries.get((n.get("fp") or "")[:16], 0) == 0)
-            print(f"  历史覆盖：{len(tries)} 条有记录，本轮未测过的 {unseen} 条优先")
+        hist_records = _hist.load().get("nodes") or {}
+        tries = {k: int(v.get("tries") or 0) for k, v in hist_records.items()}
+        if hist_records:
+            cats = {"new": 0, "retry": 0, "stable": 0}
+            for n in nodes:
+                cats[classify(n, hist_records.get((n.get("fp") or "")[:16]))] += 1
+            print(f"  历史覆盖：{len(hist_records)} 条有记录；"
+                  f"新 {cats['new']} / 失败复核 {cats['retry']} / 稳定复核 {cats['stable']}")
     except Exception as e:
         print(f"  （历史读取失败，退回随机抽样：{type(e).__name__}）")
+        hist_records = None
 
-    picked = sample(nodes, per_src=per_src, total=max_total, tries=tries)
+    picked = sample(nodes, per_src=per_src, total=max_total,
+                    tries=tries, history_records=hist_records)
     if shards > 1:
         picked = picked[shard::shards]
     print(f"真实检测：备选 {len(nodes)} 条，抽样 {len(picked)} 条"
@@ -751,6 +827,30 @@ def selftest():
     got2 = sample(nodes2, per_src=60, total=60, seed=7, tries=tr)
     chk(len(got2) == 60 and sum(1 for x in got2 if tr.get(x["fp"][:16], 0) == 0) == 30,
         "预算够时两者都要，测过的排在后面")
+
+    # P25 三类轮换：新节点 / 失败复核 / 稳定复核 都要有代表，且可复现。
+    # 这里用构造的历史记录只验证「分类与配额逻辑」，不是宣称真实检测覆盖。
+    hist = {}
+    for i in range(100):
+        fp = f"{i:016d}"
+        if i < 60:
+            hist[fp] = {"tries": 0, "hits": 0}          # 新
+        elif i < 80:
+            hist[fp] = {"tries": 4, "hits": 1}          # 失败多 → retry
+        else:
+            hist[fp] = {"tries": 5, "hits": 5}          # 稳定 → stable
+    nodes3 = [{"fp": f"{i:016d}" + "c" * 16, "src": "s"} for i in range(100)]
+    p1 = sample(nodes3, per_src=100, total=100, seed=7, history_records=hist)
+    cats1 = [classify(n, hist.get(n["fp"][:16])) for n in p1]
+    chk(cats1.count("new") > 0 and cats1.count("retry") > 0 and cats1.count("stable") > 0,
+        "三类轮换：新/失败复核/稳定复核都被抽到")
+    p2 = sample(nodes3, per_src=100, total=100, seed=7, history_records=hist)
+    chk([n["fp"] for n in p1] == [n["fp"] for n in p2], "三类轮换同种子可复现")
+    chk(classify({"fp": "x"}, None) == "new", "无历史记录归为新节点（不猜稳定）")
+    chk(classify({"fp": "x"}, {"tries": 6, "hits": 6}) == "stable",
+        "多次成功归为稳定复核")
+    chk(classify({"fp": "x"}, {"tries": 4, "hits": 1}) == "retry",
+        "成功率低于一半归为失败复核")
 
     # 失败分类：以前全记 HTTP 000，四种原因挤成一个标签
     chk(CURL_ERR[6] == "dns" and CURL_ERR[35] == "tls" and CURL_ERR[28] == "timeout",
