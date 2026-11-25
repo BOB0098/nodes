@@ -34,10 +34,11 @@ collector.py / sources.yaml / nodes_parse.py / nodecheck.py / score.py / history
 
 | 项 | 结果 |
 |---|---|
-| 分支提交 | p23-visual 独立分支，不直接覆盖 main |
-| 合并 | 验收通过后快进合并 main |
-| Actions | 合并后查询 workflow 结论（见提交记录） |
-| Pages | 合并后访问 https://bob0098.github.io/nodes/ 实测截图 |
+| 分支提交 | `p23-visual`（`d66b074`）独立分支，未直接覆盖 main |
+| 合并 | 快进合并 main：`2055b11..d66b074` |
+| Actions | pages build and deployment @ `d66b074`：**completed success** |
+| Pages | 线上实测：body bg `rgb(247,247,245)`、accent `rgb(52,116,91)`、15 行/3 组、数据中心 20 行榜单、0 页面错误；旧紫色 `#8178D8` 已不存在 |
+| 备注 | 首次打开数据中心偶现榜单短暂空白，为 CDN 首次拉取 picks.json 延迟（fetch 200），复测两种操作流均 20 行，非功能缺陷 |
 
 ## 6. 如实说明
 
