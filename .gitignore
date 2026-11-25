@@ -5,6 +5,10 @@ __pycache__/
 export/
 订阅 全部节点 *.txt
 
+# 同轮构建台账：CI 每轮 start 时重建，是运行时状态而非版本化产物。
+# 入库会把本地测试 run_id 带进仓库，且干净 clone 本就不该带上一轮台账。
+data/run_ledger.json
+
 # 容器/本地跑一轮产生的运行日志与锁文件（docker/run.sh 写这里）
 data/logs/
 .nodes-cache/

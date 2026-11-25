@@ -261,14 +261,22 @@ def main():
             bad("manifest 的 pipeline 不完整：" + "；".join(pipe.get("errors") or ["未知原因"]))
         else:
             import run_ledger
-            live_ok, live_errs = run_ledger.check()
-            if not live_ok:
-                bad("当前阶段台账校验失败：" + "；".join(live_errs))
-            elif (run_ledger.load().get("run_id")) != pipe.get("run_id"):
-                bad("台账 run_id 与 manifest 不一致（跨轮产物）")
+            # 干净 clone / 离线校验时磁盘上没有台账（CI 每轮 start 才生成），
+            # 此时降级为警告——与数量门禁「无 git 历史降级」同口径，保证
+            # 「干净 clone 后 verify.sh 可复现」。真实 CI 里 start 一定先跑，
+            # 台账存在且阶段缺失时下面这段会硬拦下，不放宽。
+            if not os.path.isfile(run_ledger.LEDGER):
+                warn("磁盘无 run_ledger.json（离线/干净 clone），跳过当前台账校验；"
+                     "CI 每轮 start 后会硬校验")
             else:
-                ok(f"同轮构建证明通过：run_id={pipe.get('run_id')}，"
-                   f"{pipe.get('stage_count')}/{len(run_ledger.STAGE_KEYS)} 个阶段成功")
+                live_ok, live_errs = run_ledger.check()
+                if not live_ok:
+                    bad("当前阶段台账校验失败：" + "；".join(live_errs))
+                elif (run_ledger.load().get("run_id")) != pipe.get("run_id"):
+                    bad("台账 run_id 与 manifest 不一致（跨轮产物）")
+                else:
+                    ok(f"同轮构建证明通过：run_id={pipe.get('run_id')}，"
+                       f"{pipe.get('stage_count')}/{len(run_ledger.STAGE_KEYS)} 个阶段成功")
     else:
         warn("无 manifest，跳过同轮构建证明检查")
 
