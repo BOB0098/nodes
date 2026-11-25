@@ -152,8 +152,8 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           # 只提交页面与脱敏数据。全量导出含凭据，已移到 export/ 并 gitignore，
           # 通过下面的 artifact 步骤交付，不入库。
-          # docs/P4-source-quality.md 是评分报告，每轮由 score.py 重写，随数据一起提交
-          git add index.html data/ docs/P4-source-quality.md
+          # docs/P4-source-quality.md 与 docs/P19-governance.md 每轮分别由 score.py / governance.py 重写，随数据一起提交
+          git add index.html data/ docs/P4-source-quality.md docs/P19-governance.md
           if git diff --cached --quiet; then
             echo "内容无变化，不提交"
             exit 0
