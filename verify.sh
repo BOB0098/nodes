@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# P22：一键本地验证——干净 clone 后一条命令复现主要构建与测试。
+#
+# 覆盖发布门槛要求的全部离线检查：出网安全自测、构建清单自测、订阅反解
+# 自测、一致性+数量门禁、发布回滚演练、工作流 YAML 语法。全部离线、不改
+# 仓库（drill_publish 自己在临时目录里篡改再恢复）、不需要节点凭据。
+#
+# 用法：
+#   bash verify.sh              # 跑全部，任一失败则退出码 1
+#   bash verify.sh --quick      # 只跑秒级自测，跳过演练
+#   python3 -m pip install -r requirements.txt   # 首次需装 PyYAML
+#
+# 与 CI 的关系：daily.yml 每一步都在这里有一一对应项；本地跑通再去动
+# 工作流，避免「本地没验证、推上去才发现门禁挂了」。
+
+set -u
+cd "$(dirname "$0")" || exit 1
+
+PY="${PY:-python3}"
+QUICK=0
+[ "${1:-}" = "--quick" ] && QUICK=1
+
+PASS=0
+FAIL=0
+
+run() {
+  local label="$1"; shift
+  printf '\n── %s ' "$label"
+  printf '%.0s─' $(seq 1 $(( 60 - ${#label} )))
+  printf '\n'
+  if "$@"; then
+    PASS=$((PASS + 1))
+    echo "  [PASS] $label"
+  else
+    FAIL=$((FAIL + 1))
+    echo "  [FAIL] $label (退出码 $?)"
+  fi
+}
+
+# 0. 解释器与依赖
+printf '一键验证（P22 发布门槛）  python=%s\n' "$("$PY" --version 2>&1)"
+if ! "$PY" -c 'import yaml' 2>/dev/null; then
+  echo "缺少 PyYAML，请先运行：python3 -m pip install -r requirements.txt"
+  exit 2
+fi
+
+# 1. 出网安全边界：SSRF/DNS 私网/重定向/大小/超时/脱敏/原子写（离线自测）
+run "安全边界自测 (netsafe)" "$PY" netsafe.py
+
+# 2. 统一构建清单自测：时间规范化、sha256、计数
+run "构建清单自测 (build_manifest)" "$PY" build_manifest.py --selftest
+
+# 3. 订阅生成/反解自测：四种格式能被自己读回来
+run "订阅反解自测 (export_subs)" "$PY" export_subs.py --selftest
+
+# 4. 公开产物脱敏审计：data/*.json 与页面里不许有 URI/凭据/令牌
+run "脱敏审计 (audit_privacy)" "$PY" audit_privacy.py
+
+# 5. 一致性 + 数量异常下降 + manifest 哈希硬校验（无 manifest 会降级警告）
+run "一致性/数量门禁 (check_consistency)" "$PY" check_consistency.py
+
+if [ "$QUICK" -eq 0 ]; then
+  # 5. 发布失败回滚演练：篡改产物→拦下→恢复→放行，证明上一版不被覆盖
+  run "发布回滚演练 (drill_publish)" "$PY" drill_publish.py
+
+  # 6. 工作流 YAML 语法
+  run "工作流语法 (daily.yml)" "$PY" -c \
+    "import yaml; yaml.safe_load(open('.github/workflows/daily.yml'))"
+
+  # 7. 页面 JS 语法（node 可用时；没有不判失败，CI 不依赖 node）
+  if command -v node >/dev/null 2>&1; then
+    "$PY" - <<'PY'
+import re
+h = open('index.html', encoding='utf-8').read()
+m = re.search(r'<script>(.*?)</script>', h, re.S)
+open('/tmp/nodes-verify.js', 'w', encoding='utf-8').write(m.group(1) if m else '')
+PY
+    run "页面 JS 语法 (index.html)" node --check /tmp/nodes-verify.js
+  fi
+fi
+
+printf '\n════════════════════════════════════════════════════════════\n'
+echo "结果：$PASS 项通过，$FAIL 项失败"
+if [ "$FAIL" -gt 0 ]; then
+  echo "→ 发布门槛未通过，禁止提交/发布"
+  exit 1
+fi
+echo "→ 发布门槛通过"
+exit 0

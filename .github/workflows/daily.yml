@@ -9,6 +9,9 @@ on:
 
 permissions:
   contents: write
+  # P22 失败通知：流水线失败时开/更新一个 issue。只为此授权 issues，
+  # 其余动作仍是最小的 contents: write。
+  issues: write
 
 # runner 默认 UTC。页面上的时间是给人看的，统一按东八区渲染，
 # 否则会出现「数据 07:17 更新 / 检测 23:32」这种自相矛盾的并排显示
@@ -146,6 +149,13 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         run: python3 build_manifest.py --write
 
+      # P22 发布门禁之一：公开产物脱敏审计。若某个脚本改了输出字段，把带
+      # uuid/password 的完整 URI 或明文 token 写进 data/*.json 或页面，
+      # 这里命中即中断——异常凭据不会进公开仓库。
+      - name: 公开产物脱敏审计
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 audit_privacy.py
+
       # 发布门禁：页面、数据、订阅、状态必须同一轮同一个数，且产物哈希
       # 与 manifest 吻合。旧版时间正则认不出「2026-11-25 14:15」，把相差
       # 13 分钟的两份数据报成「差 0 分钟」；现在统一规范化 + 哈希硬校验。
@@ -205,3 +215,28 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"path":["https://cdn.jsdelivr.net/gh/BOB0098/nodes@main/index.html","https://cdn.jsdelivr.net/gh/BOB0098/nodes@main/data/nodes.json"]}' \
             || echo "purge 失败（可忽略，12 小时内会自动刷新）"
+
+      # P22 失败通知：任一关键步骤失败时，在仓库开/更新一个带标签的 issue，
+      # 让人第一时间知道「页面停在上一版了」。用 gh CLI（runner 自带，无外部
+      # 依赖）+ GITHUB_TOKEN。去重：已有 open 的 ci-failure issue 就追加评论
+      # 并保留首次标题，避免每 3 小时刷一条新 issue。
+      # 通知本身失败不能反过来影响结论，所以 continue-on-error。
+      - name: 失败通知
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="[流水线失败] 节点数据更新异常"
+          body="时间：$(date -u '+%Y-%m-%d %H:%M UTC')，运行：${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}。发布已中止，远端保留上一版可用产物。"
+          # 标签不存在就建一次（已存在会报错，忽略即可）
+          gh label create ci-failure --repo "$GITHUB_REPOSITORY" \
+            --color d73a4a --description "自动化流水线失败" >/dev/null 2>&1 || true
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label ci-failure --state open --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body" \
+              && echo "已在 issue #$existing 追加失败记录"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body" --label ci-failure \
+              && echo "已创建失败通知 issue"
+          fi

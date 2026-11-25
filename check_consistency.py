@@ -17,6 +17,12 @@ P20 起增加 build manifest 硬校验（data/build_manifest.json）：
 旧口径——时间戳为警告、跳过哈希校验。CI 里 daily.yml 会先跑
 build_manifest.py，所以正式发布一定是硬校验。
 
+P22 起增加第 9 项「节点数量异常下降」门禁：对照上一版已提交数据
+（git HEAD 里的 nodes.json），本轮入库数掉到上一版的 60% 以下即判为
+采集/解析链路故障，拦下发布——避免上游改格式/被封时把 9846 条悄悄
+发成 300 条，页面还显示「正常更新」。无 git 历史时降级为警告。
+可用 NODES_PREV_COUNT 环境变量覆盖上一版条数（演练/离线环境用）。
+
 用法：
     python3 check_consistency.py            # 校验，不一致退出码 1
     python3 check_consistency.py --quiet    # 只输出失败项
@@ -24,6 +30,7 @@ build_manifest.py，所以正式发布一定是硬校验。
 import json
 import os
 import re
+import subprocess
 import sys
 
 from build_manifest import norm_ts, sha256_file, ARTIFACTS, SCHEMA_VERSION
@@ -33,6 +40,7 @@ DATA = os.path.join(BASE, "data")
 MANIFEST = os.path.join(DATA, "build_manifest.json")
 SCHEMA = 2
 MAX_SKEW_MIN = 90
+MIN_KEEP_RATIO = 0.60   # 本轮条数不得低于上一版的 60%
 
 
 def load(path):
@@ -52,6 +60,32 @@ def mins(t, year_hint=None):
     from build_manifest import TZ
     dt = datetime.fromtimestamp(ts, TZ)
     return dt.hour * 60 + dt.minute
+
+
+def prev_nodes_count():
+    """上一版已提交的节点条数。
+
+    CI 里 fetch-depth=0，HEAD 是上一轮提交（本轮数据还没提交），
+    所以 git show HEAD:data/nodes.json 就是「上一版」。
+    环境变量优先（演练/离线环境），取不到返回 None。
+    """
+    override = os.environ.get("NODES_PREV_COUNT")
+    if override is not None:
+        try:
+            return max(0, int(override))
+        except ValueError:
+            return None
+    try:
+        out = subprocess.run(
+            ["git", "-C", BASE, "show", "HEAD:data/nodes.json"],
+            capture_output=True, text=True, timeout=20,
+        )
+        if out.returncode != 0:
+            return None
+        d = json.loads(out.stdout)
+        return len(d.get("nodes") or [])
+    except Exception:
+        return None
 
 
 def embedded(index_html):
@@ -215,6 +249,24 @@ def main():
             obs = sum(1 for r in covered.values() if r.get("under_observation"))
             dup = len(gov.get("duplicates") or [])
             ok(f"来源治理覆盖 {len(covered)} 个源（同源地址 {dup} 组，观察期 {obs} 个）")
+
+    # 9. 节点数量异常下降（P22）：上游改格式/被封时，最常见的事故不是
+    #    数据错，而是数据「少了但看起来正常」。只比同一口径的入库条数，
+    #    不拿来源数/检测次数混比。下降超过阈值就拦下发布。
+    prev = prev_nodes_count()
+    if prev is None:
+        warn("取不到上一版节点条数（无 git 历史），跳过数量下降检查")
+    elif prev == 0:
+        ok("上一版为空（首次采集），跳过数量下降检查")
+    else:
+        keep = n / prev
+        if keep < MIN_KEEP_RATIO:
+            bad(f"节点数量异常下降：上一版 {prev} → 本轮 {n}（保留 {keep:.0%}，"
+                f"低于 {MIN_KEEP_RATIO:.0%}），疑似采集/解析链路故障")
+        else:
+            delta = n - prev
+            sign = "+" if delta > 0 else ""
+            ok(f"节点数量正常：上一版 {prev} → 本轮 {n}（{sign}{delta}，保留 {keep:.0%}）")
 
     # 8. build manifest 硬校验（P20）
     if not has_manifest:

@@ -223,6 +223,27 @@ python3 drill_publish.py            # 发布失败回滚演练：注入坏产物
 订阅路径、文件名与四种格式（clash / sing-box / URI / base64）在 P20 里未改动，
 旧订阅入口继续可用；manifest 只做校验，不改任何产物。
 
+**发布门槛的其余三道（P22）**：
+
+- **数量异常下降**：`check_consistency.py` 会拿 git HEAD 里上一版的入库条数和本轮比，
+  掉到 60% 以下判为采集/解析链路故障，拦下发布——防止上游改格式或被封时把
+  9846 条悄悄发成 300 条、页面还显示"正常更新"。CI 用 `fetch-depth: 0` 保证 HEAD
+  是上一版；本地无 git 历史时降级为警告。演练可用 `NODES_PREV_COUNT=20000` 覆盖。
+- **公开产物脱敏审计**：`audit_privacy.py` 扫 `data/*.json` 与 `index.html`，发现节点
+  URI、明文凭据字段、token 或 URL 内嵌凭据就拦下发布。git 历史已核对无真令牌；
+  源码 selftest 里的假 token / 文档示例不算公开数据，不纳入扫描范围。
+- **失败通知**：任一关键步骤失败时，CI 用 `gh` 在仓库开一个 `ci-failure` issue（已
+  存在则追加评论，不刷屏），所以"页面停在上一版"会第一时间被人发现。通知本身
+  失败不影响发布结论。权限只为此增开 `issues: write`，其余仍是 `contents: write`。
+
+一条命令复现全部发布前检查：
+
+```bash
+python3 -m pip install -r requirements.txt   # 首次需装 PyYAML
+bash verify.sh                                # 8 项：安全/清单/订阅/脱敏/门禁/演练/YAML/JS
+bash verify.sh --quick                        # 只跑秒级自测，跳过演练
+```
+
 数据回滚不用记 git 命令：
 
 ```bash
@@ -297,8 +318,10 @@ python3 governance.py --selftest # 重复源、恶意 URL、超大响应、故�
 python3 picks.py                # 四类优选榜单（稳定/低延迟/高速/综合）
 python3 export_subs.py          # 生成各格式订阅并逐个反解校验
 python3 build_manifest.py --selftest  # 统一清单自测（时间规范化/哈希/可复现）
+bash verify.sh                        # P22 一键验证：全部自测+门禁+演练，干净 clone 可复现
+python3 audit_privacy.py              # 公开产物脱敏审计（data/*.json 与页面不许有凭据）
 python3 build_manifest.py --write     # 生成统一构建清单
-python3 check_consistency.py          # 发布门禁（页面/数据/订阅/状态同一轮）
+python3 check_consistency.py          # 发布门禁（同轮/哈希/数量异常下降）
 python3 drill_publish.py              # 发布失败回滚演练（不改仓库）
 python3 screen.py               # 审核候选源（试采集→解析→去重→真实检测）
 python3 discover.py --dry-run   # 检索新的候选仓库，只看结果不落盘
