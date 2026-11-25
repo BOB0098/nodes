@@ -130,6 +130,14 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         run: python3 picks.py && python3 run_ledger.py mark picks
 
+      # P28：每轮追加一行真实的分数分布观测，攒够 7 个自然日再评估 best
+      # 门槛。单次快照不能定阈值——本轮 best 里最低分 56.7，所谓「65 门槛」
+      # 从未生效。观测失败不该拖垮发布，故 continue-on-error。
+      - name: 优选门槛观测
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
+        run: python3 threshold_watch.py
+
       # 多格式订阅：Clash YAML / sing-box JSON / URI / Base64，按质量与地区分组。
       # 每种格式生成后立刻用自己的解析器读回来校验条数，只改扩展名不算输出成功。
       - name: 生成订阅（多格式）

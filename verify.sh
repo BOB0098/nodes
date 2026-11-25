@@ -55,6 +55,7 @@ run "历史压缩回归 (history)" "$PY" history.py --selftest
 run "来源治理回归 (governance)" "$PY" governance.py --selftest
 run "优选榜单回归 (picks)" "$PY" picks.py --selftest
 run "源评分回归 (score)" "$PY" score.py --selftest
+run "门槛观测回归 (threshold_watch)" "$PY" threshold_watch.py --selftest
 
 # 2a. 同轮构建台账自测：run_id、阶段成功标记、跨轮与篡改拦截
 run "同轮台账自测 (run_ledger)" "$PY" run_ledger.py --selftest
@@ -65,8 +66,8 @@ run "构建清单自测 (build_manifest)" "$PY" build_manifest.py --selftest
 # 3. 订阅生成/反解自测：四种格式能被自己读回来
 run "订阅反解自测 (export_subs)" "$PY" export_subs.py --selftest
 
-# 4. 公开产物脱敏审计：data/*.json 与页面里不许有 URI/凭据/令牌
-run "脱敏审计 (audit_privacy)" "$PY" audit_privacy.py
+# 4. 公开产物脱敏审计：data/*.json 与页面里不许有 URI/凭据/令牌；带 --git 扫历史
+run "脱敏审计 (audit_privacy)" "$PY" audit_privacy.py --git
 
 # 5. 一致性 + 数量异常下降 + manifest 哈希硬校验（无 manifest 会降级警告）
 run "一致性/数量门禁 (check_consistency)" "$PY" check_consistency.py
