@@ -79,6 +79,31 @@ PER_SRC = 90
 MAX_TOTAL = 1200
 SEED = 20261125       # 种子基数
 
+# curl 退出码 → 失败阶段。只映射我们真的会遇到的：域名、连接、TLS、超时，
+# 其余归 other，不为了「看起来完整」硬凑一张长表。
+CURL_ERR = {
+    5: "proxy",     # 代理地址解析失败（本地 mihomo 没起来）
+    6: "dns",       # 域名解析失败
+    7: "tcp",       # 连接被拒 / 不可达
+    28: "timeout",  # 超时
+    35: "tls",      # TLS 握手失败
+    52: "empty",    # 服务端空响应
+    56: "recv",     # 接收数据失败
+    60: "cert",     # 证书校验失败
+}
+ERR_LABEL = {
+    "proxy": "本地代理未就绪",
+    "dns": "域名解析失败",
+    "tcp": "连接被拒或不可达",
+    "timeout": "超时",
+    "tls": "TLS 握手失败",
+    "empty": "服务端空响应",
+    "recv": "接收数据失败",
+    "cert": "证书校验失败",
+    "http": "目标站返回异常",
+    "other": "其他失败",
+}
+
 
 def daily_seed(now=None):
     """按天轮换的抽样种子。
@@ -311,7 +336,14 @@ def _scalar(v):
 
 
 def probe(port, timeout=TIMEOUT):
-    """通过本地 socks 端口访问测试地址。返回 (ok, ms, err)。"""
+    """通过本地 socks 端口访问测试地址。返回 (ok, ms, err)。
+
+    err 带阶段前缀（`dns:` / `tcp:` / `tls:` / `timeout:` / `http:`），
+    因为「连不上」至少有四种完全不同的原因：域名解析不出来、端口没人听、
+    TLS 握不上手、以及连上了但目标站回的不是 204。以前一律记 `HTTP 000`，
+    609 条失败全挤在一个标签里，既没法归因到源，也没法判断是节点死还是
+    机房出口在掐这类流量。curl 的退出码本来就区分这些，只是之前没读。
+    """
     proxy = f"socks5h://127.0.0.1:{port}"
     t0 = time.time()
     try:
@@ -323,11 +355,16 @@ def probe(port, timeout=TIMEOUT):
         code = (r.stdout or "").strip()
         if code in ("204", "200"):
             return True, ms, None
-        return False, ms, f"HTTP {code or '000'}"
+        if code and code != "000":
+            # 连上了，但目标站给的不是 204：可能是被劫持、被限流，或目标站自己挂了。
+            # 这一类不能算「节点死」——同一条链路换个目标可能就通
+            return False, ms, f"http:{code}"
+        cls = CURL_ERR.get(r.returncode, "other")
+        return False, ms, f"{cls}:{ERR_LABEL[cls]}"
     except subprocess.TimeoutExpired:
-        return False, TIMEOUT * 1000, "超时"
+        return False, TIMEOUT * 1000, "timeout:超时"
     except Exception as e:
-        return False, int((time.time() - t0) * 1000), type(e).__name__
+        return False, int((time.time() - t0) * 1000), f"other:{type(e).__name__}"
 
 
 def exit_info(port, timeout=TIMEOUT):
@@ -487,11 +524,21 @@ def load_nodes(path=None):
 def summarize(results):
     ok = [r for r in results.values() if r.get("ok")]
     ms = sorted(r["ms"] for r in ok if r.get("ms"))
+    # 失败按阶段归类：页面和报告都要能回答「这批节点是死在 DNS 还是死在 TLS」。
+    # 只统计失败项，成功项的 err 是 None。
+    fails = {}
+    for r in results.values():
+        e = r.get("err")
+        if r.get("ok") or not e:
+            continue
+        cls = e.split(":", 1)[0]
+        fails[cls] = fails.get(cls, 0) + 1
     return {
         "tested": len(results), "ok": len(ok),
         "ok_pct": round(len(ok) / len(results) * 100, 1) if results else None,
         "ms_median": ms[len(ms) // 2] if ms else None,
         "ms_p90": ms[int(len(ms) * 0.9)] if ms else None,
+        "err_classes": dict(sorted(fails.items(), key=lambda kv: -kv[1])),
     }
 
 
@@ -508,7 +555,7 @@ def save(results, extra=None):
     仍然通），但会让 340 条掉到 30 条。没有这道闸门，一次环境抖动就会
     把上一轮的 340 条有效结论永久抹掉，第二天再好回来也读不到了。
     """
-    doc = {"updated": now_str(), "env":
+    doc = {"schema": 2, "updated": now_str(), "env":
            "ci" if os.environ.get("GITHUB_ACTIONS") == "true" else "local",
            "summary": summarize(results), "nodes": results}
     if extra:
@@ -667,6 +714,16 @@ def selftest():
     a = [x["fp"] for x in sample(nodes, 20, 100)]
     b = [x["fp"] for x in sample(nodes, 20, 100)]
     chk(a == b, "抽样可复现")
+
+    # 失败分类：以前全记 HTTP 000，四种原因挤成一个标签
+    chk(CURL_ERR[6] == "dns" and CURL_ERR[35] == "tls" and CURL_ERR[28] == "timeout",
+        "curl 退出码映射到失败阶段")
+    s = summarize({"a": {"ok": False, "err": "dns:域名解析失败"},
+                   "b": {"ok": True, "ms": 100},
+                   "c": {"ok": False, "err": "tls:TLS 握手失败"},
+                   "d": {"ok": False, "err": "dns:域名解析失败"}})
+    chk(s["err_classes"] == {"dns": 2, "tls": 1}, "失败按阶段汇总，成功项不计入")
+    chk(s["tested"] == 4 and s["ok"] == 1, "汇总基数正确")
 
     print("\n" + ("全部通过" if ok else "有失败项"))
     return 0 if ok else 1

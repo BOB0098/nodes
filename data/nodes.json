@@ -1,4 +1,5 @@
 {
+ "schema": 2,
  "updated": "11-25 07:37",
  "ts": 1795563453,
  "life_span": 1,
@@ -11,36 +12,37 @@
    "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android",
    "items": [
     {
-     "tag": "超大合集",
-     "note": "2000 条以上，最全也最杂",
+     "tag": "推荐 · 只含可连节点",
+     "note": "只留连得上的，成功率高",
      "ok": [
       "Clash"
      ],
      "no": [],
      "freq": "每日更新",
-     "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
-     "count": 1770,
+     "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
+     "count": 219,
      "probe": {
-      "ok": 16,
+      "ok": 22,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 31
+      "ms": 289
      },
-     "age_h": 3.1,
-     "score": 1180,
+     "age_h": 4.1,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 87.0,
+     "grade": "B",
+     "grade_score": 78.1,
      "src_state": "ok",
-     "src_state_label": null,
-     "prio": 7,
-     "rok": 0,
+     "src_state_label": "正常",
+     "prio": 10,
+     "rok": 61,
      "rtest": 90,
-     "new7": 1759,
-     "med_age": 1
+     "new7": 213,
+     "med_age": 1,
+     "rank_real": 61.0,
+     "rank_has_real": 1
     },
     {
      "tag": "多源合并",
@@ -62,17 +64,18 @@
       "ms": 19
      },
      "age_h": 83.6,
-     "score": 1151,
      "streak": 0,
      "grade": "A",
-     "grade_score": 86.2,
+     "grade_score": 80.5,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 6,
      "rok": 48,
      "rtest": 90,
      "new7": 749,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 48.0,
+     "rank_has_real": 1
     },
     {
      "tag": "全量节点",
@@ -94,49 +97,51 @@
       "ms": 307
      },
      "age_h": 4.1,
-     "score": 251,
      "streak": 0,
-     "grade": "B",
-     "grade_score": 79.2,
+     "grade": "C",
+     "grade_score": 58.6,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 8,
      "rok": 12,
      "rtest": 65,
      "new7": 65,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 12.0,
+     "rank_has_real": 1
     },
     {
-     "tag": "推荐 · 只含可连节点",
-     "note": "只留连得上的，成功率高",
+     "tag": "超大合集",
+     "note": "2000 条以上，最全也最杂",
      "ok": [
       "Clash"
      ],
      "no": [],
      "freq": "每日更新",
-     "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
-     "count": 219,
+     "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
+     "count": 1770,
      "probe": {
-      "ok": 22,
+      "ok": 16,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 289
+      "ms": 31
      },
-     "age_h": 4.1,
-     "score": 201,
+     "age_h": 3.1,
      "streak": 0,
-     "grade": "B",
-     "grade_score": 75.4,
+     "grade": "C",
+     "grade_score": 53.4,
      "src_state": "ok",
-     "src_state_label": null,
-     "prio": 10,
-     "rok": 61,
+     "src_state_label": "正常",
+     "prio": 7,
+     "rok": 0,
      "rtest": 90,
-     "new7": 213,
-     "med_age": 1
+     "new7": 1759,
+     "med_age": 1,
+     "rank_real": 0.0,
+     "rank_has_real": 1
     },
     {
      "tag": "带规则分流",
@@ -158,17 +163,18 @@
       "ms": 49
      },
      "age_h": 4.1,
-     "score": 495,
      "streak": 0,
      "grade": "B",
-     "grade_score": 74.8,
+     "grade_score": 79.2,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 9,
      "rok": 85,
      "rtest": 90,
      "new7": 360,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 85.0,
+     "rank_has_real": 1
     }
    ]
   },
@@ -178,71 +184,38 @@
    "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing",
    "items": [
     {
-     "tag": "全量最大",
-     "note": "几千条，最多也最杂",
-     "ok": [
-      "v2rayNG",
-      "小火箭",
-      "Hiddify"
-     ],
-     "no": [],
-     "freq": "每日更新",
-     "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
-     "count": 4666,
-     "probe": {
-      "ok": 13,
-      "total": 24
-     },
-     "cnbad": false,
-     "src_http": {
-      "code": 200,
-      "ms": 13
-     },
-     "age_h": 0.0,
-     "score": 2527,
-     "streak": 0,
-     "grade": "A",
-     "grade_score": 89.5,
-     "src_state": "ok",
-     "src_state_label": null,
-     "prio": 8,
-     "rok": 7,
-     "rtest": 90,
-     "new7": 4376,
-     "med_age": 1
-    },
-    {
-     "tag": "多协议合集",
-     "note": "近 4000 条，含 ss / vless / vmess",
+     "tag": "每日分享",
+     "note": "节点和机场一起发",
      "ok": [
       "v2rayNG",
       "小火箭"
      ],
      "no": [],
      "freq": "每日更新",
-     "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
-     "count": 3884,
+     "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
+     "count": 176,
      "probe": {
-      "ok": 13,
+      "ok": 22,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 15
+      "ms": 20
      },
-     "age_h": 1.4,
-     "score": 2104,
+     "age_h": 18.2,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 87.3,
+     "grade": "B",
+     "grade_score": 69.8,
      "src_state": "ok",
-     "src_state_label": null,
-     "prio": 4,
-     "rok": 0,
+     "src_state_label": "正常",
+     "prio": 6,
+     "rok": 27,
      "rtest": 90,
-     "new7": 1762,
-     "med_age": 1
+     "new7": 152,
+     "med_age": 1,
+     "rank_real": 27.0,
+     "rank_has_real": 1
     },
     {
      "tag": "每日抓取",
@@ -265,50 +238,87 @@
       "ms": 293
      },
      "age_h": 4.1,
-     "score": 290,
      "streak": 0,
-     "grade": "S",
-     "grade_score": 91.7,
+     "grade": "B",
+     "grade_score": 73.2,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 9,
      "rok": 24,
      "rtest": 90,
      "new7": 174,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 24.0,
+     "rank_has_real": 1
     },
     {
-     "tag": "每日分享",
-     "note": "节点和机场一起发",
+     "tag": "全量最大",
+     "note": "几千条，最多也最杂",
+     "ok": [
+      "v2rayNG",
+      "小火箭",
+      "Hiddify"
+     ],
+     "no": [],
+     "freq": "每日更新",
+     "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
+     "count": 4666,
+     "probe": {
+      "ok": 13,
+      "total": 24
+     },
+     "cnbad": false,
+     "src_http": {
+      "code": 200,
+      "ms": 13
+     },
+     "age_h": 0.0,
+     "streak": 0,
+     "grade": "C",
+     "grade_score": 64.8,
+     "src_state": "ok",
+     "src_state_label": "正常",
+     "prio": 8,
+     "rok": 7,
+     "rtest": 90,
+     "new7": 4376,
+     "med_age": 1,
+     "rank_real": 7.0,
+     "rank_has_real": 1
+    },
+    {
+     "tag": "多协议合集",
+     "note": "近 4000 条，含 ss / vless / vmess",
      "ok": [
       "v2rayNG",
       "小火箭"
      ],
      "no": [],
      "freq": "每日更新",
-     "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
-     "count": 176,
+     "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
+     "count": 3884,
      "probe": {
-      "ok": 22,
+      "ok": 13,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 20
+      "ms": 15
      },
-     "age_h": 18.2,
-     "score": 161,
+     "age_h": 1.4,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 88.2,
+     "grade": "C",
+     "grade_score": 54.6,
      "src_state": "ok",
-     "src_state_label": null,
-     "prio": 6,
-     "rok": 27,
+     "src_state_label": "正常",
+     "prio": 4,
+     "rok": 0,
      "rtest": 90,
-     "new7": 152,
-     "med_age": 1
+     "new7": 1762,
+     "med_age": 1,
+     "rank_real": 0.0,
+     "rank_has_real": 1
     },
     {
      "tag": "老牌仓库",
@@ -331,17 +341,18 @@
       "ms": 13
      },
      "age_h": 4.2,
-     "score": 13,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 81.0,
+     "grade": "D",
+     "grade_score": 39.2,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 7,
      "rok": 0,
      "rtest": 4,
      "new7": 4,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 0.0,
+     "rank_has_real": 1
     },
     {
      "tag": "推荐 · 精选稳定",
@@ -364,17 +375,18 @@
       "ms": 28
      },
      "age_h": 0.6,
-     "score": 5,
      "streak": 0,
-     "grade": "B",
-     "grade_score": 73.0,
+     "grade": "C",
+     "grade_score": 52.2,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 10,
      "rok": null,
      "rtest": null,
      "new7": null,
-     "med_age": null
+     "med_age": null,
+     "rank_real": 1.5,
+     "rank_has_real": 0
     }
    ]
   },
@@ -404,17 +416,18 @@
       "ms": 14
      },
      "age_h": 7.1,
-     "score": 323,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 85.5,
+     "grade": "B",
+     "grade_score": 70.5,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 8,
      "rok": 28,
      "rtest": 90,
      "new7": 181,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 28.0,
+     "rank_has_real": 1
     },
     {
      "tag": "每日聚合",
@@ -437,17 +450,18 @@
       "ms": 12
      },
      "age_h": 15.8,
-     "score": 35,
      "streak": 0,
      "grade": "A",
-     "grade_score": 86.1,
+     "grade_score": 82.6,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 7,
      "rok": 17,
      "rtest": 21,
      "new7": 21,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 17.0,
+     "rank_has_real": 1
     },
     {
      "tag": "独立小源",
@@ -470,17 +484,18 @@
       "ms": 14
      },
      "age_h": 0.9,
-     "score": 20,
      "streak": 0,
-     "grade": "A",
-     "grade_score": 88.8,
+     "grade": "D",
+     "grade_score": 46.2,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 5,
      "rok": 0,
      "rtest": 18,
      "new7": 18,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 0.0,
+     "rank_has_real": 1
     },
     {
      "tag": "带规则 · 与 Clash 同源",
@@ -503,17 +518,18 @@
       "ms": 73
      },
      "age_h": 4.1,
-     "score": 495,
      "streak": 0,
      "grade": "B",
-     "grade_score": 76.0,
+     "grade_score": 74.1,
      "src_state": "ok",
-     "src_state_label": null,
+     "src_state_label": "正常",
      "prio": 10,
      "rok": 12,
      "rtest": 12,
      "new7": 12,
-     "med_age": 1
+     "med_age": 1,
+     "rank_real": 12.0,
+     "rank_has_real": 1
     }
    ]
   }
@@ -552,27 +568,27 @@
   "checked_at": "11-25 07:50",
   "subs": {
    "all": {
-    "count": 9845,
+    "count": 9846,
     "label": "全部节点"
    },
    "best": {
-    "count": 174,
+    "count": 220,
     "label": "优选（真实可用且评分 B 以上）"
    },
    "stable": {
-    "count": 97,
+    "count": 123,
     "label": "稳定（连续三轮可用）"
    },
    "lowlat": {
-    "count": 24,
+    "count": 33,
     "label": "低延迟（<200ms）"
    },
    "fast": {
-    "count": 7,
+    "count": 24,
     "label": "高速（≥2MB/s）"
    },
    "hk": {
-    "count": 15,
+    "count": 16,
     "label": "香港"
    },
    "tw": {
@@ -580,15 +596,15 @@
     "label": "中国台湾"
    },
    "jp": {
-    "count": 14,
+    "count": 18,
     "label": "日本"
    },
    "sg": {
-    "count": 10,
+    "count": 11,
     "label": "新加坡"
    },
    "us": {
-    "count": 63,
+    "count": 65,
     "label": "美国"
    },
    "kr": {
@@ -596,7 +612,7 @@
     "label": "韩国"
    },
    "eu": {
-    "count": 123,
+    "count": 122,
     "label": "欧洲"
    }
   },

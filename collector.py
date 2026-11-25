@@ -24,6 +24,10 @@ OUT_DATA = os.path.join(BASE, "data")
 os.makedirs(CACHE, exist_ok=True)
 os.makedirs(OUT_DATA, exist_ok=True)
 
+# 数据结构版本，写进 nodes.json，消费方（页面/脚本/第三方）据此判断怎么读。
+# 2 = P17：卡片字段新增 rank_real/rank_has_real，源评分改口径。
+SCHEMA = 2
+
 sys.path.insert(0, BASE)
 import nodes_parse  # noqa: E402  同目录模块，负责把 YAML/JSON/URI 统一解析成节点
 import lifecycle  # noqa: E402  节点首次/最近出现时间（P5）
@@ -471,7 +475,7 @@ def update_health(old, probes, fps=None):
 
 
 def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, prev=None,
-                       uniq=None, declared=None):
+                       uniq=None, declared=None, real=None):
     """按任务书 §4 的字段口径，为每个启用的源生成一行动态记录。
 
     与页面上那点数字的区别：这里记的是「这一轮采集的原始事实」——
@@ -480,6 +484,10 @@ def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, pr
 
     declared: {name: 源文件自己声明的条数}。与 parsed 分开记，
     因为「声明 2169 条、实际解析 2133 条」本身就是源的可靠性证据。
+
+    real: {name: {tested, ok}}，来自最近一轮 nodecheck（经 mihomo 真握手）。
+    采集时检测还没跑，所以这是上一轮的数——rtest/rok 都随行落盘，
+    报告里标清「基于最近一轮检测」，不把上轮的结论说成本轮的。
     """
     from collections import Counter
     kept = Counter(n["src"] for n in nodes)
@@ -507,6 +515,9 @@ def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, pr
         else:
             fails_streak = 0
         rate = (ok / total * 100) if total else None
+        rl = (real or {}).get(s["name"]) or {}
+        rtest = int(rl.get("tested") or 0)
+        rok = int(rl.get("ok") or 0)
         rows.append({
             "id": s["id"], "name": s["name"], "url": u,
             "type": s["type"], "format": s["format"], "license": s.get("license"),
@@ -521,6 +532,9 @@ def build_source_stats(sources, counts, probes, srcstat, meta, health, nodes, pr
             "dup": (parsed - kept_n) if isinstance(parsed, int) else None,
             "probe_total": total, "probe_ok": ok,
             "alive_pct": round(rate) if rate is not None else None,
+            # 真实握手（最近一轮）：这才是「装进客户端能不能用」的证据
+            "rtest": rtest, "rok": rok,
+            "real_pct": round(rok / rtest * 100, 1) if rtest else None,
             "fails_total": fails_total, "fails_streak": fails_streak,
             "last_error": err,
             # 抽样可连率。P4 的综合评分是 score 字段，两者不要混用：
@@ -552,16 +566,29 @@ def _age_of(meta, health, url):
     return ((health or {}).get(url) or {}).get("fp_age_h")
 
 
-def _rank(item, counts, probes):
-    """排序分 = 可连率 × 条数，即「预计可用节点数」。
-    没有测速或有没条数的源返回 -1，排在最后。"""
+def _rank_real(item, counts, probes, real):
+    """卡片排序分 = 真实可用条数（绝对值）。
+
+    以前是「TCP 可连率 × 条数」：端口开着就算能用，于是真握手 0/90 的源
+    排第一、真握手 85/90 的排第五。现在直接按「这张卡里能用几条」排，
+    用户看卡片上的「真实可用 85/90」就知道它为什么在前面。
+
+    试过用「可用率 × 条数」和「向 25% 先验收缩」两种写法，都会让 0 可用的
+    大源靠条数拿到保底分（1,770 条 × 25% 先验 = 440，仍排前列），
+    与「可用条数」这个口径自相矛盾，所以放弃收缩，只排绝对值。
+    没有真实数据（rtest=0）的一律排在后面，按 TCP 打三折估个位置。
+    """
+    n = int(counts.get(item["url"]) or 0)
+    rl = (real or {}).get(SRC_NAME_BY_URL.get(item["url"])) or {}
+    rok = int(rl.get("ok") or 0)
+    rtest = int(rl.get("tested") or 0)
+    if rtest:
+        return float(rok), 1
     p = probes.get(item["url"]) or {}
-    total = int(p.get("total") or 0)
-    ok = int(p.get("ok") or 0)
-    n = counts.get(item["url"]) or 0
+    total, ok = int(p.get("total") or 0), int(p.get("ok") or 0)
     if not total or not n:
-        return -1.0
-    return ok / total * n
+        return -1.0, 0
+    return round(0.3 * (ok / total) * n, 1), 0
 
 
 def _load_real():
@@ -639,7 +666,6 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "cnbad": bool(i.get("cn")),
                   "src_http": srcstat.get(i["url"]),
                   "age_h": _age_of(meta, health, i["url"]),
-                  "score": round(_rank(i, counts, probes)),
                   "streak": int((health or {}).get(i["url"], {}).get("streak_bad") or 0),
                   "grade": (grades.get(i["url"]) or {}).get("grade"),
                   "grade_score": (grades.get(i["url"]) or {}).get("score"),
@@ -651,11 +677,17 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "new7": (fresh.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("new7"),
                   "med_age": (fresh.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("median_age"),
                   } for i in g["items"]]
+        # 排序分在这里算：需要 item 上的 count/probe，放不进上面那次 comprehension。
+        # rank_real 是收缩后的真实可用条数，rank_has_real 表示它有没有真实样本。
+        for it, i in zip(items, g["items"]):
+            it["rank_real"], it["rank_has_real"] = _rank_real(i, counts, probes, real)
         # 国内直连不通的固定沉底；已隔离的再沉一层（不是删除，是「先别信」）；
-        # 其余按「可连率 × 条数」降序。同分时才看 P4 优先级——
-        # 连续三轮没带来新节点且在变差的源，不该和同水平的源平起平坐
+        # 其余按真实可用条数降序，没有真实样本的一律排在后面。
+        # 同分时才看 P4 优先级——连续三轮没带来新节点且在变差的源，
+        # 不该和同水平的源平起平坐
         items.sort(key=lambda it: (it["cnbad"], it.get("src_state") == "isolated",
-                                   -it["score"], it.get("prio") or 0))
+                                   -it["rank_has_real"], -it["rank_real"],
+                                   it.get("prio") or 0))
         groups.append({"title": g["title"], "kern": g["kern"],
                        "clients": g["clients"], "items": items})
 
@@ -688,6 +720,9 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
     }
 
     return {
+        # 数据结构版本。加字段不改语义时不升版本；删字段、改字段含义时升，
+        # 消费方（页面、脚本、第三方）先看这个再决定怎么读
+        "schema": SCHEMA,
         "updated": datetime.now(timezone(timedelta(hours=8))).strftime("%m-%d %H:%M"),
         "ts": int(time.time()),
         # 生命周期跟踪了几天。不足 7 天时页面不报「近 7 天新增」——
@@ -733,15 +768,35 @@ def rerender():
             if it.get("age_h") is not None:
                 meta[it["url"]] = {"age_h": it["age_h"]}
             health[it["url"]] = {"streak_bad": it.get("streak") or 0}
-            if it.get("grade"):
-                grades[it["url"]] = {"grade": it.get("grade"), "score": it.get("grade_score"),
-                                     "state": it.get("src_state"),
-                                     "priority_eff": it.get("prio")}
             # 生命周期统计按源名索引，重渲染不重算，沿用上次的值
             if it.get("new7") is not None:
                 nm = SRC_NAME_BY_URL.get(it["url"])
                 if nm:
                     fresh[nm] = {"new7": it.get("new7"), "median_age": it.get("med_age")}
+    # 评分优先按 sources_stats.json 重算：改了公式之后，只重渲染会把旧等级
+    # 一直带到页面上，看起来像「改了没用」。读不到才退回 nodes.json 里的旧值。
+    rows = sources_io.load_stats().get("sources") or []
+    if rows:
+        # 真实检测结果按源名回填（sources_stats 里可能还没有 rtest/rok）
+        realmap = _load_real()
+        for r in rows:
+            if not r.get("rtest"):
+                b = realmap.get(r.get("name")) or {}
+                r["rtest"] = int(b.get("tested") or 0)
+                r["rok"] = int(b.get("ok") or 0)
+                r["real_pct"] = (round(r["rok"] / r["rtest"] * 100, 1)
+                                 if r["rtest"] else None)
+        rows, _h = scoring.annotate(rows, scoring.load_history(), stamp=old.get("updated"),
+                                    persist=False)
+        grades = {r["url"]: r for r in rows}
+        print(f"  按新公式重算 {len(rows)} 个源："
+              + " ".join(f"{r.get('grade')}{r.get('score')}" for r in rows[:6]) + " …")
+    else:
+        for it in [i for g in old.get("groups", []) for i in g.get("items", [])]:
+            if it.get("grade"):
+                grades[it["url"]] = {"grade": it.get("grade"), "score": it.get("grade_score"),
+                                     "state": it.get("src_state"),
+                                     "priority_eff": it.get("prio")}
     data = assemble(old.get("nodes") or [], old.get("raw") or 0, old.get("errors") or [],
                     counts, probes, old.get("delta"), health, srcstat, meta, grades=grades,
                     fresh=fresh, life_span=old.get("life_span"))
@@ -840,7 +895,8 @@ def main():
     # 每源动态统计：任务书 §4 要求的原始/解析/重复/新增/有效节点数与失败次数
     rows = build_source_stats(SOURCES_ALL, counts, probes, srcstat, meta, health, nodes,
                               sources_io.load_stats().get("sources"), uniq=uniq,
-                              declared={s["name"]: s.get("declared") for s in stats})
+                              declared={s["name"]: s.get("declared") for s in stats},
+                              real=_load_real())
     # P4：加权评分 + 连续失败状态机（单轮异常 / 两轮降级 / 三轮隔离）。
     # 先评分再渲染，页面卡片才能带上等级；顺序反了页面会全是 null。
     rows, hist = scoring.annotate(rows, scoring.load_history(), stamp=stamp)

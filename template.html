@@ -284,10 +284,11 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
 
 /* 真实握手结果：和上面那条 TCP 抽样是两个口径，必须分开写清楚，
    否则「可连 83%」会被人当成「83% 的节点能用」 */
-.real{font-size:11px;color:var(--ink-3);margin:4px 0 0;line-height:1.5;font-variant-numeric:tabular-nums}
+.real{font-size:12px;color:var(--ink-2);margin:6px 0 2px;line-height:1.5;font-variant-numeric:tabular-nums}
 .real[hidden]{display:none}
-.real b{color:var(--ink-1);font-weight:var(--fwb)}
+.real b{color:var(--ink-1);font-weight:650}
 .real.weak b{color:var(--bad-ink)}
+.probe{margin-top:2px}
 /* 生命周期：靠右与「源更新时间」同排。margin-left:auto 只给 .life，
    第二个 auto 没有剩余空间可分，.age 会紧贴在它右边，间距由 .meta 的 gap 提供 */
 .life{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
@@ -433,7 +434,7 @@ html.lock,html.lock body{overflow:hidden}
 </section>
 
 <div class="filters" role="group" aria-label="按可用性筛选">
-  <button class="fbtn" type="button" id="fAlive" aria-pressed="false">只看可连 ≥80%</button>
+  <button class="fbtn" type="button" id="fAlive" aria-pressed="false">只看真实可用 ≥50%</button>
   <button class="fbtn" type="button" id="fCn" aria-pressed="false">只看国内可直连</button>
   <span class="fcount" id="fcount" aria-live="polite"></span>
 </div>
@@ -470,8 +471,8 @@ html.lock,html.lock body{overflow:hidden}
   <article class="card">
     <div class="ch"><div class="chl"><span class="idx"></span><h3 class="tag"></h3><span class="gchip" hidden></span><span class="flagx stb" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span><span class="flagx iso" hidden>已隔离</span></div><span class="freq"></span></div>
     <p class="cnum"><b></b><span>条节点</span></p>
-    <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="real" hidden></p>
+    <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
     <p class="cnote"></p>
     <div class="meta"><div class="cls"></div><p class="life" hidden></p><p class="age" hidden></p></div>
     <p class="srcbad" hidden></p>
@@ -926,25 +927,26 @@ html.lock,html.lock body{overflow:hidden}
         const pct = Math.round(p.ok / p.total * 100);
         const bar = probe.querySelector('.bar');
         probe.classList.add(pct >= 50 ? 'ok' : pct >= 20 ? 'warn' : 'bad');
+        // 端口口径从「可连」改成「端口可连」：它只说明有程序在听，
+        // 不说明 uuid 还有效。主指标已经让给下面的真实握手
         probe.querySelector('.pl').textContent =
-          p.ok === 0 ? `抽样 ${p.total} 个 · 全部不通` : `抽样 ${p.total} 个 · 可连 ${p.ok}`;
+          p.ok === 0 ? `端口抽样 ${p.total} · 全不通` : `端口可连 ${p.ok}/${p.total}`;
         bar.value = Math.max(pct, 4);
-        bar.setAttribute('aria-label', `抽样 ${p.total} 个，可连 ${p.ok} 个，${pct}%`);
+        bar.setAttribute('aria-label', `端口抽样 ${p.total} 个，可连 ${p.ok} 个，${pct}%`);
         probe.querySelector('.pv').textContent = pct + '%';
       } else {
         probe.remove();
       }
 
-      // 真实握手结果。和上面那条 TCP 抽样是两个口径：那条只说明端口开着，
-      // 这条（经 mihomo 真的出网）才说明装进客户端能用。两个都摆出来，
-      // 让「可连 83%」不至于被读成「83% 的节点能用」
+      // 真实握手：经 mihomo 真的出网，拿到 204 才算可用。这是主指标，
+      // 排在端口口径前面——卡片上最该被看见的是「能用几条」，不是「端口开了几条」
       const rt = it.rtest, ro = it.rok;
       const realEl = node.querySelector('.real');
       if (rt) {
         const pct = Math.round(ro / rt * 100);
-        realEl.append(document.createTextNode(`真实握手 ${rt} 个 · 可用 `));
+        realEl.append(document.createTextNode('真实可用 '));
         const b = document.createElement('b');
-        b.textContent = `${ro}（${pct}%）`;
+        b.textContent = `${ro}/${rt}（${pct}%）`;
         realEl.append(b);
         // 低于 10% 才标红：免费节点真实可用率本来就低，20% 不算异常
         realEl.classList.toggle('weak', pct < 10);
@@ -989,8 +991,9 @@ html.lock,html.lock body{overflow:hidden}
       const it = card._it || {};
       let ok = true;
       if (fstate.alive) {
-        const p = it.probe || {};
-        ok = !!(p.total && p.ok / p.total >= 0.8);
+        // 按真实可用率筛，不再按端口。阈值 50%：免费池里真实可用过半数
+        // 已经算好源，卡太严（比如 80%）会筛出个位数，等于没这个开关
+        ok = !!(it.rtest && it.rok / it.rtest >= 0.5);
       }
       if (ok && fstate.cn) ok = !it.cnbad;
       card.hidden = !ok;

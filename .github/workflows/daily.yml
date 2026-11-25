@@ -102,14 +102,10 @@ jobs:
         run: python3 nodecheck.py --speed
 
       # 评分与地区分类：只统计 nodecheck 里测过的节点，没测过的一律不算可用。
-      # 内部还会跑一次重渲染，把「真实可用 X/Y」写进卡片——检测在采集之后，
-      # 不重渲染的话页面要等下一轮才看得到
       - name: 节点评分与分类
         if: steps.gate.outputs.skip != 'true'
         continue-on-error: true
-        run: |
-          python3 nodescore.py
-          python3 collector.py --render
+        run: python3 nodescore.py
 
       # 多格式订阅：Clash YAML / sing-box JSON / URI / Base64，按质量与地区分组。
       # 每种格式生成后立刻用自己的解析器读回来校验条数，只改扩展名不算输出成功。
@@ -117,6 +113,21 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         continue-on-error: true
         run: python3 export_subs.py
+
+      # 重渲染放在订阅之后：页面要显示「优选 220 条」这类数字，就得先让
+      # subscriptions.json 落盘。以前渲染在订阅之前，页面永远读上一轮的条数，
+      # 于是同一轮出现 9,845 和 9,846 两个总数。
+      # --render 现在会按新公式重算源评分，所以它同时也是「改公式后生效」的入口。
+      - name: 重渲染页面
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
+        run: python3 collector.py --render
+
+      # 发布门禁：页面内嵌数、nodes.json、subscriptions.json 必须是同一轮同一个数。
+      # 这三个值以前各写各的（9,845 / 9,846），没有任何一处会把它们放在一起比。
+      - name: 一致性检查
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 check_consistency.py
 
       - name: 提交更新
         if: steps.gate.outputs.skip != 'true'

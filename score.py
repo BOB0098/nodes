@@ -29,14 +29,24 @@ STATS_PATH = os.path.join(DATA, "sources_stats.json")
 HISTORY_PATH = os.path.join(DATA, "source_history.json")
 REPORT_PATH = os.path.join(BASE, "docs", "P4-source-quality.md")
 
-# ── 权重：合计 100。可用率占 40，是这里唯一能证明「节点真的能用」的指标 ──
-W_ALIVE = 40      # 抽样 TCP 可连率
-W_UNIQUE = 12     # 独立新增（对其他源不重复的指纹数，对数刻度）
-W_RATIO = 8       # 独立率 = 独立新增 / 原始解析
-W_FRESH = 12      # 源内容新鲜度
-W_STABLE = 18     # 采集连续失败 + 可连率波动
-W_COMPLY = 10     # 许可证声明 4 + 原创/聚合 6
+# ── 权重：合计 100 ──
+# 真实可用率 32 分是核心，TCP 只留 8 分做辅助。上一版把 40 分给了 TCP，
+# 结果「端口全通、真握手 0/90」的源拿 A 级并排在第一，等于页面在替它背书。
+# 依据：data/nodecheck.json 与 data/sources_stats.json 同轮对照，
+# TCP 可连率与真实可用率的相关系数不足 0.4（见 docs/P17-scoring.md）。
+W_REAL = 32       # 真实代理可用率（mihomo 真握手，70% 封顶）
+W_REALN = 10      # 真实可用条数（对数刻度，800 条封顶）
+W_UNIQ = 10       # 独立新增（对其他源不重复的指纹数）
+W_RATIO = 6       # 独立率 = 独立新增 / 原始解析
+W_FRESH = 10      # 源内容新鲜度
+W_STABLE = 14     # 连续失败 10 + 真实可用率波动 4
+W_TCP = 8         # TCP 抽样可连率（辅助；无真实数据时按 60% 补偿）
+W_CONF = 4        # 样本置信（样本少不给满分）
+W_COMPLY = 6      # 许可证声明 3 + 原创/聚合 3
 
+SCORE_VERSION = 2  # 公式版本。跨版本的历史只做趋势，不比较绝对分
+
+# 等级门槛不变，但新增两条上限：无真实数据最高 B，样本 <20 最高 A。
 GRADES = ((90, "S"), (80, "A"), (65, "B"), (50, "C"), (0, "D"))
 GRADE_ORDER = ["S", "A", "B", "C", "D"]
 
@@ -66,15 +76,59 @@ def downgrade(g, n=1):
 
 # ── 五个维度 ────────────────────────────────────────────────────────
 
-def _d_alive(row):
-    """可连率 → 40 分。曲线压过 70% 即满分：这个领域没人能做到 100%，
-    拿 100% 当满分会让所有人都在及格线下。低于 15% 迅速掉到个位数。"""
-    pct = _num(row.get("alive_pct"))
+def real_of(row):
+    """→ (可用率 0~1 或 None, 可用条数, 样本条数)。
+
+    只认 mihomo 真握手的结果。rtest 为 0 表示这一轮没抽到（或检测没跑），
+    返回 None——「没测」和「测了全挂」在评分里必须分开，否则小源会被
+    首轮的空白直接判死。
+    """
+    t = int(_num(row.get("rtest"), 0) or 0)
+    o = int(_num(row.get("rok"), 0) or 0)
+    if t <= 0:
+        return None, 0, 0
+    return min(1.0, max(0.0, o / t)), o, t
+
+
+def _d_real(row):
+    """真实可用率 → 32 分。70% 封顶：免费节点池里 70% 已经是极好的源。"""
+    pct, o, t = real_of(row)
     if pct is None:
-        # 没抽样不等于不可用，给中位数分并标注 unknown，避免「没测=0 分」误杀
-        return W_ALIVE * 0.5, "未抽样，按中位计"
-    ratio = min(1.0, max(0.0, pct / 100.0) / 0.7)
-    return round(W_ALIVE * (ratio ** 0.8), 1), f"可连 {pct:.0f}%"
+        return 0.0, "本轮未抽样"
+    return round(W_REAL * (min(1.0, pct / 0.7) ** 0.8), 1), f"{o}/{t} = {pct * 100:.0f}%"
+
+
+def _d_realn(row):
+    """真实可用条数 → 10 分，对数刻度。800 条封顶：再多也是同一批死号池。"""
+    import math
+    _, o, t = real_of(row)
+    if not t:
+        return 0.0, "无数据"
+    return round(W_REALN * min(1.0, math.log(1 + o) / math.log(801)), 1), f"可用 {o} 条"
+
+
+def _d_conf(row):
+    """样本置信 → 4 分。60 条以下按比例给：10 条样本里通 9 条，
+    说明不了这个源好，只说明这次抽到的 10 条还行。"""
+    _, _, t = real_of(row)
+    if not t:
+        return 0.0, "无样本"
+    return round(W_CONF * min(1.0, t / 60), 1), f"样本 {t} 条"
+
+
+def _d_tcp(row):
+    """TCP 可连率 → 8 分（辅助）。
+
+    没有真实数据的源，这一项的上限提到 8 + 0.6×32 = 27.2：端口证据比握手
+    证据弱，但总比「没测就 0 分」合理。真实数据一旦有了，立刻退回 8 分，
+    不再让端口通不通影响排名。
+    """
+    pct = _num(row.get("alive_pct"))
+    _, _, t = real_of(row)
+    full = W_TCP + (W_REAL * 0.6 if not t else 0)
+    if pct is None:
+        return round(full * 0.5, 1), "未抽样，按中位计"
+    return round(full * min(1.0, max(0.0, pct / 100) / 0.7), 1), f"可连 {pct:.0f}%"
 
 
 def _d_unique(row):
@@ -85,7 +139,7 @@ def _d_unique(row):
         return 0.0, "无独立新增"
     import math
     v = min(1.0, math.log(1 + u) / math.log(1501))
-    return round(W_UNIQUE * v, 1), f"独立 {int(u)} 条"
+    return round(W_UNIQ * v, 1), f"独立 {int(u)} 条"
 
 
 def _d_ratio(row):
@@ -110,46 +164,75 @@ def _d_fresh(row):
 
 
 def _d_stable(row, hist):
-    """稳定性 → 18 分 = 连续失败 12 + 可连率波动 6。
+    """稳定性 → 14 分 = 连续失败 10 + 近六轮波动 4。
 
     连续失败是「源本身挂了」的直接证据，权重必须高；
     波动只惩罚忽高忽低的源，避免把「本来就 20% 但一直 20%」判成不稳。
+    波动优先用真实可用率的序列，老历史没有这个字段时退回 TCP 可连率。
     """
     streak = int(_num(row.get("fails_streak"), 0) or 0)
-    fail_pts = {0: 12, 1: 8, 2: 4}.get(streak, 0)
-    rates = [h.get("alive_pct") for h in (hist or [])[-6:]
-             if h.get("alive_pct") is not None]
+    fail_pts = {0: 10, 1: 7, 2: 3}.get(streak, 0)
+    rates = []
+    for h in (hist or [])[-6:]:
+        v = h.get("real_pct")
+        if v is None:
+            v = h.get("alive_pct")
+        if v is not None:
+            rates.append(v)
     if len(rates) < 2:
-        var_pts, var_note = 3.0, "历史不足"
+        var_pts, var_note = 2.0, "历史不足"
     else:
         spread = max(rates) - min(rates)
-        var_pts = 6.0 if spread <= 8 else 4.5 if spread <= 15 else 3.0 if spread <= 25 else 1.5
+        var_pts = 4.0 if spread <= 8 else 3.0 if spread <= 15 else 2.0 if spread <= 25 else 1.0
         var_note = f"近 {len(rates)} 轮波动 {spread:.0f}pp"
     return round(fail_pts + var_pts, 1), f"连败 {streak} · {var_note}"
 
 
 def _d_comply(row):
-    """合规与来源类型 → 10 分。
+    """合规与来源类型 → 6 分。
 
     许可证不是质量问题，但它决定「这个源能不能被合法再分发」，
-    所以在总分里只占 4 分，同时单独列在报告里提示人工确认。
+    所以在总分里只占 3 分，同时单独列在报告里提示人工确认。
+    原创 3 / 聚合 3——以前原创多给 3 分，等于给「自己抓」这件事发奖金，
+    但用户不关心节点是原创还是转载，只关心能不能用。
     """
     lic = (row.get("license") or "").strip()
-    lic_pts = 4.0 if lic else 0.0
-    type_pts = 6.0 if row.get("type") == "original" else 3.0
+    lic_pts = 3.0 if lic else 0.0
+    type_pts = 3.0
     note = ("有许可证 " + lic) if lic else "仓库未声明许可证"
     note += " · 原创" if row.get("type") == "original" else " · 聚合"
     return round(lic_pts + type_pts, 1), note
 
 
+def cap_grade(g, tested):
+    """样本不足不得评最高级。
+
+    10 条样本里通 9 条，与 90 条里通 81 条，可用率一样但证据强度差一个量级。
+    没有真实数据时连 B 以上都不给——「没测过」不该和「测了很好」同级。
+    """
+    idx = GRADE_ORDER.index(g)
+    if not tested:
+        return GRADE_ORDER[max(idx, 2)]     # 最高 B
+    if tested < 20:
+        return GRADE_ORDER[max(idx, 1)]     # 最高 A
+    return g
+
+
 def score_row(row, hist=None):
     """→ (score, dims)。dims 是 [(维度, 得分, 满分, 说明)]，报告直接用它展示扣分点。"""
+    # 没有真实数据时 TCP 项的满分会被抬高（补偿），所以这里要动态算，
+    # 否则报告里会出现「得分 27.2 / 满分 8」这种自相矛盾的格子
+    _, _, _t = real_of(row)
+    tcp_full = W_TCP + (W_REAL * 0.6 if not _t else 0)
     parts = [
-        ("可连率", _d_alive(row), W_ALIVE),
-        ("独立新增", _d_unique(row), W_UNIQUE),
+        ("真实可用率", _d_real(row), W_REAL),
+        ("真实可用条数", _d_realn(row), W_REALN),
+        ("样本置信", _d_conf(row), W_CONF),
+        ("独立新增", _d_unique(row), W_UNIQ),
         ("独立率", _d_ratio(row), W_RATIO),
         ("新鲜度", _d_fresh(row), W_FRESH),
         ("稳定性", _d_stable(row, hist), W_STABLE),
+        ("TCP 可连率", _d_tcp(row), tcp_full),
         ("合规/类型", _d_comply(row), W_COMPLY),
     ]
     dims = [(name, v[0], full, v[1]) for name, v, full in parts]
@@ -280,7 +363,8 @@ def annotate(rows, history=None, stamp=None, persist=True):
         score, dims = score_row(row, series)
         failed = is_failed(row)
         state = next_state(prev_state, failed, int(row.get("fails_streak") or 0))
-        g = grade_of(score)
+        _, _, _rt = real_of(row)
+        g = cap_grade(grade_of(score), _rt)
         if state == "degraded":
             g = downgrade(g, 1)
         elif state == "isolated":
@@ -301,15 +385,19 @@ def annotate(rows, history=None, stamp=None, persist=True):
                       if isinstance(row.get("parsed"), int) else None)
         row["dup_rate"] = (round(row["dup"] / row["parsed"] * 100, 1)
                            if isinstance(row.get("parsed"), int) and row["parsed"] else None)
-        al = _num(row.get("alive_pct"))
-        row["effective"] = (round(row["unique"] * al / 100) if al is not None else None)
+        rp = _num(row.get("real_pct"))
+        # 「有效节点数」以前按 TCP 可连率折算，等于把端口开着当成能用。
+        # 现在按真实可用率折算；没测过就留空，不用 0 冒充
+        row["effective"] = (round(row["unique"] * rp / 100)
+                            if rp is not None else None)
 
         # 轮次标识用 stamp 而不是 row.checked_at：后者在回放/重算时可能被复用，
         # 会让多轮历史互相覆盖，penalty 永远算不出来
         entry = {"ts": stamp, "score": score, "grade": g,
                  "state": state, "parsed": row.get("parsed"), "unique": row["unique"],
-                 "alive_pct": row.get("alive_pct"), "fails_streak": row.get("fails_streak"),
-                 "penalty": penalty}
+                 "alive_pct": row.get("alive_pct"), "real_pct": row.get("real_pct"),
+                 "rtest": row.get("rtest"), "rok": row.get("rok"),
+                 "fails_streak": row.get("fails_streak"), "penalty": penalty}
         # 同一轮重跑（--render、本地调试）应该覆盖而不是追加
         if series and series[-1].get("ts") == entry["ts"]:
             series[-1] = entry
@@ -334,22 +422,31 @@ METHOD = """# P4：来源质量评分与淘汰
 
 | 维度 | 满分 | 计算方式 |
 |---|---:|---|
-| 可连率 | 40 | 抽样 TCP 可连率，70% 封顶；`40 × min(1, 率/0.7)^0.8` |
-| 独立新增 | 12 | 只被本源包含的指纹数，对数刻度，1,500 条封顶 |
-| 独立率 | 8 | 独立新增 / 原始解析，50% 封顶 |
-| 新鲜度 | 12 | 源内容 2 小时内更新满分，7 天以上 0 |
-| 稳定性 | 18 | 连续失败 12（0/1/2/≥3 轮 → 12/8/4/0）+ 近 6 轮可连率波动 6 |
-| 合规/类型 | 10 | 有 SPDX 许可证 4 + 原创 6 / 聚合 3 |
+| **真实可用率** | 32 | mihomo 真握手 `可用/样本`，70% 封顶；`32 × min(1, 率/0.7)^0.8` |
+| **真实可用条数** | 10 | 可用条数的对数刻度，800 条封顶 |
+| 样本置信 | 4 | 60 条样本以下按比例；没有样本记 0 |
+| 独立新增 | 10 | 只被本源包含的指纹数，对数刻度，1,500 条封顶 |
+| 独立率 | 6 | 独立新增 / 原始解析，50% 封顶 |
+| 新鲜度 | 10 | 源内容 2 小时内更新满分，7 天以上 0 |
+| 稳定性 | 14 | 连续失败 10（0/1/2/≥3 轮 → 10/7/3/0）+ 近 6 轮真实可用率波动 4 |
+| TCP 可连率 | 8 | 抽样端口可连率，**只作辅助**；无真实数据时上限抬到 27.2 作补偿 |
+| 合规/类型 | 6 | 有 SPDX 许可证 3 + 原创/聚合 3 |
 
-等级：**S 90–100 · A 80–89 · B 65–79 · C 50–64 · D <50**。
+等级：**S 90–100 · A 80–89 · B 65–79 · C 50–64 · D <50**，另有两条上限：
 
-三个刻意的设计：
+- **没有真实握手数据 → 最高 B**。没测过不该和测了很好同级。
+- **样本 < 20 条 → 最高 A**。10 条里通 9 条说明不了什么。
 
-1. **可连率占 40 分**，因为它是唯一能证明「节点真能用」的指标。任务书要求
-   「不盲目堆数量」，把独立新增压到 12 分就是这句话的量化版本。
-2. **独立新增按「指纹」算，不按地址**。同机不同 UUID 是两个节点，
+四个刻意的设计：
+
+1. **真实可用率占 32 分，TCP 只占 8 分**。上一版把 40 分给了 TCP，直接后果是
+   「端口全通、真握手 0/90」的源拿 A 级并排在第一位。端口开着只说明有程序在听，
+   不说明 uuid 还有效。
+2. **样本量单独计分**，而不是给可用率加个系数。这样报告里能直接指出
+   「它是 95%，但只有 8 条样本」，用户自己就能打折。
+3. **独立新增按「指纹」算，不按地址**。同机不同 UUID 是两个节点，
    同 UUID 换域名是一个节点——地址级比对两头都会错。
-3. **许可证只占 4 分**。它决定能不能合法再分发，是合规问题不是质量问题；
+4. **许可证只占 3 分**。它决定能不能合法再分发，是合规问题不是质量问题；
    但每一行都会在报告里标出来，`未声明` 需要人工确认。
 
 ## 2. 淘汰状态机
@@ -395,11 +492,12 @@ def render_report(rows, hist):
     out.append("状态：" + "　".join(f"{STATE_LABEL[k]} {v}" for k, v in sc.items()) + "\n")
 
     out.append("## 4. 来源明细\n")
-    out.append("| 等级 | 分数 | 来源 | 类型 | 声明 | 解析 | 与他源重复 | 独立新增 | 有效 | 重复率 | 可连 | 新鲜 | 状态 |")
+    out.append("| 等级 | 分数 | 来源 | 类型 | 声明 | 解析 | 与他源重复 | 独立新增 | 有效 | 重复率 | 真实可用 | 新鲜 | 状态 |")
     out.append("|:--:|---:|---|---|---:|---:|---:|---:|---:|---:|---|---|")
     for r in rows:
         fresh = r.get("source_age_h")
         fresh_s = "—" if fresh is None else (f"{fresh:.0f}h" if fresh < 48 else f"{fresh / 24:.0f}d")
+        rt = (f"{r.get('rok')}/{r.get('rtest')}" if r.get("rtest") else "—")
         out.append(
             f"| **{r.get('grade')}** | {r.get('score')} | {r.get('name')} | "
             f"{'原创' if r.get('type') == 'original' else '聚合'} | "
@@ -409,13 +507,13 @@ def render_report(rows, hist):
             f"{r.get('unique')} | "
             f"{r.get('effective') if r.get('effective') is not None else '—'} | "
             f"{(str(r.get('dup_rate')) + '%') if r.get('dup_rate') is not None else '—'} | "
-            f"{(str(r.get('alive_pct')) + '%') if r.get('alive_pct') is not None else '—'} | "
+            f"{rt} | "
             f"{fresh_s} | {r.get('state_label')} |")
 
     out.append("\n> **声明**是源文件自己写的条数，**解析**是实际能解析出来的条数，"
                "两者差距大说明源文格式有问题；**与他源重复**是与至少一个其他源指纹相同的条数；"
-               "**有效** = 独立新增 × 抽样可连率，是**估计值**，抽样只有 24 个，"
-               "±10 个百分点属正常波动，不能当成精确的可用节点数。\n")
+               "**真实可用**是 mihomo 真握手的结果（可用/样本），未抽样显示「—」，不填 0；"
+               "**有效** = 独立新增 × 真实可用率，是估计值，抽样 90 条，±5 个百分点属正常波动。\n")
 
     # 扣分点
     out.append("## 5. 各源扣分点\n")
@@ -454,29 +552,44 @@ def render_report(rows, hist):
     out.append("## 7. 结论\n")
     if rows:
         top, bot = rows[0], rows[-1]
+
+        def _rtxt(r):
+            if not r.get("rtest"):
+                return "本轮未抽样"
+            return f"真实可用 {r.get('rok')}/{r.get('rtest')}（{r.get('real_pct')}%）"
+
         out.append(f"- 最高 **{top['name']}**（{top['grade']} {top['score']}）："
-                   f"可连 {top.get('alive_pct')}%，独立新增 {top.get('unique')} 条。")
+                   f"{_rtxt(top)}，独立新增 {top.get('unique')} 条。")
         out.append(f"- 最低 **{bot['name']}**（{bot['grade']} {bot['score']}）："
-                   f"可连 {bot.get('alive_pct')}%，独立新增 {bot.get('unique')} 条。")
+                   f"{_rtxt(bot)}，独立新增 {bot.get('unique')} 条。")
         if "S" not in [r.get("grade") for r in rows]:
-            out.append("- **本轮没有 S 级源**。S 要求可连率 ≥70% 且独立新增 ≥1,500 条同时成立——"
+            out.append("- **本轮没有 S 级源**。S 要求真实可用率 ≥70% 且独立新增 ≥1,500 条同时成立——"
                        "这个领域里「量」和「可用」是负相关的（P2 §4③ 已实测），"
                        "没有源能同时满足，不是数据缺失。")
-        dead = [r for r in rows if (r.get("alive_pct") or 100) < 10]
+        dead = [r for r in rows
+                if r.get("real_pct") is not None and r["real_pct"] < 10]
         if dead:
-            out.append("- 可连率 <10%（发出的节点基本用不了）："
-                       + "、".join(f"{r['name']} {r.get('alive_pct')}%" for r in dead)
+            out.append("- 真实可用率 <10%（发出的节点基本用不了）："
+                       + "、".join(f"{r['name']} {r.get('rok')}/{r.get('rtest')}" for r in dead)
                        + "。按任务书 §5 属于异常，但**单轮不足以淘汰**——先看下一轮是否复现。")
+        nohit = [r for r in rows if not r.get("rtest")]
+        if nohit:
+            out.append("- 本轮没有真实样本（记「—」，不按 0 算）："
+                       + "、".join(r["name"] for r in nohit)
+                       + "。这类源最高只能到 B 级，等下一轮抽到再定。")
         sub = [r for r in rows if (r.get("unique") or 0) == 0]
         if sub:
             out.append("- 独立新增为 0（完全被其他源包含）："
                        + "、".join(r["name"] for r in sub)
                        + "。这类源的价值是「别人已经帮你筛过」，不是扩容；"
-                       "保留是因为可连率可能更高，但不必期待它带来新节点。")
-        big_dead = [r for r in rows if (r.get("unique") or 0) >= 500 and (r.get("alive_pct") or 100) < 20]
+                       "保留是因为真实可用率可能更高，但不必期待它带来新节点。")
+        big_dead = [r for r in rows
+                    if (r.get("unique") or 0) >= 500
+                    and r.get("real_pct") is not None and r["real_pct"] < 20]
         if big_dead:
-            out.append("- 独立新增多但可连率 <20%："
-                       + "、".join(f"{r['name']}（{r.get('unique')} 条 / {r.get('alive_pct')}%）" for r in big_dead)
+            out.append("- 独立新增多但真实可用率 <20%："
+                       + "、".join(f"{r['name']}（{r.get('unique')} 条 / "
+                                  f"{r.get('rok')}/{r.get('rtest')}）" for r in big_dead)
                        + "。这是最需要警惕的一类——**看起来贡献很大，实际能用的很少**，"
                        "订阅里塞进去的主要是死条目。")
     out.append("")
@@ -490,14 +603,32 @@ def selftest():
             "format": "clash", "license": "MIT", "priority": 5, "checked_at": "t",
             "http": 200, "parsed": 1000, "declared": 1000, "kept": 800, "unique": 800,
             "probe_total": 24, "probe_ok": 20, "alive_pct": 83, "fails_streak": 0,
+            "rtest": 90, "rok": 76, "real_pct": 84.4,
             "last_error": None, "source_age_h": 1.0}
     checks = []
 
     sc, _ = score_row(base)
     checks.append(("高质量源落在 S/A", grade_of(sc) in ("S", "A"), f"{sc} {grade_of(sc)}"))
 
+    # 没有真实握手数据的源：TCP 全通也只按 60% 补偿，总分上不了 S/A
+    nohit = dict(base, rtest=0, rok=0, real_pct=None)
+    sn, _ = score_row(nohit)
+    checks.append(("无真实数据不能进 S/A", sn < 80 and cap_grade(grade_of(sn), 0) == "B",
+                   f"{sn} → {cap_grade(grade_of(sn), 0)}"))
+
+    # 样本不足：10 条全通也只是 A，不给 S
+    checks.append(("样本 <20 最高只能 A", cap_grade("S", 10) == "A", "S→A"))
+    checks.append(("样本 ≥20 不受限", cap_grade("S", 90) == "S", "S→S"))
+
+    # 端口通、真握手全挂：这条以前会拿 A 级
+    tcp_only = dict(base, rtest=90, rok=0, alive_pct=100, real_pct=0.0)
+    so, _ = score_row(tcp_only)
+    checks.append(("端口全通但零可用只能到 C 及以下", grade_of(so) in ("C", "D"),
+                   f"{so} {grade_of(so)}"))
+
     bad = dict(base, alive_pct=5, unique=0, parsed=2000, type="aggregator",
-               license=None, source_age_h=400, fails_streak=1)
+               license=None, source_age_h=400, fails_streak=1,
+               rtest=90, rok=0, real_pct=0.0)
     checks.append(("差源落在 D", grade_of(score_row(bad)[0]) == "D", f"{score_row(bad)[0]}"))
 
     seq, prev = [], "ok"
