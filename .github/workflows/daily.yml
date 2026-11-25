@@ -163,7 +163,8 @@ jobs:
       # 这里命中即中断——异常凭据不会进公开仓库。
       - name: 公开产物脱敏审计
         if: steps.gate.outputs.skip != 'true'
-        run: python3 audit_privacy.py
+        # P27：--git 让 git 全历史令牌检查也成为发布门禁（checkout 带历史）
+        run: python3 audit_privacy.py --git
 
       # 发布门禁：页面、数据、订阅、状态必须同一轮同一个数，且产物哈希
       # 与 manifest 吻合。旧版时间正则认不出「2026-11-25 14:15」，把相差

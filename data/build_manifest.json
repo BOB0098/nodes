@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "build_id": "20261125T1415-4e0ce209f5",
-  "generated_at": "2026-11-25T15:49:08+08:00",
+  "build_id": "20261125T1415-b5105b50d0",
+  "generated_at": "2026-11-25T15:58:08+08:00",
   "timezone": "Asia/Shanghai (+08:00)",
   "data_basis_ts": 1795587300,
   "counts": {
@@ -35,8 +35,8 @@
     "index_html": {
       "path": "index.html",
       "desc": "内嵌 DATA 的页面",
-      "sha256": "4e426c8319a7909c9618d8a9aa5955fe4784518e0b0e52e98ec61965ae604c8d",
-      "bytes": 82500,
+      "sha256": "b3cb0688b7a0d10a307ee1cf54f3db71736ad7551c31a433eedd9057c181da48",
+      "bytes": 82826,
       "updated_raw": "11-25 14:02",
       "updated_ts": 1795586520
     },
@@ -107,7 +107,7 @@
   },
   "pipeline": {
     "run_id": "p23-final",
-    "started_at": "2026-11-25T15:49:08+08:00",
+    "started_at": "2026-11-25T15:54:34+08:00",
     "stages_ok": [
       "collect",
       "detect",

@@ -54,6 +54,7 @@
   /* 强调：近黑。编号方块、选中入口、主按钮共用 */
   --solid:#000000;--solid-press:#1C1C1E;--on-solid:#FFFFFF;
   --accent:#007AFF;
+  --accent-ink:#0A5FD0;   /* 小号彩色文字用，保证淡蓝底上 4.5:1（P27） */
 
   /* 语义：图形用标准色，文字用深一档保证 4.5:1 */
   --ok:#34C759;--ok-ink:#248A3D;
@@ -99,6 +100,9 @@
     --ink-url:light-dark(#1C1C1E,#EBEBF5);
     --solid:light-dark(#000000,#FFFFFF);--solid-press:light-dark(#1C1C1E,#E5E5EA);--on-solid:light-dark(#FFFFFF,#000000);
     --accent:light-dark(#007AFF,#0A84FF);
+    /* P27：小号文字压在淡蓝底上，--accent 只有 3.5:1 不够 WCAG AA 4.5:1。
+       此 token 专供 .sec-tag 这类「彩色文字」，浅/暗都达到 5:1 以上。 */
+    --accent-ink:light-dark(#0A5FD0,#5FA8FF);
     --ok:light-dark(#34C759,#30D158);--ok-ink:light-dark(#248A3D,#30D158);
     --warn:light-dark(#FF9500,#FF9F0A);--warn-ink:light-dark(#C93400,#FF9F0A);
     --bad:light-dark(#FF3B30,#FF453A);--bad-ink:light-dark(#D70015,#FF453A);
@@ -230,7 +234,7 @@ details.fold[open] .fold-hint:after{transform:rotate(180deg)}
 .sec-t{margin:0 0 7px}
 /* 标题小框：iOS 蓝描边浅蓝底，压在玻璃面板上做视觉锚点 */
 .sec-t-c{display:flex;align-items:center;justify-content:center;gap:8px}
-.sec-tag{display:inline-block;font-size:12.5px;font-weight:var(--fwb);color:var(--accent);
+.sec-tag{display:inline-block;font-size:12.5px;font-weight:var(--fwb);color:var(--accent-ink);
   background:light-dark(rgba(0,122,255,.1),rgba(10,132,255,.18));
   border:1px solid light-dark(rgba(0,122,255,.3),rgba(10,132,255,.42));
   border-radius:8px;padding:3px 10px;letter-spacing:.01em}
@@ -390,7 +394,7 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
   margin-top:10px;transition:background .2s var(--e-out)}
 .url:active{background:var(--surf-solid)}
 /* 主按钮：近黑实底，44px 胶囊 */
-.cbtn{width:100%;margin-top:9px;border:0;border-radius:var(--r-pill);height:42px;padding:0 16px;
+.cbtn{width:100%;margin-top:9px;border:0;border-radius:var(--r-pill);height:44px;padding:0 16px;
   font-family:inherit;font-size:14px;font-weight:var(--fwb);line-height:normal;color:var(--on-solid);cursor:pointer;
   background:var(--solid);box-shadow:var(--sh-press);
   transition:background .3s var(--e-out),box-shadow .3s var(--e-out),transform .34s var(--e-spring),opacity .26s var(--e-out)}
@@ -404,7 +408,7 @@ h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--f
 .acts .cbtn{margin-top:0;flex:1;min-width:0}
 /* 二维码按钮：原来是白底，跟半透明白的卡片贴在一起就消失了。
    改成和主按钮同一块近黑实底，只有图标反白，视觉上是一组、又各自清楚 */
-.qbtn{flex:0 0 42px;height:42px;padding:0;border:1px solid var(--solid);border-radius:var(--r-pill);
+.qbtn{flex:0 0 44px;height:44px;padding:0;border:1px solid var(--solid);border-radius:var(--r-pill);
   display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--on-solid);
   background:var(--solid);box-shadow:var(--sh-press);font-family:inherit;
   transition:background .22s var(--e-out),color .22s var(--e-out),transform .2s var(--e-spring)}
