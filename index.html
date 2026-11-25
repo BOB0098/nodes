@@ -1,687 +1,402 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<!-- 不锁 maximum-scale：锁住之后安卓/iOS 双指放大失效，低视力用户没法看清明细 -->
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#FAFBFC" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0B0C0F" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F3F2F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1A24" media="(prefers-color-scheme: dark)">
+<meta name="description" content="免费节点订阅索引：三协议分组、真实可用率、一键复制与二维码导入。">
 <title>节点配置链接 · 免费节点订阅索引</title>
-<meta name="description" content="免费节点订阅索引：每 3 小时自动采集 14 条公开订阅源（Clash / V2Ray / sing-box），实测可连率与源新鲜度，按质量排序，一键复制或扫码导入客户端。">
-<link rel="canonical" href="https://bob0098.github.io/nodes/">
-<!-- 分享卡片：微信 / Telegram / X 抓不到 og 就只显示一个裸标题 -->
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="节点配置链接">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:title" content="节点配置链接 · 免费节点订阅索引">
-<meta property="og:description" content="每 3 小时自动采集 14 条公开订阅源，实测可连率与新鲜度、按质量排序，一键复制或扫码导入。">
-<meta property="og:url" content="https://bob0098.github.io/nodes/">
-<meta property="og:image" content="https://bob0098.github.io/nodes/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="节点配置链接 —— 免费节点订阅索引">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="节点配置链接 · 免费节点订阅索引">
-<meta name="twitter:description" content="每 3 小时自动采集 14 条公开订阅源，实测可连率与新鲜度、按质量排序，一键复制或扫码导入。">
-<meta name="twitter:image" content="https://bob0098.github.io/nodes/og.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B0C0F'/%3E%3Cg stroke='%23fff' stroke-width='1.6' stroke-linecap='round' opacity='.55'%3E%3Cpath d='M16 16 9.5 10M16 16l6.5-6M16 16 9.5 22M16 16l6.5 6'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Ccircle cx='16' cy='16' r='3.1'/%3E%3Ccircle cx='9.5' cy='10' r='1.9'/%3E%3Ccircle cx='22.5' cy='10' r='1.9'/%3E%3Ccircle cx='9.5' cy='22' r='1.9'/%3E%3Ccircle cx='22.5' cy='22' r='1.9'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230B0C0F'/%3E%3Cg fill='%23fff'%3E%3Ccircle cx='16' cy='16' r='4'/%3E%3Ccircle cx='9' cy='9' r='2.4'/%3E%3Ccircle cx='23' cy='9' r='2.4'/%3E%3Ccircle cx='9' cy='23' r='2.4'/%3E%3Ccircle cx='23' cy='23' r='2.4'/%3E%3C/g%3E%3C/svg%3E">
 <style>
-
-/* ── 免责声明 ─────────────────────────────────────────────────────── */
-.disc{margin:16px 0 0;font-size:11px;line-height:1.75;color:var(--ink-3);text-align:center}
-.disc-a{padding:12px 8px 0;opacity:.8;letter-spacing:.02em}
-/* ── 设计 token ───────────────────────────────────────────────────────────
-   亮色为基准。颜色 / 圆角 / 间距 / 字号全部集中在这里，改版只动这一段。  */
+/* ═══════════════ 设计系统 token（第三版）═══════════════
+   首页浅灰紫白；详情弹层独立暖米白；协议识别色低饱和。
+   改版只动这一段，不碰采集逻辑。 */
 :root{
-  /* 底色：纸白 → 浅灰，左上角一层白色径向高光，无点阵无彩色光斑 */
-  --bg-a:#F2F2F7;--bg-b:#F2F2F7;--bg-c:#F2F2F7;
-  --glow:rgba(255,255,255,.96);
-
-  /* 面：半透明白 + 背景模糊，靠明度差分层，不靠边框 */
-  --surf:#FFFFFF;
-  --surf-solid:#FFFFFF;
-  --surf-flat:#F2F2F7;
-  --card-bg:#FFFFFF;--card-line:#FFFFFF;
-  --frost:#FFFFFF;
-  --stroke:rgba(60,60,67,.12);
-
-  /* 字 */
-  --ink:#1C1C1E;--ink-2:#3C3C43;--ink-3:#8E8E93;
-  --ink-url:#1C1C1E;
-
-  /* 强调：近黑。编号方块、选中入口、主按钮共用 */
-  --solid:#000000;--solid-press:#1C1C1E;--on-solid:#FFFFFF;
-  --accent:#007AFF;
-  --accent-ink:#0A5FD0;   /* 小号彩色文字用，保证淡蓝底上 4.5:1（P27） */
-
-  /* 语义：图形用标准色，文字用深一档保证 4.5:1 */
-  --ok:#34C759;--ok-ink:#248A3D;
-  --warn:#FF9500;--warn-ink:#C93400;
-  --bad:#FF3B30;--bad-ink:#D70015;
-  --warn-bg:rgba(255,149,0,.12);
-  --ok-bg:rgba(52,199,89,.12);--ok-line:rgba(52,199,89,.32);
-  --bad-bg:rgba(255,59,48,.1);
-  --track:#E5E5EA;
-
-  /* 圆角 */
-  --r-card:12px;--r-sq:8px;--r-sub:9px;--r-pill:999px;
-
-  /* 间距：8 的倍数，收紧一档让一屏多露内容 */
-  --sp-page:13px;--sp-card:12px;--sp-gap:8px;
-
-  /* 动效 */
+  --bg:#F3F2F8; --surface:#FFFFFF; --surface-2:#F9F8FC;
+  --ink:#252536; --ink-2:#777789; --ink-3:#A1A0AE; --line:#E8E6EF;
+  --accent:#8178D8; --accent-soft:rgba(129,120,216,.10); --accent-line:rgba(129,120,216,.18);
+  --c-clash:#887CE0; --c-v2ray:#69B99A; --c-singbox:#A27BD2;
+  --ok:#5FA981; --warn:#D9954B; --bad:#D97070;
+  --ok-ink:#3E7C5E; --warn-ink:#A66724; --bad-ink:#B14C4C;
+  --r-card:14px; --r-sub:11px; --r-btn:11px;
+  --sh-1:0 1px 2px rgba(37,37,54,.05),0 8px 24px rgba(37,37,54,.06);
+  --sh-2:0 1px 2px rgba(37,37,54,.04),0 4px 14px rgba(37,37,54,.05);
+  --sh-press:0 1px 3px rgba(37,37,54,.10) inset;
   --e-out:cubic-bezier(.22,.61,.36,1);
-  --e-spring:cubic-bezier(.34,1.48,.64,1);
-  --e-press:cubic-bezier(.3,0,.5,1);
-
-  /* 阴影：近黑低透明度，两层——贴地一层 + 远处一层 */
-  --sh-1:0 1px 2px rgba(15,23,42,.05),0 6px 16px rgba(15,23,42,.055);
-  --sh-2:0 1px 2px rgba(15,23,42,.04),0 4px 12px rgba(15,23,42,.05);
-  --sh-press:0 1px 2px rgba(15,23,42,.06);
-
-  --fwh:700;--fwb:600;
+  --sp:14px;
+  --font:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
 }
-/* 明暗成对：一条声明同时给两种主题，不写整段 @media 覆盖 */
-@supports (color: light-dark(#000,#fff)){
+/* 详情弹层专用配色：暖米白，与首页区分 */
+.dmodal{
+  --d-bg:#F7F2EA; --d-surface:#FFFCF7; --d-ink:#302E32; --d-ink-2:#817A78;
+  --d-btn:#8174C9; --d-btn-ink:#FFFFFF; --d-line:#EAE2D8;
+}
+/* 深色模式：保持同一视觉语言，降低亮度，纯色背景 */
+@media (prefers-color-scheme: dark){
   :root{
-    color-scheme:light dark;
-    --bg-a:light-dark(#F8FAFC,#0B0C0F);--bg-b:light-dark(#EEF2F8,#101216);--bg-c:light-dark(#E9EEF5,#14161B);
-    --glow:light-dark(rgba(255,255,255,.96),rgba(255,255,255,.05));
-    --surf:light-dark(#FFFFFF,#1C1C1E);
-    --surf-solid:light-dark(#FFFFFF,#2C2C2E);
-    --surf-flat:light-dark(#F2F2F7,#2C2C2E);
-    --card-bg:light-dark(#FFFFFF,#1C1C1E);
-    --card-line:light-dark(#FFFFFF,#2C2C2E);
-    --frost:light-dark(rgba(255,255,255,.6),rgba(255,255,255,.11));
-    --stroke:light-dark(rgba(60,60,67,.12),rgba(84,84,88,.4));
-    --ink:light-dark(#1C1C1E,#FFFFFF);--ink-2:light-dark(#3C3C43,#EBEBF5);--ink-3:light-dark(#8E8E93,#98989F);
-    --ink-url:light-dark(#1C1C1E,#EBEBF5);
-    --solid:light-dark(#000000,#FFFFFF);--solid-press:light-dark(#1C1C1E,#E5E5EA);--on-solid:light-dark(#FFFFFF,#000000);
-    --accent:light-dark(#007AFF,#0A84FF);
-    /* P27：小号文字压在淡蓝底上，--accent 只有 3.5:1 不够 WCAG AA 4.5:1。
-       此 token 专供 .sec-tag 这类「彩色文字」，浅/暗都达到 5:1 以上。 */
-    --accent-ink:light-dark(#0A5FD0,#5FA8FF);
-    --ok:light-dark(#34C759,#30D158);--ok-ink:light-dark(#248A3D,#30D158);
-    --warn:light-dark(#FF9500,#FF9F0A);--warn-ink:light-dark(#C93400,#FF9F0A);
-    --bad:light-dark(#FF3B30,#FF453A);--bad-ink:light-dark(#D70015,#FF453A);
-    --warn-bg:light-dark(rgba(255,149,0,.12),rgba(255,159,10,.16));
-    --ok-bg:light-dark(rgba(52,199,89,.12),rgba(48,209,88,.16));
-    --ok-line:light-dark(rgba(52,199,89,.32),rgba(48,209,88,.38));
-    --bad-bg:light-dark(rgba(255,59,48,.1),rgba(255,69,58,.16));
-    --track:light-dark(#E5E5EA,#48484A);
-    --sh-1:0 1px 2px light-dark(rgba(0,0,0,.04),rgba(0,0,0,.2));
-    --sh-2:0 1px 1px light-dark(rgba(0,0,0,.03),rgba(0,0,0,.15));
-    --sh-press:0 1px 2px light-dark(rgba(15,23,42,.06),rgba(0,0,0,.3));
+    --bg:#1B1A24; --surface:#262431; --surface-2:#222030;
+    --ink:#EDEBF5; --ink-2:#ABA9BC; --ink-3:#7E7C90; --line:#343141;
+    --accent:#9B93E8; --accent-soft:rgba(155,147,232,.14); --accent-line:rgba(155,147,232,.24);
+    --ok:#6FCB98; --warn:#E8A85F; --bad:#E88484;
+    --ok-ink:#7DD3A6; --warn-ink:#E8A85F; --bad-ink:#E88484;
+    --sh-1:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
+    --sh-2:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.24);
   }
-  /* 黑底白字视觉上更粗，字重降一档抵消 */
-  @media (prefers-color-scheme:dark){
-    :root{--fwh:600;--fwb:500}
+  .dmodal{
+    --d-bg:#2A2622; --d-surface:#332E27; --d-ink:#F4EDE3; --d-ink-2:#C0B5A8;
+    --d-btn:#9B8FE6; --d-btn-ink:#FFFFFF; --d-line:#4A4238;
   }
 }
-
-/* ── 手动主题 ────────────────────────────────────────────────────────────
-   只改 html 的 color-scheme，所有 light-dark() token 自动跟着翻面，不用复制一套配色。
-   [data-theme] 选择器比 :root 高一档，能盖住上面的系统偏好；字重一并跟随。 */
-html[data-theme="dark"]{color-scheme:dark;--fwh:600;--fwb:500}
-html[data-theme="light"]{color-scheme:light;--fwh:700;--fwb:600}
-
-/* ── 基础 ──────────────────────────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-/* clip 只裁剪、不新建滚动容器，不会关掉快速滚动；老浏览器退回 hidden */
-html,body{overflow-x:hidden;overflow-x:clip}
-/* 背景只留单层线性渐变：两层渐变会让 Chromium 为整个文档高度生成一张位图，
-   页面 5000px 高时这张图近 200 万像素。高光抽成 560px 高的独立层，只在顶部画 */
-body{position:relative;min-height:100vh;color:var(--ink);padding:0 var(--sp-page) 32px;
-  background:var(--bg-c);
-  -webkit-font-smoothing:antialiased;
-  font:13px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
-  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
-  transition:color .3s var(--e-out)}
-/* 苹果风：纯色底，无渐变无高光 */
-body:before{content:"";position:absolute;top:0;left:calc(-1 * var(--sp-page));right:calc(-1 * var(--sp-page));
-  height:560px;pointer-events:none;z-index:0;
-  background:radial-gradient(760px 520px at 0% -80px,var(--glow) 0%,transparent 70%)}
-.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
-
-/* 聚焦：贴底色内环 + 近黑外环，无边框元素也能看清焦点 */
-:focus-visible{outline:none}
-a:focus-visible,.cbtn:focus-visible,.qbtn:focus-visible,.qrx:focus-visible,.url:focus-visible{
-  box-shadow:0 0 0 2px var(--bg-a),0 0 0 4.5px rgba(17,19,24,.42)}
-
-.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;width:100%}
-
-/* ── 头部 ──────────────────────────────────────────────────────────────── */
-header{padding:16px 2px 10px}
-h1{font-size:22px;font-weight:var(--fwh);letter-spacing:-.01em;line-height:1.2;text-align:center;color:var(--ink);text-wrap:balance}
-.sub{color:var(--ink-2);font-size:17px;line-height:1.55;margin-top:8px;text-align:center;text-wrap:pretty}
-/* 时间行：字号压到 12.5px 并等宽数字，避免秒/分变化时整行抖动 */
-.sub.upd{font-size:12.5px;color:var(--ink-3);margin-top:7px;letter-spacing:.01em;font-variant-numeric:tabular-nums}
-.sub.upd b{font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
-.sub.upd .stale{color:var(--warn-ink)}
-.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
-.pill{background:var(--surf-solid);color:var(--ink-2);font-size:13px;font-weight:500;padding:5px 12px;
-  border-radius:var(--r-pill);border:1px solid var(--stroke);box-shadow:var(--sh-press)}
-/* 主题开关也是 pill，只是可点：不另起一套外观 */
-button.pill{font-family:inherit;line-height:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:5px;
-  transition:background .2s var(--e-out),color .2s var(--e-out),transform .18s var(--e-out)}
-button.pill:hover{color:var(--ink)}
-button.pill:active{transform:scale(.96)}
-
-/* ── 筛选 ───────────────────────────────────────────────────────────────── */
-.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:center;margin:12px 0 2px}
-.fbtn{font-family:inherit;font-size:11.5px;font-weight:500;color:var(--ink-2);background:var(--surf-solid);
-  border:1px solid var(--stroke);border-radius:var(--r-pill);padding:4px 11px;cursor:pointer;
-  box-shadow:var(--sh-press);transition:background .18s var(--e-out),color .18s var(--e-out),border-color .18s var(--e-out)}
-.fbtn:hover{color:var(--ink)}
-.fbtn[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
-.fbtn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg-a),0 0 0 4.5px rgba(17,19,24,.42)}
-.fcount{font-size:12px;color:var(--ink-3);margin-left:2px}
-.fempty{text-align:center;color:var(--ink-2);font-size:13.5px;line-height:1.8;padding:30px 16px}
-
-/* ── P21 可折叠区块：默认收起，只露标题，主内容（源列表）上移 ─────────── */
-details.fold{padding:0}
-details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  min-height:44px;padding:8px 13px;user-select:none}
-details.fold>summary::-webkit-details-marker{display:none}
-details.fold>summary:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
-details.fold>summary .sec-tag{margin:0}
-.fold-hint{font-size:11px;color:var(--ink-3);margin-left:auto}
-.fold-hint:after{content:"▾";display:inline-block;margin-left:4px;transition:transform .2s var(--e-out)}
-details.fold[open]>summary{border-bottom:1px solid var(--stroke)}
-details.fold[open] .fold-hint:after{transform:rotate(180deg)}
-.fold-body{padding:10px 13px 6px}
-.fold-body .cl-note{margin:0 0 4px}
-
-/* ── P21 工具栏：搜索 + 客户端筛选 + 排序 ─────────────────────────────── */
-.tools{margin:12px 0 2px;display:flex;flex-direction:column;gap:8px}
-.tool-search{width:100%}
-.tinput,.tselect{font-family:inherit;font-size:13px;color:var(--ink);background:var(--card-bg);
-  border:1px solid var(--stroke);border-radius:var(--r-sq);box-shadow:var(--sh-press);
-  min-height:44px;padding:0 12px;width:100%;box-sizing:border-box}
-.tinput::placeholder{color:var(--ink-3)}
-.tinput:focus-visible,.tselect:focus-visible{outline:none;border-color:var(--accent);
-  box-shadow:0 0 0 3px light-dark(rgba(0,122,255,.16),rgba(10,132,255,.28))}
-.tselect{cursor:pointer;appearance:none;-webkit-appearance:none;padding-right:34px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238E8E93' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center}
-.tool-row{display:flex;gap:8px}
-.tool-row>*{flex:1 1 0;min-width:0}
-.fclear{font-family:inherit;font-size:11.5px;color:var(--accent);background:none;border:0;
-  cursor:pointer;padding:8px 10px;min-height:44px;text-decoration:underline;text-underline-offset:2px}
-.fclear[hidden]{display:none}
-.fclear:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent);border-radius:6px}
-.fclear-clear{font-family:inherit;font-size:12.5px;color:var(--accent);background:var(--surf-solid);
-  border:1px solid var(--stroke);border-radius:var(--r-sq);cursor:pointer;min-height:44px;
-  padding:0 18px;margin-top:10px}
-.fclear-clear:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent)}
-@media (min-width:768px){
-  .tools{flex-direction:row;align-items:center;flex-wrap:wrap}
-  .tool-search{flex:2 1 240px;width:auto}
-  .tool-row{flex:1 1 320px}
-  .tools>.filters{flex:0 0 auto;margin:0}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--font);
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(66px + env(safe-area-inset-bottom,0px));
 }
-/* 触控区保证：筛选按钮与开关在移动端不小于 44px 高 */
-@media (max-width:767px){
-  .fbtn,.fclear{min-height:44px;display:inline-flex;align-items:center}
+.num{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* ── 页面容器 ── */
+.wrap{max-width:720px;margin:0 auto;padding:0 var(--sp)}
+.page[hidden]{display:none!important}
+.page{animation:fade .4s var(--e-out) both}
+
+/* ── 顶栏 ── */
+header{padding:22px 2px 16px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand .logo{
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#9188E4,#786DD0);color:#fff;
+  box-shadow:0 2px 6px rgba(129,120,216,.35);flex:none;
 }
+.brand .logo svg{width:17px;height:17px}
+.brand h1{font-size:21px;font-weight:750;letter-spacing:.3px;margin:0;line-height:1.2}
+.brand .tag{font-size:11px;color:var(--ink-3);margin-left:2px;align-self:flex-end;padding-bottom:3px}
+.head-meta{margin-top:9px;font-size:12px;color:var(--ink-2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.head-meta .dot{width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.head-meta b{color:var(--ink);font-weight:650}
+.head-meta .sep{color:var(--ink-3)}
 
-
-/* ── 「怎么用」区块 ────────────────────────────────────────────────────── */
-.sec{background:var(--card-bg);border:1px solid var(--card-line);border-radius:var(--r-card);
-  padding:12px 13px 10px;box-shadow:var(--sh-1);margin-bottom:10px}
-.sec-t{margin:0 0 7px}
-/* 标题小框：iOS 蓝描边浅蓝底，压在玻璃面板上做视觉锚点 */
-.sec-t-c{display:flex;align-items:center;justify-content:center;gap:8px}
-.sec-tag{display:inline-block;font-size:12.5px;font-weight:var(--fwb);color:var(--accent-ink);
-  background:light-dark(rgba(0,122,255,.1),rgba(10,132,255,.18));
-  border:1px solid light-dark(rgba(0,122,255,.3),rgba(10,132,255,.42));
-  border-radius:8px;padding:3px 10px;letter-spacing:.01em}
-.cl-note{font-size:10.5px;color:var(--ink-3);white-space:nowrap}
-.gs{display:flex;gap:9px;padding:6px 0}
-.gs .i{flex:0 0 20px;height:20px;border-radius:6px;color:var(--on-solid);font-size:10.5px;font-weight:var(--fwb);
-  display:flex;align-items:center;justify-content:center;background:var(--accent);align-self:flex-start;margin-top:1px}
-.gs div b{display:block;font-size:12.5px;font-weight:var(--fwb);color:var(--ink)}
-.gs div p{font-size:11.5px;color:var(--ink-2);line-height:1.55;margin-top:2px;text-wrap:pretty}
-
-/* ── 主流客户端：系统名定宽左轴 + 纯链接行，零装饰靠对齐 ────────────────── */
-.cl-row{display:flex;align-items:baseline;gap:4px 14px;flex-wrap:wrap;padding:5px 0}
-.cl-k{flex:0 0 44px;font-size:11.5px;font-weight:var(--fwb);color:var(--ink-2);white-space:nowrap}
-.clink{font-size:12.5px;font-weight:500;color:var(--accent);text-decoration:none;
-  white-space:nowrap;transition:opacity .16s var(--e-out)}
-.clink:active{opacity:.55}
-
-/* ── 分组标题 ──────────────────────────────────────────────────────────── */
-h2.gt{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:var(--fwh);margin:14px 0 3px;
-  color:var(--ink);letter-spacing:-.015em;text-wrap:balance}
-.badge{flex:0 0 23px;height:23px;border-radius:7px;color:var(--on-solid);font-size:12px;font-weight:var(--fwb);
-  display:flex;align-items:center;justify-content:center;background:var(--accent);font-variant-numeric:tabular-nums}
-.kern{margin-left:auto;font-size:10.5px;font-weight:var(--fwb);color:var(--ink-2);background:var(--surf-solid);
-  border:1px solid var(--stroke);padding:3px 8px;border-radius:var(--r-pill);white-space:nowrap}
-.gdesc{font-size:11.5px;color:var(--ink-2);margin:0 0 9px 32px;line-height:1.55;text-wrap:pretty}
-/* 客户端名整体不拆行：不然「Clash Meta for Android」换行会把 Android 甩到下一行 */
-.gdesc .cl{display:inline-block;white-space:nowrap}
-
-
-/* ── 卡片 ──────────────────────────────────────────────────────────────── */
-.card{background:var(--card-bg);border:1px solid var(--card-line);border-radius:var(--r-card);padding:var(--sp-card);margin-bottom:var(--sp-gap);
-  box-shadow:var(--sh-2);position:relative;
-  /* 屏幕外的卡片整块跳过渲染：11 张卡首屏只看得见 1–2 张，其余不做布局、绘制、光栅化。
-     实测卡片高 270–300px，估值偏差压在 ±20px 内，滚动条不会跳 */
-  content-visibility:auto;contain-intrinsic-size:260px;
-  transition:box-shadow .26s var(--e-out),transform .26s var(--e-out),background .3s var(--e-out)}
-@media (hover:hover){
-  .card:hover{transform:translateY(-2px);box-shadow:var(--sh-1)}
+/* ── 数据概览：三个核心指标 ── */
+.overview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 20px}
+.ov-item{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:14px 12px;box-shadow:var(--sh-2);text-align:center;
 }
-/* 推荐位：与普通卡同底，靠 iOS 蓝点标记 */
-.card.hi{background:var(--card-bg)}
-/* 卡头：三列网格。标题长了会在中列内部换行，右侧更新时间钉在第一行，不会掉到下一行去 */
-.ch{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:start}
-/* 序号进这一行，和标题首行同轴对齐；标题换了行，序号也不会飘到中间去 */
-.chl{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
-/* 序号：滑到第几条一眼能看到，筛选后重排 */
-.idx{flex:0 0 auto;font-size:10px;font-weight:var(--fwb);line-height:1.55;color:var(--ink-3);
-  background:var(--surf-flat);border-radius:5px;padding:0 5px;letter-spacing:.02em;
-  font-variant-numeric:tabular-nums}
-.tag{font-size:14px;font-weight:var(--fwb);color:var(--ink);letter-spacing:-.01em}
-.card.hi .tag:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
-  background:var(--accent);margin-right:6px;vertical-align:1px;box-shadow:0 0 0 3px rgba(0,122,255,.16)}
-.freq{font-size:10.5px;color:var(--ink-3);background:var(--surf-flat);
-  padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap;margin-top:1px}
-/* 节点数：辅助信息，压到标题之下——比正文略大、比标题明显小，且用次级墨色 */
-.cnum{display:flex;align-items:baseline;gap:5px;margin:7px 0 0}
-.cnum b{font-size:15px;font-weight:var(--fwb);line-height:1.3;letter-spacing:0;
-  font-variant-numeric:tabular-nums;color:var(--ink-2)}
-.cnum span{font-size:11px;color:var(--ink-3)}
-.cnote{font-size:12px;color:var(--ink-2);margin:6px 0 0;text-wrap:pretty;line-height:1.6}
-/* 客户端适配：淡绿细框小标签，只列能用的 */
-/* 客户端标签与更新时间同行：标签靠左，时间靠右，省一行 */
-.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 0}
-.cls{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0}
-.cc{font-size:10.5px;font-weight:500;line-height:1.75;padding:0 8px;border-radius:6px;
-  color:var(--ok-ink);background:var(--ok-bg);border:1px solid var(--ok-line);white-space:nowrap}
+.ov-item b{display:block;font-size:22px;font-weight:720;line-height:1.2;letter-spacing:.3px}
+.ov-item .unit{font-size:12px;font-weight:600;color:var(--ink-2);margin-left:1px}
+.ov-item span{display:block;font-size:11px;color:var(--ink-2);margin-top:5px}
+.ov-item.warn b{color:var(--warn-ink)}
 
-/* 源站自身异常：和节点可连率是两层事，只在源站超时 / 4xx / 5xx 时出现 */
-.srcbad{display:inline-block;font-size:11px;line-height:1.5;color:var(--bad-ink);
-  background:var(--bad-bg);border-radius:7px;padding:3px 9px;margin-top:7px;text-wrap:pretty}
-.srcbad[hidden]{display:none}
-
-/* 数据总览：四个数回答「这批节点里有多少真能用」。
-   没有数据时整块不出现，不用 0 或「—」占位——在数据页里 0 和「不知道」
-   是两件完全不同的事 */
-/* 窄屏两列：四列时每格只剩 78px，「真实可用 34%」会折成两行，四块高度参差 */
-.ov{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0 0}
-@media (min-width:560px){.ov{grid-template-columns:repeat(4,1fr)}}
-.ov-k{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:10px;
-  background:var(--surf-flat);border:1px solid var(--stroke)}
-.ov-k b{font-size:19px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums;
-  color:var(--ink)}
-.ov-k span{font-size:11px;color:var(--ink-3);line-height:1.3;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.ov-when{font-size:11px;color:var(--ink-3);margin-left:auto;font-variant-numeric:tabular-nums}
-.ov-bars{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
-.ovb{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-2);
-  background:var(--surf-flat);border:1px solid var(--stroke);border-radius:7px;padding:3px 8px 3px 6px}
-.ovb i{display:block;height:6px;min-width:3px;border-radius:3px;background:var(--ok);opacity:.5}
-.ovb em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink-3)}
-.ov-note{font-size:11px;color:var(--ink-3);margin:10px 0 0;line-height:1.65;text-wrap:pretty}
-.ov-note b{color:var(--ink-2);font-weight:var(--fwb)}
-
-/* 源最后一次改动：freq 是作者自己写的承诺，这行是实测，两者分开摆 */
-.age{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
-.age[hidden]{display:none}
-.age.stale{color:var(--warn-ink);font-weight:var(--fwb)}
-
-/* 真实握手结果：和上面那条 TCP 抽样是两个口径，必须分开写清楚，
-   否则「可连 83%」会被人当成「83% 的节点能用」 */
-.real{font-size:12px;color:var(--ink-2);margin:6px 0 2px;line-height:1.5;font-variant-numeric:tabular-nums}
-.real[hidden]{display:none}
-.real b{color:var(--ink-1);font-weight:650}
-.real.weak b{color:var(--bad-ink)}
-.probe{margin-top:2px}
-/* 生命周期：靠右与「源更新时间」同排。margin-left:auto 只给 .life，
-   第二个 auto 没有剩余空间可分，.age 会紧贴在它右边，间距由 .meta 的 gap 提供 */
-.life{font-size:11px;color:var(--ink-3);margin:0 0 0 auto;line-height:1.5;font-variant-numeric:tabular-nums}
-.life[hidden]{display:none}
-.life.stale{color:var(--warn-ink)}
-
-/* 可连率：原生 progress，自带 progressbar 角色与 aria 数值 */
-.probe{display:flex;align-items:center;gap:8px;margin:9px 0 0;font-size:11.5px;color:var(--ink-3)}
-.probe .pl{white-space:nowrap;font-variant-numeric:tabular-nums}
-.probe .bar{appearance:none;border:0 solid;overflow:clip;display:block;flex:1;min-width:40px;
-  height:5px;border-radius:var(--r-pill);background:var(--track)}
-.probe .bar::-webkit-progress-bar{background:transparent}
-.probe .bar::-webkit-progress-value{background:var(--ok);
-  border-radius:var(--r-pill)}
-.probe .bar::-moz-progress-bar{background:var(--ok);
-  border-radius:var(--r-pill)}
-.probe .pv{white-space:nowrap;font-weight:var(--fwb);color:var(--ok-ink);font-variant-numeric:tabular-nums}
-.probe.warn .bar::-webkit-progress-value{background:var(--warn)}
-.probe.warn .bar::-moz-progress-bar{background:var(--warn)}
-.probe.warn .pv{color:var(--warn-ink)}
-/* 可连率 <20%：必须换成红色，否则 JS 加的 bad 类没有样式，会退回绿色，等于骗人 */
-.probe.bad .bar::-webkit-progress-value{background:var(--bad)}
-.probe.bad .bar::-moz-progress-bar{background:var(--bad)}
-.probe.bad .pv{color:var(--bad-ink)}
-
-.card.dim{background:var(--surf);opacity:.86}
-.card.dim .cnum b{color:var(--ink-3)}
-.flagx{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:var(--fwb);
-  color:var(--warn-ink);background:var(--warn-bg);border-radius:6px;padding:1px 7px;
-  vertical-align:1px;white-space:nowrap}
-.flagx[hidden]{display:none}
-.flagx.cnf{color:var(--bad-ink);background:var(--bad-bg)}
-/* 来源评级（P4 评分）：S/A/B/C/D。只作参考，不参与卡片排序——
-   排序用的是「可连率 × 条数」，那个数直接对应用户能多拿到几个节点 */
-.gchip{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;
-  font-size:10px;font-weight:800;line-height:1;border-radius:5px;padding:0 4px;
-  color:var(--ink-3);background:var(--surf-flat);font-variant-numeric:tabular-nums;flex:0 0 auto}
-.gchip[hidden]{display:none}
-.gchip[data-g="S"]{color:var(--ok-ink);background:var(--ok-bg);border:1px solid var(--ok-line)}
-.gchip[data-g="A"]{color:var(--ok-ink);background:var(--ok-bg)}
-.gchip[data-g="B"]{color:var(--accent);background:var(--surf-flat);border:1px solid var(--card-line)}
-.gchip[data-g="C"]{color:var(--warn-ink);background:var(--warn-bg)}
-.gchip[data-g="D"]{color:var(--bad-ink);background:var(--bad-bg)}
-/* 已隔离：虚框 + 降透明度。仍然可复制——隔离是「我们不推荐」，不是「禁止使用」 */
-.card.iso{opacity:.72;border-style:dashed}
-
-
-/* ── 链接框与复制按钮 ──────────────────────────────────────────────────── */
-.url{display:block;max-width:100%;background:var(--surf-flat);border-radius:var(--r-sub);padding:9px 12px;
-  font:11.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-url);
-  word-break:break-all;overflow-wrap:anywhere;white-space:normal;user-select:all;cursor:pointer;
-  margin-top:10px;transition:background .2s var(--e-out)}
-.url:active{background:var(--surf-solid)}
-/* 主按钮：近黑实底，44px 胶囊 */
-.cbtn{width:100%;margin-top:9px;border:0;border-radius:var(--r-pill);height:44px;padding:0 16px;
-  font-family:inherit;font-size:14px;font-weight:var(--fwb);line-height:normal;color:var(--on-solid);cursor:pointer;
-  background:var(--solid);box-shadow:var(--sh-press);
-  transition:background .3s var(--e-out),box-shadow .3s var(--e-out),transform .34s var(--e-spring),opacity .26s var(--e-out)}
-.cbtn:active{transform:scale(.97);background:var(--solid-press);transition:transform .09s var(--e-press),background .09s var(--e-press)}
-.cbtn[data-copied]{background:var(--ok);color:#fff;animation:pop .42s var(--e-spring)}
-.cbtn[data-fading]{opacity:0}
-.cbtn-txt{pointer-events:none}
-
-/* ── 复制 + 二维码 ─────────────────────────────────────────────────────── */
-.acts{display:flex;gap:7px;margin-top:9px}
-.acts .cbtn{margin-top:0;flex:1;min-width:0}
-/* 二维码按钮：原来是白底，跟半透明白的卡片贴在一起就消失了。
-   改成和主按钮同一块近黑实底，只有图标反白，视觉上是一组、又各自清楚 */
-.qbtn{flex:0 0 44px;height:44px;padding:0;border:1px solid var(--solid);border-radius:var(--r-pill);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--on-solid);
-  background:var(--solid);box-shadow:var(--sh-press);font-family:inherit;
-  transition:background .22s var(--e-out),color .22s var(--e-out),transform .2s var(--e-spring)}
-.qbtn svg{width:20px;height:20px;fill:currentColor}
-.qbtn:active{transform:scale(.94);background:var(--solid-press)}
-
-/* ── 二维码弹窗 ───────────────────────────────────────────────────────── */
-/* 遮罩不加 backdrop-filter：手机上整屏滤镜要额外开一层合成，
-   低端机会掉帧，纯色遮罩够用 */
-.qrm{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
-  padding:20px;background:rgba(10,12,16,.62);animation:qin .18s var(--e-out) both}
-.qrm[hidden]{display:none}
-.qr-sheet{position:relative;width:100%;max-width:336px;max-height:calc(100vh - 40px);overflow:auto;
-  background:var(--bg-a);border:1px solid var(--stroke);border-radius:24px;padding:20px;
-  box-shadow:0 24px 60px rgba(8,10,14,.36);
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-  animation:qpop .26s var(--e-spring) both}
-.qr-sheet h3{margin:0;align-self:flex-start;font-size:15px;font-weight:var(--fwh);color:var(--ink);
-  line-height:1.45;padding-right:40px;text-wrap:pretty}
-.qrx{position:absolute;top:13px;right:13px;width:32px;height:32px;padding:0;border:0;border-radius:50%;
-  background:var(--surf-solid);color:var(--ink-2);font-family:inherit;font-size:17px;line-height:1;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:background .2s var(--e-out),transform .18s var(--e-out)}
-.qrx:active{transform:scale(.9);background:var(--solid);color:var(--on-solid)}
-/* 二维码固定浅底深码：跟随主题反色会让相机识别率大打折扣 */
-.qrc{display:block;width:auto;max-width:100%;height:auto;image-rendering:pixelated;
-  background:#fff;border-radius:12px}
-.qrc[hidden]{display:none}
-.qr-tip{margin:0;font-size:12.5px;color:var(--ink-3);text-align:center;line-height:1.55}
-/* 暗色下页面底色本身就接近纯黑，面板要再抬一级，否则只剩阴影能看出边界 */
-@media (prefers-color-scheme:dark){
-  .qrm{background:rgba(0,0,0,.74)}
-  .qr-sheet{background:#1E222A;border-color:rgba(255,255,255,.10)}
+/* ── 协议分组 ── */
+.group{margin-bottom:18px}
+.g-head{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+  background:none;border:0;padding:8px 4px;color:var(--ink);border-radius:10px;
+  min-height:44px;
 }
-html.lock,html.lock body{overflow:hidden}
+.g-head:active{background:var(--accent-soft)}
+.g-dot{width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.g-head.clash .g-dot{background:var(--c-clash)}
+.g-head.v2ray .g-dot{background:var(--c-v2ray)}
+.g-head.singbox .g-dot{background:var(--c-singbox)}
+.g-title{font-size:15px;font-weight:700;letter-spacing:.2px}
+.g-count{font-size:12px;color:var(--ink-3);font-weight:600}
+.g-core{margin-left:auto;font-size:11px;color:var(--ink-3)}
+.g-chev{margin-left:2px;width:14px;height:14px;color:var(--ink-3);transition:transform .25s var(--e-out)}
+.group.collapsed .g-chev{transform:rotate(-90deg)}
+.group.collapsed .g-list{display:none}
+.g-list{display:flex;flex-direction:column;gap:9px}
 
+/* ── 来源卡片（紧凑两行）── */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:12px 13px;box-shadow:var(--sh-2);position:relative;overflow:hidden;
+  transition:box-shadow .2s var(--e-out),transform .2s var(--e-out),border-color .2s;
+  animation:rise .45s var(--e-out) both;
+}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);opacity:.75}
+.card.clash::before{background:var(--c-clash)}
+.card.v2ray::before{background:var(--c-v2ray)}
+.card.singbox::before{background:var(--c-singbox)}
+.card:active{transform:scale(.995)}
+.card.dim{opacity:.78}
+.c-row1{display:flex;align-items:center;gap:8px;min-height:34px}
+.c-name{font-size:14px;font-weight:650;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none;max-width:56%}
+.c-sub{
+  font-size:10px;font-weight:650;color:var(--accent);background:var(--accent-soft);
+  border:1px solid var(--accent-line);border-radius:6px;padding:1px 6px;flex:none;
+}
+.c-status{font-size:11px;font-weight:650;display:inline-flex;align-items:center;gap:4px;flex:none}
+.c-status i{width:6px;height:6px;border-radius:50%;flex:none}
+.c-status.ok{color:var(--ok-ink)} .c-status.ok i{background:var(--ok)}
+.c-status.warn{color:var(--warn-ink)} .c-status.warn i{background:var(--warn)}
+.c-status.bad{color:var(--bad-ink)} .c-status.bad i{background:var(--bad)}
+.c-acts{margin-left:auto;display:flex;gap:6px;flex:none}
+.icon-btn{
+  width:44px;height:44px;display:grid;place-items:center;border-radius:var(--r-btn);
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2);
+  box-shadow:var(--sh-2);transition:transform .12s,box-shadow .12s;
+}
+.icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.icon-btn:active{transform:translateY(1px);box-shadow:var(--sh-press)}
+.icon-btn.copied{color:var(--ok-ink)}
+.c-row2{display:flex;align-items:center;gap:5px 10px;flex-wrap:wrap;margin-top:2px;font-size:12px;color:var(--ink-2)}
+.c-row2 .sep{color:var(--ink-3)}
+.c-row2 b{color:var(--ink);font-weight:650}
+.c-row2 .real b{color:var(--ok-ink)}
+.c-row2 .real.weak b{color:var(--bad-ink)}
 
-/* ── 动效 ──────────────────────────────────────────────────────────────── */
-@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes qin{from{opacity:0}to{opacity:1}}
-@keyframes qpop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
-@keyframes pop{0%{transform:scale(1)}42%{transform:scale(1.03)}100%{transform:scale(1)}}
+/* ── 底部导航 ── */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:color-mix(in srgb,var(--surface) 88%,transparent);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.tab{
+  min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:none;border:0;color:var(--ink-3);font-size:10px;font-weight:600;
+}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab.active{color:var(--accent)}
+.tab:active svg{transform:scale(.9)}
 
+/* ── Toast ── */
+.toast{
+  position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);
+  background:var(--ink);color:var(--surface);padding:10px 18px;border-radius:12px;
+  font-size:13px;font-weight:600;box-shadow:var(--sh-1);z-index:90;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--e-out);white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ── 遮罩 + 详情弹层 ── */
+.overlay{
+  position:fixed;inset:0;z-index:60;background:rgba(28,26,38,.42);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .28s var(--e-out);
+}
+.overlay.show{opacity:1;pointer-events:auto}
+.dmodal{
+  width:100%;max-width:520px;background:var(--d-bg);color:var(--d-ink);
+  border-radius:20px 20px 0 0;border:1px solid var(--d-line);
+  box-shadow:0 -8px 40px rgba(0,0,0,.2);
+  transform:translateY(100%);transition:transform .34s var(--e-out);
+  max-height:88vh;overflow-y:auto;overscroll-behavior:contain;
+}
+.overlay.show .dmodal{transform:translateY(0)}
+.dm-head{display:flex;align-items:flex-start;gap:10px;padding:20px 18px 12px;position:sticky;top:0;background:var(--d-bg);z-index:1}
+.dm-head .grip{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:36px;height:4px;border-radius:3px;background:var(--d-line)}
+.dm-title{font-size:18px;font-weight:720;line-height:1.25}
+.dm-sub{font-size:12px;color:var(--d-ink-2);margin-top:3px}
+.dm-close{margin-left:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--d-line);background:var(--d-surface);color:var(--d-ink);display:grid;place-items:center;flex:none;font-size:17px;box-shadow:var(--sh-2)}
+.dm-close:active{transform:translateY(1px)}
+.dm-body{padding:0 18px 8px}
+.dm-card{background:var(--d-surface);border:1px solid var(--d-line);border-radius:var(--r-sub);padding:3px 13px;box-shadow:0 1px 2px rgba(48,46,50,.05)}
+.dm-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--d-line)}
+.dm-row:last-child{border-bottom:0}
+.dm-row .k{width:76px;flex:none;font-size:12px;color:var(--d-ink-2)}
+.dm-row .v{font-size:13px;font-weight:600;word-break:break-all;flex:1}
+.dm-row .v a{color:var(--d-btn);text-decoration:none}
+.dm-row .v.mono{font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.dm-note{font-size:12px;color:var(--d-ink-2);line-height:1.6;margin:12px 2px 4px}
+.dm-warn{background:rgba(217,149,75,.12);border:1px solid rgba(217,149,75,.3);color:var(--warn-ink);border-radius:10px;padding:9px 12px;font-size:12px;margin:10px 2px}
+.dm-acts{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:14px 18px calc(18px + env(safe-area-inset-bottom,0px));position:sticky;bottom:0;background:var(--d-bg)}
+.dm-btn{
+  min-height:46px;border-radius:var(--r-btn);border:1px solid rgba(129,116,201,.5);
+  background:var(--d-btn);color:var(--d-btn-ink);font-size:13px;font-weight:650;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 6px rgba(129,116,201,.3);
+  transition:transform .12s,box-shadow .12s;display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.dm-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dm-btn:active{transform:translateY(1px);box-shadow:var(--sh-press)}
+.dm-btn.ghost{background:var(--d-surface);color:var(--d-ink);border-color:var(--d-line);box-shadow:var(--sh-2)}
+
+/* ── 二维码弹层 ── */
+.qr-sheet{
+  width:100%;max-width:340px;background:var(--d-bg);color:var(--d-ink);
+  border-radius:20px;border:1px solid var(--d-line);padding:20px;text-align:center;
+  transform:translateY(12px) scale(.98);transition:transform .3s var(--e-out);
+}
+.overlay.show .qr-sheet{transform:none}
+.qr-sheet h3{font-size:15px;margin:0 0 14px;font-weight:700}
+.qr-sheet .qr-c{width:220px;height:220px;max-width:100%;background:#fff;border-radius:12px;padding:10px;margin:0 auto;display:block}
+.qr-sheet .qr-tip{font-size:12px;color:var(--d-ink-2);margin:14px 0 0}
+.qr-sheet .qr-copy{margin-top:14px;width:100%;min-height:44px}
+.qr-sheet .qr-x{position:absolute;top:14px;right:16px;width:44px;height:44px;border:0;background:none;color:var(--d-ink-2);font-size:18px}
+
+/* ── 内容页通用块 ── */
+.sec-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:16px;box-shadow:var(--sh-2);margin-bottom:12px}
+.sec-card h2{font-size:15px;margin:0 0 12px;font-weight:700}
+.sec-card p{font-size:13px;color:var(--ink-2);margin:0 0 8px;line-height:1.7}
+.sec-card p:last-child{margin-bottom:0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:1px solid var(--line);border-radius:var(--r-sub);padding:12px;background:var(--surface-2)}
+.stat b{display:block;font-size:18px;font-weight:700}
+.stat span{font-size:11px;color:var(--ink-2)}
+.chip{display:inline-block;font-size:11px;padding:3px 9px;border-radius:8px;background:var(--accent-soft);color:var(--accent);margin:0 6px 6px 0;border:1px solid var(--accent-line)}
+.rank-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.rank-row:last-child{border-bottom:0}
+.rank-row .n{width:22px;height:22px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.rank-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-row .vl{color:var(--ink-2);font-size:12px;flex:none}
+.step{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.step .i{width:26px;height:26px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.step b{font-size:13px}
+.step p{font-size:12px;color:var(--ink-2);margin:2px 0 0}
+.page-h{font-size:19px;font-weight:750;margin:2px 0 14px}
+.data-note{font-size:11px;color:var(--ink-3);margin-top:8px;font-style:normal}
+.foot-disc{font-size:11px;color:var(--ink-3);text-align:center;line-height:1.7;padding:16px 6px 8px}
+
+/* ── 动效 ── */
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){
-  *,*:before,*:after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media (min-width:560px){
+  .wrap{max-width:680px}
+  .overlay{align-items:center}
+  .dmodal{border-radius:20px;max-height:86vh}
+  .dm-head .grip{display:none}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <h1>节点配置链接</h1>
-  <p class="sub upd" id="upd"></p>
-</header>
 
-
-<!-- P21：首屏只留核心状态与主操作。教程/总览/下载默认收起，渐进披露 -->
-<details class="sec fold" id="howSec">
-  <summary><span class="sec-tag">怎么订阅</span><span class="fold-hint">3 步 · 点开看</span></summary>
-  <div class="fold-body">
-    <div class="gs"><span class="i">1</span><div><b>复制一条链接</b><p>点下面任意卡片的「复制链接」按钮</p></div></div>
-    <div class="gs"><span class="i">2</span><div><b>导入客户端</b><p>客户端的「配置」或「订阅」页 → 点 + → 从剪贴板导入</p></div></div>
-    <div class="gs"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中它 → 打开代理开关</p></div></div>
-  </div>
-</details>
-
-<details class="sec fold" id="ovSec" hidden>
-  <summary><span class="sec-tag">数据总览</span><span class="ov-when" id="ovWhen"></span><span class="fold-hint">点开看</span></summary>
-  <div class="fold-body">
-    <div class="ov">
-      <div class="ov-k"><b id="ovNodes">—</b><span>去重后入库</span></div>
-      <div class="ov-k"><b id="ovReal">—</b><span>真实可用</span></div>
-      <div class="ov-k"><b id="ovBest">—</b><span>优选</span></div>
-      <div class="ov-k"><b id="ovIso">—</b><span>隔离未入库</span></div>
+<!-- ═══════════ 首页 ═══════════ -->
+<main class="page wrap" id="page-home">
+  <header>
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 8-8M4 12a8 8 0 0 0 8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><path d="M16 6a8 8 0 0 1 4 6M16 18a8 8 0 0 0 4-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+      <h1>Nodes</h1>
+      <span class="tag">免费节点订阅索引</span>
     </div>
-    <div class="ov-bars" id="ovRegions"></div>
-    <p class="ov-note" id="ovNote"></p>
-  </div>
-</details>
+    <div class="head-meta">
+      <span class="dot"></span><span>数据更新 <b id="upd">—</b></span>
+      <span class="sep">·</span><span>每 3 小时自动采集</span>
+    </div>
+  </header>
 
-<!-- P21：搜索 + 按真实客户端标签筛选 + 质量排序；选项由 JS 从真实卡片提取 -->
-<div class="tools" role="group" aria-label="查找与筛选订阅源">
-  <div class="tool-search">
-    <label class="sr" for="fSearch">搜索订阅源</label>
-    <input id="fSearch" class="tinput" type="search" placeholder="搜索名称 / 备注 / 链接" autocomplete="off" aria-label="搜索订阅源名称、备注或链接">
+  <section class="overview" id="overview" aria-label="数据概览">
+    <div class="ov-item"><b class="num" id="ovSrc">—</b><span>数据来源</span></div>
+    <div class="ov-item"><b class="num" id="ovReal">—</b><span>真实可用率</span></div>
+    <div class="ov-item"><b class="num" id="ovTime">—</b><span>检测时间</span></div>
+  </section>
+
+  <div id="groups"></div>
+  <p class="foot-disc">本站仅收录第三方公开发布的订阅链接，不生产节点、不改写原始链接。<br>请遵守当地法律法规，违规使用后果自负。</p>
+</main>
+
+<!-- ═══════════ 数据中心 ═══════════ -->
+<main class="page wrap" id="page-data" hidden>
+  <h2 class="page-h">数据中心</h2>
+  <div id="dataContent">
+    <div class="sec-card"><h2>真实检测</h2><div class="grid-2" id="dcReal"></div><p class="data-note" id="dcChecked"></p></div>
+    <div class="sec-card"><h2>来源评分与节点</h2><div class="grid-2" id="dcScore"></div></div>
+    <div class="sec-card"><h2>质量分布</h2><div id="dcDist"></div></div>
+    <div class="sec-card"><h2>来源治理</h2><div id="dcGov"></div></div>
+    <div class="sec-card"><h2>四类优选榜单</h2><div id="dcPicks"></div><p class="data-note" id="dcPickNote"></p></div>
   </div>
-  <div class="tool-row">
-    <label class="sr" for="fProto">按客户端筛选</label>
-    <select id="fProto" class="tselect" aria-label="按客户端筛选"><option value="">全部客户端</option></select>
-    <label class="sr" for="fSort">排序方式</label>
-    <select id="fSort" class="tselect" aria-label="排序方式">
-      <option value="default">默认（推荐优先）</option>
-      <option value="real">真实可用率</option>
-      <option value="count">节点条数</option>
-      <option value="fresh">最近更新</option>
-    </select>
+</main>
+
+<!-- ═══════════ 使用指南 ═══════════ -->
+<main class="page wrap" id="page-guide" hidden>
+  <h2 class="page-h">使用指南</h2>
+  <div class="sec-card">
+    <h2>三步开始</h2>
+    <div class="step"><span class="i">1</span><div><b>复制订阅链接</b><p>首页找到来源卡片，点「复制」按钮，或打开详情复制。</p></div></div>
+    <div class="step"><span class="i">2</span><div><b>导入客户端</b><p>客户端的「配置 / 订阅」页 → 点 + → 从剪贴板导入；或在详情里用二维码扫码导入。</p></div></div>
+    <div class="step"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中节点 → 打开代理开关。</p></div></div>
   </div>
-  <div class="filters" role="group" aria-label="按可用性筛选">
-    <button class="fbtn" type="button" id="fAlive" aria-pressed="false">只看真实可用 ≥50%</button>
-    <button class="fbtn" type="button" id="fCn" aria-pressed="false">只看国内可直连</button>
-    <span class="fcount" id="fcount" aria-live="polite"></span>
-    <button class="fclear" type="button" id="fClear" hidden>清除筛选</button>
+  <div class="sec-card">
+    <h2>客户端选择</h2>
+    <p><b>Clash 系</b>（mihomo 内核）：Clash Verge Rev（电脑）、FlClash（手机/电脑）、Clash Meta for Android。</p>
+    <p><b>V2Ray 系</b>（Xray 内核）：v2rayN（电脑）、v2rayNG（安卓）。</p>
+    <p><b>sing-box 系</b>：sing-box 全平台、Hiddify（全平台）。</p>
+    <p>按首页分组选择对应协议的订阅链接，导入到匹配内核的客户端。</p>
+  </div>
+  <div class="sec-card">
+    <h2>常见问题</h2>
+    <p><b>复制后客户端提示导入失败？</b>先确认客户端协议与分组一致，再从详情复制完整原始链接重试。</p>
+    <p><b>真实可用率是什么意思？</b>节点经 mihomo 真实握手、拿到 204 响应才算可用，比端口可连更严格，因此数值偏低属正常。</p>
+    <p><b>为什么有的源节点很多但可用很少？</b>免费源常含大量失效或被转发的旧节点，本站按真实握手统计，帮助判断实际可用性。</p>
+    <p><b>二维码扫不出来？</b>链接过长时二维码可能放不下，请用「复制订阅链接」代替。</p>
+  </div>
+</main>
+
+<!-- ═══════════ 关于 ═══════════ -->
+<main class="page wrap" id="page-about" hidden>
+  <h2 class="page-h">关于</h2>
+  <div class="sec-card">
+    <h2>项目介绍</h2>
+    <p>Nodes 是一个免费节点订阅索引站，收录第三方公开发布的订阅链接，按 Clash / V2Ray / sing-box 三类分组展示，并用真实握手检测标注可用率。</p>
+    <p>数据更新 <b id="aboutUpd">—</b>。</p>
+  </div>
+  <div class="sec-card">
+    <h2>数据来源与检测</h2>
+    <p>来源登记于 sources.yaml，由采集程序每日自动更新，仅收录公开订阅。节点检测使用 mihomo 真实出网握手（拿到 204 才算可用），并单独统计端口连通情况。</p>
+    <p>来源评分基于真实可用率、样本量与稳定性；样本不足时标注「样本不足」，不显示稳定标签。历史趋势按实际跟踪天数展示，不足时明确说明，不伪造曲线。</p>
+  </div>
+  <div class="sec-card">
+    <h2>免责声明</h2>
+    <p>本站不生产、不代理、不改写任何节点，仅提供公开链接的索引与检测参考。请遵守所在地区法律法规，因使用产生的任何后果由使用者自行承担。</p>
+    <p><a id="aboutRepo" href="https://github.com/BOB0098/nodes" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">GitHub 仓库 →</a></p>
+  </div>
+</main>
+
+<!-- ═══════════ 底部导航 ═══════════ -->
+<nav class="tabbar" role="navigation" aria-label="主导航">
+  <button class="tab active" type="button" data-page="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>首页</button>
+  <button class="tab" type="button" data-page="data"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15v-4m4 4V8m4 7v-6"/></svg>数据中心</button>
+  <button class="tab" type="button" data-page="guide"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5zM4 5.5v16"/></svg>使用指南</button>
+  <button class="tab" type="button" data-page="about"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>关于</button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ═══════════ 详情弹层 ═══════════ -->
+<div class="overlay" id="dmOverlay" hidden>
+  <div class="dmodal" role="dialog" aria-modal="true" aria-labelledby="dmTitle">
+    <div class="dm-head">
+      <span class="grip" aria-hidden="true"></span>
+      <div><div class="dm-title" id="dmTitle">—</div><div class="dm-sub" id="dmSub">—</div></div>
+      <button class="dm-close" id="dmClose" type="button" aria-label="关闭详情">✕</button>
+    </div>
+    <div class="dm-body" id="dmBody"></div>
+    <div class="dm-acts">
+      <button class="dm-btn" id="dmCopy" type="button"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>复制订阅</button>
+      <button class="dm-btn" id="dmQr" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>二维码</button>
+      <button class="dm-btn ghost" id="dmRepo" type="button"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-3 17.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.4-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-4.9 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.8-2.4 4.6-4.6 4.9.4.3.7 1 .7 2v3c0 .3.2.6.7.5A9 9 0 0 0 12 3z"/></svg>原项目</button>
+    </div>
   </div>
 </div>
 
-<div id="groups"></div>
-
-<!-- 空态紧跟列表，之前挂在免责声明后面，筛空了提示会跑到页面最下方 -->
-<div class="fempty" id="fempty" hidden>这个组合下没有匹配的订阅源<br>
-  <span style="color:var(--ink-3);font-size:13px">换个关键词，或关掉一个筛选条件</span><br>
-  <button class="fclear-clear" type="button" id="fEmptyClear">清除筛选</button>
-</div>
-
-<details class="sec fold" id="clSec">
-  <summary><span class="sec-tag">主流客户端下载</span><span class="fold-hint">点开看</span></summary>
-  <div class="fold-body">
-    <p class="cl-note">GitHub 链接需科学上网</p>
-    <div class="cl-row"><span class="cl-k">电脑</span>
-      <a class="clink" href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank" rel="noopener">Clash Verge Rev</a>
-      <a class="clink" href="https://github.com/2dust/v2rayN" target="_blank" rel="noopener">v2rayN</a>
-      <a class="clink" href="https://github.com/MetaCubeX/ClashX.Meta" target="_blank" rel="noopener">ClashX.Meta</a>
-    </div>
-    <div class="cl-row"><span class="cl-k">安卓</span>
-      <a class="clink" href="https://github.com/2dust/v2rayNG" target="_blank" rel="noopener">v2rayNG</a>
-      <a class="clink" href="https://github.com/chen08209/FlClash" target="_blank" rel="noopener">FlClash</a>
-    </div>
-    <div class="cl-row"><span class="cl-k">iOS</span>
-      <a class="clink" href="https://github.com/SagerNet/sing-box" target="_blank" rel="noopener">sing-box</a>
-    </div>
-    <div class="cl-row"><span class="cl-k">全平台</span>
-      <a class="clink" href="https://github.com/hiddify/hiddify-app" target="_blank" rel="noopener">Hiddify</a>
-      <a class="clink" href="https://github.com/KaringX/karing" target="_blank" rel="noopener">Karing</a>
-    </div>
-  </div>
-</details>
-
-<p class="disc disc-a">本站仅收录第三方公开发布的订阅链接，不生产节点、不改写原始链接。请遵守当地法律法规，违规使用后果自负。</p>
-</div>
-
-<template id="tpl-card">
-  <article class="card">
-    <div class="ch"><div class="chl"><span class="idx"></span><h3 class="tag"></h3><span class="gchip" hidden></span><span class="flagx stb" hidden>近期不稳</span><span class="flagx cnf" hidden>国内常不通</span><span class="flagx iso" hidden>已隔离</span></div><span class="freq"></span></div>
-    <p class="cnum"><b></b><span>条节点</span></p>
-    <p class="real" hidden></p>
-    <div class="probe"><span class="pl"></span><progress class="bar" max="100" value="0"></progress><span class="pv"></span></div>
-    <p class="cnote"></p>
-    <div class="meta"><div class="cls"></div><p class="life" hidden></p><p class="age" hidden></p></div>
-    <p class="srcbad" hidden></p>
-    <code class="url"></code>
-    <div class="acts">
-      <button class="cbtn" type="button"><span class="cbtn-txt">复制链接</span></button>
-      <button class="qbtn" type="button" aria-label="显示二维码" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="3" height="3" rx=".7"/><rect x="18" y="14" width="3" height="3" rx=".7"/><rect x="14" y="18" width="3" height="3" rx=".7"/><rect x="18" y="18" width="3" height="3" rx=".7"/></svg></button>
-    </div>
-  </article>
-</template>
-
-<div class="qrm" id="qrm" hidden>
-  <div class="qr-sheet" role="dialog" aria-modal="true" aria-labelledby="qrmTitle">
-    <h3 id="qrmTitle"></h3>
-    <button class="qrx" id="qrmClose" type="button" aria-label="关闭二维码">✕</button>
-    <canvas class="qrc" role="img" aria-label="订阅链接二维码"></canvas>
-    <p class="qr-tip">手机相机扫一下 · 存图的话长按图片或直接截图</p>
+<!-- ═══════════ 二维码弹层 ═══════════ -->
+<div class="overlay" id="qrOverlay" hidden>
+  <div class="qr-sheet" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+    <button class="qr-x" id="qrClose" type="button" aria-label="关闭二维码">✕</button>
+    <h3 id="qrTitle">—</h3>
+    <canvas class="qr-c" id="qrCanvas" role="img" aria-label="订阅链接二维码"></canvas>
+    <p class="qr-tip" id="qrTip">手机相机扫一下 · 存图请长按或截图</p>
+    <button class="dm-btn ghost qr-copy" id="qrCopy" type="button">复制订阅链接</button>
   </div>
 </div>
-
-<div id="live" class="sr" role="status" aria-live="polite"></div>
 
 <script>
 (() => {
-  'use strict';
-  const DATA = {"schema": 2, "updated": "11-25 14:02", "ts": 1795586539, "life_span": 1, "raw": 15790, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "推荐 · 只含可连节点", "note": "只留连得上的，成功率高", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 224, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 206}, "age_h": 1.3, "streak": 0, "grade": "B", "grade_score": 78.2, "src_state": "ok", "src_state_label": "正常", "prio": 10, "rok": 56, "rtest": 90, "new7": 220, "med_age": 1, "rank_real": 56.0, "rank_has_real": 1}, {"tag": "多源合并", "note": "几个日更仓库合成，已去重", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml", "count": 1381, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 11}, "age_h": 90.0, "streak": 0, "grade": "B", "grade_score": 77.0, "src_state": "ok", "src_state_label": "正常", "prio": 6, "rok": 34, "rtest": 90, "new7": 735, "med_age": 1, "rank_real": 34.0, "rank_has_real": 1}, {"tag": "全量节点", "note": "含未测速节点，量最大", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 305, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 251}, "age_h": 1.3, "streak": 0, "grade": "C", "grade_score": 59.1, "src_state": "ok", "src_state_label": "正常", "prio": 8, "rok": 16, "rtest": 76, "new7": 76, "med_age": 1, "rank_real": 16.0, "rank_has_real": 1}, {"tag": "超大合集", "note": "2000 条以上，最全也最杂", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml", "count": 1770, "probe": {"ok": 16, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 13}, "age_h": 9.5, "streak": 0, "grade": "D", "grade_score": 48.4, "src_state": "ok", "src_state_label": "正常", "prio": 7, "rok": 0, "rtest": 90, "new7": 1759, "med_age": 1, "rank_real": 0.0, "rank_has_real": 1}, {"tag": "带规则分流", "note": "自带分流规则，开箱即用", "ok": ["Clash"], "no": [], "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 495, "probe": {"ok": 24, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 56}, "age_h": 1.3, "streak": 0, "grade": "A", "grade_score": 80.0, "src_state": "ok", "src_state_label": "正常", "prio": 9, "rok": 88, "rtest": 90, "new7": 363, "med_age": 1, "rank_real": 88.0, "rank_has_real": 1}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "每日分享", "note": "节点和机场一起发", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 372, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 9}, "age_h": 1.6, "streak": 0, "grade": "B", "grade_score": 72.1, "src_state": "ok", "src_state_label": "正常", "prio": 6, "rok": 37, "rtest": 90, "new7": 307, "med_age": 1, "rank_real": 37.0, "rank_has_real": 1}, {"tag": "每日抓取", "note": "每天抓全网机场并测连通", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 372, "probe": {"ok": 19, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 213}, "age_h": 1.3, "streak": 0, "grade": "B", "grade_score": 73.4, "src_state": "ok", "src_state_label": "正常", "prio": 9, "rok": 17, "rtest": 90, "new7": 202, "med_age": 1, "rank_real": 17.0, "rank_has_real": 1}, {"tag": "全量最大", "note": "几千条，最多也最杂", "ok": ["v2rayNG", "小火箭", "Hiddify"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt", "count": 4668, "probe": {"ok": 13, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 14}, "age_h": 0.3, "streak": 0, "grade": "C", "grade_score": 59.1, "src_state": "ok", "src_state_label": "正常", "prio": 8, "rok": 4, "rtest": 90, "new7": 4377, "med_age": 1, "rank_real": 4.0, "rank_has_real": 1}, {"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 11, "probe": {"ok": 11, "total": 11}, "cnbad": false, "src_http": {"code": 200, "ms": 12}, "age_h": 1.0, "streak": 0, "grade": "B", "grade_score": 68.6, "src_state": "ok", "src_state_label": "正常", "prio": 10, "rok": 4, "rtest": 6, "new7": 6, "med_age": 1, "rank_real": 4.0, "rank_has_real": 1}, {"tag": "老牌仓库", "note": "每小时更新一次", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 23, "probe": {"ok": 18, "total": 21}, "cnbad": false, "src_http": {"code": 200, "ms": 10}, "age_h": 2.6, "streak": 0, "grade": "C", "grade_score": 53.2, "src_state": "ok", "src_state_label": "正常", "prio": 7, "rok": 2, "rtest": 10, "new7": 10, "med_age": 1, "rank_real": 2.0, "rank_has_real": 1}, {"tag": "多协议合集", "note": "近 4000 条，含 ss / vless / vmess", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt", "count": 3884, "probe": {"ok": 13, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 139}, "age_h": 7.9, "streak": 0, "grade": "C", "grade_score": 52.9, "src_state": "ok", "src_state_label": "正常", "prio": 4, "rok": 0, "rtest": 90, "new7": 1761, "med_age": 1, "rank_real": 0.0, "rank_has_real": 1}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "带规则 · 半小时构建", "note": "内置分流和去广告，需 1.13+", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "30 分钟更新", "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json", "count": 348, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 9}, "age_h": 4.9, "streak": 0, "grade": "B", "grade_score": 69.6, "src_state": "ok", "src_state_label": "正常", "prio": 8, "rok": 30, "rtest": 90, "new7": 193, "med_age": 1, "rank_real": 30.0, "rank_has_real": 1}, {"tag": "每日聚合", "note": "每天重抓一遍，量不多", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json", "count": 35, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 10}, "age_h": 22.2, "streak": 0, "grade": "A", "grade_score": 80.4, "src_state": "ok", "src_state_label": "正常", "prio": 7, "rok": 15, "rtest": 20, "new7": 20, "med_age": 1, "rank_real": 15.0, "rank_has_real": 1}, {"tag": "独立小源", "note": "十几条，几乎不撞车", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt", "count": 20, "probe": {"ok": 18, "total": 18}, "cnbad": false, "src_http": {"code": 200, "ms": 10}, "age_h": 1.0, "streak": 0, "grade": "D", "grade_score": 43.2, "src_state": "ok", "src_state_label": "正常", "prio": 5, "rok": 0, "rtest": 18, "new7": 18, "med_age": 1, "rank_real": 0.0, "rank_has_real": 1}, {"tag": "带规则 · 与 Clash 同源", "note": "同 Clash 源，只是换成 json", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 495, "probe": {"ok": 24, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 52}, "age_h": 1.3, "streak": 0, "grade": "B", "grade_score": 74.3, "src_state": "ok", "src_state_label": "正常", "prio": 10, "rok": 12, "rtest": 12, "new7": 12, "med_age": 1, "rank_real": 12.0, "rank_has_real": 1}]}], "delta": {"add": 0, "drop": 0}, "stats": {"raw": 15790, "dedup": 10059, "real_tested": 952, "real_ok": 315, "regions": {"欧洲": 157, "美国": 78, "其他": 20, "未知": 18, "中国台湾": 12, "香港": 11, "日本": 7, "新加坡": 6, "韩国": 6}, "tags": {"待复测": 565, "可用": 315, "非机房": 231, "机房 IP": 84, "隔离": 72, "稳定": 25, "低延迟": 17, "高速": 9}, "checked_at": "11-25 14:15", "subs": {"all": {"count": 10059, "label": "全部节点"}, "best": {"count": 200, "label": "优选（本轮通过，不在连续失败中）"}, "stable": {"count": 62, "label": "稳定（测过 ≥3 次、成功率 ≥80%）"}, "lowlat": {"count": 27, "label": "低延迟（≤300ms）"}, "fast": {"count": 17, "label": "高速（≥1000KB/s）"}, "hk": {"count": 11, "label": "香港"}, "tw": {"count": 12, "label": "中国台湾"}, "jp": {"count": 7, "label": "日本"}, "sg": {"count": 6, "label": "新加坡"}, "us": {"count": 78, "label": "美国"}, "kr": {"count": 6, "label": "韩国"}, "eu": {"count": 157, "label": "欧洲"}}, "quarantine": {"total": 1326, "top_reason": "明文代理（流量与凭据均可被链路上任何人读取）", "top_count": 881}, "isolated": 0, "protos": {"VMess": 5492, "VLESS": 2197, "Shadowsocks": 1059, "Trojan": 1007, "Hysteria2": 219, "Socks5": 64, "AnyTLS": 21}, "sources": 15}};
+'use strict';
+const DATA = {"schema": 2, "updated": "11-25 14:02", "ts": 1795586539, "life_span": 1, "raw": 15790, "errors": [], "groups": [{"title": "Clash 系", "kern": "mihomo 内核", "clients": "Clash Verge Rev（电脑）· FlClash（手机 / 电脑）· Clash Meta for Android", "items": [{"tag": "推荐 · 只含可连节点", "note": "只留连得上的，成功率高", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net", "count": 224, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 206}, "age_h": 1.3, "streak": 0, "grade": "B", "grade_score": 78.2, "src_state": "ok", "src_state_label": "正常", "prio": 10, "rok": 56, "rtest": 90, "new7": 220, "med_age": 1, "rank_real": 56.0, "rank_has_real": 1}, {"tag": "多源合并", "note": "几个日更仓库合成，已去重", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml", "count": 1381, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 11}, "age_h": 90.0, "streak": 0, "grade": "B", "grade_score": 77.0, "src_state": "ok", "src_state_label": "正常", "prio": 6, "rok": 34, "rtest": 90, "new7": 735, "med_age": 1, "rank_real": 34.0, "rank_has_real": 1}, {"tag": "全量节点", "note": "含未测速节点，量最大", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/clash/ermao.net", "count": 305, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 251}, "age_h": 1.3, "streak": 0, "grade": "C", "grade_score": 59.1, "src_state": "ok", "src_state_label": "正常", "prio": 8, "rok": 16, "rtest": 76, "new7": 76, "med_age": 1, "rank_real": 16.0, "rank_has_real": 1}, {"tag": "超大合集", "note": "2000 条以上，最全也最杂", "ok": ["Clash"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml", "count": 1770, "probe": {"ok": 16, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 13}, "age_h": 9.5, "streak": 0, "grade": "D", "grade_score": 48.4, "src_state": "ok", "src_state_label": "正常", "prio": 7, "rok": 0, "rtest": 90, "new7": 1759, "med_age": 1, "rank_real": 0.0, "rank_has_real": 1}, {"tag": "带规则分流", "note": "自带分流规则，开箱即用", "ok": ["Clash"], "no": [], "freq": "6 小时更新", "url": "https://radarhub.top/clash.yaml", "count": 495, "probe": {"ok": 24, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 56}, "age_h": 1.3, "streak": 0, "grade": "A", "grade_score": 80.0, "src_state": "ok", "src_state_label": "正常", "prio": 9, "rok": 88, "rtest": 90, "new7": 363, "med_age": 1, "rank_real": 88.0, "rank_has_real": 1}]}, {"title": "V2Ray 系", "kern": "Xray 内核", "clients": "v2rayNG（安卓）· v2rayN（电脑）· Shadowrocket（iOS）· Karing", "items": [{"tag": "每日分享", "note": "节点和机场一起发", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt", "count": 372, "probe": {"ok": 20, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 9}, "age_h": 1.6, "streak": 0, "grade": "B", "grade_score": 72.1, "src_state": "ok", "src_state_label": "正常", "prio": 6, "rok": 37, "rtest": 90, "new7": 307, "med_age": 1, "rank_real": 37.0, "rank_has_real": 1}, {"tag": "每日抓取", "note": "每天抓全网机场并测连通", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每日更新", "url": "https://blog.ermao.net/sub/v2ray/ermao.net", "count": 372, "probe": {"ok": 19, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 213}, "age_h": 1.3, "streak": 0, "grade": "B", "grade_score": 73.4, "src_state": "ok", "src_state_label": "正常", "prio": 9, "rok": 17, "rtest": 90, "new7": 202, "med_age": 1, "rank_real": 17.0, "rank_has_real": 1}, {"tag": "全量最大", "note": "几千条，最多也最杂", "ok": ["v2rayNG", "小火箭", "Hiddify"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt", "count": 4668, "probe": {"ok": 13, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 14}, "age_h": 0.3, "streak": 0, "grade": "C", "grade_score": 59.1, "src_state": "ok", "src_state_label": "正常", "prio": 8, "rok": 4, "rtest": 90, "new7": 4377, "med_age": 1, "rank_real": 4.0, "rank_has_real": 1}, {"tag": "推荐 · 精选稳定", "note": "量少质高，失效慢", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "6 小时更新", "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub", "count": 11, "probe": {"ok": 11, "total": 11}, "cnbad": false, "src_http": {"code": 200, "ms": 12}, "age_h": 1.0, "streak": 0, "grade": "B", "grade_score": 68.6, "src_state": "ok", "src_state_label": "正常", "prio": 10, "rok": 4, "rtest": 6, "new7": 6, "med_age": 1, "rank_real": 4.0, "rank_has_real": 1}, {"tag": "老牌仓库", "note": "每小时更新一次", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每小时更新", "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub", "count": 23, "probe": {"ok": 18, "total": 21}, "cnbad": false, "src_http": {"code": 200, "ms": 10}, "age_h": 2.6, "streak": 0, "grade": "C", "grade_score": 53.2, "src_state": "ok", "src_state_label": "正常", "prio": 7, "rok": 2, "rtest": 10, "new7": 10, "med_age": 1, "rank_real": 2.0, "rank_has_real": 1}, {"tag": "多协议合集", "note": "近 4000 条，含 ss / vless / vmess", "ok": ["v2rayNG", "小火箭"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt", "count": 3884, "probe": {"ok": 13, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 139}, "age_h": 7.9, "streak": 0, "grade": "C", "grade_score": 52.9, "src_state": "ok", "src_state_label": "正常", "prio": 4, "rok": 0, "rtest": 90, "new7": 1761, "med_age": 1, "rank_real": 0.0, "rank_has_real": 1}]}, {"title": "sing-box 系", "kern": "sing-box 内核", "clients": "Hiddify（手机 / 电脑）· sing-box（安卓 / 苹果）", "items": [{"tag": "带规则 · 半小时构建", "note": "内置分流和去广告，需 1.13+", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "30 分钟更新", "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json", "count": 348, "probe": {"ok": 22, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 9}, "age_h": 4.9, "streak": 0, "grade": "B", "grade_score": 69.6, "src_state": "ok", "src_state_label": "正常", "prio": 8, "rok": 30, "rtest": 90, "new7": 193, "med_age": 1, "rank_real": 30.0, "rank_has_real": 1}, {"tag": "每日聚合", "note": "每天重抓一遍，量不多", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json", "count": 35, "probe": {"ok": 24, "total": 24}, "cnbad": false, "src_http": {"code": 200, "ms": 10}, "age_h": 22.2, "streak": 0, "grade": "A", "grade_score": 80.4, "src_state": "ok", "src_state_label": "正常", "prio": 7, "rok": 15, "rtest": 20, "new7": 20, "med_age": 1, "rank_real": 15.0, "rank_has_real": 1}, {"tag": "独立小源", "note": "十几条，几乎不撞车", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "每日更新", "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt", "count": 20, "probe": {"ok": 18, "total": 18}, "cnbad": false, "src_http": {"code": 200, "ms": 10}, "age_h": 1.0, "streak": 0, "grade": "D", "grade_score": 43.2, "src_state": "ok", "src_state_label": "正常", "prio": 5, "rok": 0, "rtest": 18, "new7": 18, "med_age": 1, "rank_real": 0.0, "rank_has_real": 1}, {"tag": "带规则 · 与 Clash 同源", "note": "同 Clash 源，只是换成 json", "ok": ["sing-box", "Hiddify"], "no": [], "freq": "6 小时更新", "url": "https://radarhub.top/sing-box.json", "count": 495, "probe": {"ok": 24, "total": 24}, "cnbad": true, "src_http": {"code": 200, "ms": 52}, "age_h": 1.3, "streak": 0, "grade": "B", "grade_score": 74.3, "src_state": "ok", "src_state_label": "正常", "prio": 10, "rok": 12, "rtest": 12, "new7": 12, "med_age": 1, "rank_real": 12.0, "rank_has_real": 1}]}], "delta": {"add": 0, "drop": 0}, "stats": {"raw": 15790, "dedup": 10059, "real_tested": 952, "real_ok": 315, "regions": {"欧洲": 157, "美国": 78, "其他": 20, "未知": 18, "中国台湾": 12, "香港": 11, "日本": 7, "新加坡": 6, "韩国": 6}, "tags": {"待复测": 565, "可用": 315, "非机房": 231, "机房 IP": 84, "隔离": 72, "稳定": 25, "低延迟": 17, "高速": 9}, "checked_at": "11-25 14:15", "subs": {"all": {"count": 10059, "label": "全部节点"}, "best": {"count": 200, "label": "优选（本轮通过，不在连续失败中）"}, "stable": {"count": 62, "label": "稳定（测过 ≥3 次、成功率 ≥80%）"}, "lowlat": {"count": 27, "label": "低延迟（≤300ms）"}, "fast": {"count": 17, "label": "高速（≥1000KB/s）"}, "hk": {"count": 11, "label": "香港"}, "tw": {"count": 12, "label": "中国台湾"}, "jp": {"count": 7, "label": "日本"}, "sg": {"count": 6, "label": "新加坡"}, "us": {"count": 78, "label": "美国"}, "kr": {"count": 6, "label": "韩国"}, "eu": {"count": 157, "label": "欧洲"}}, "quarantine": {"total": 1326, "top_reason": "明文代理（流量与凭据均可被链路上任何人读取）", "top_count": 881}, "isolated": 0, "protos": {"VMess": 5492, "VLESS": 2197, "Shadowsocks": 1059, "Trojan": 1007, "Hysteria2": 219, "Socks5": 64, "AnyTLS": 21}, "sources": 15}};
 
-  /* ── 数据总览 ────────────────────────────────────────────────────────
-     四个数回答「这批节点里到底有多少真能用」。真实可用和优选都来自
-     mihomo 真握手，不是端口探测——两个口径差三倍，混着说会误导。
-     stats 缺失（首次运行、检测尚未跑完）时整块不显示。 */
-  (function overview() {
-    const st = DATA.stats;
-    const sec = document.getElementById('ovSec');
-    if (!st || !st.dedup) return;
-    const nf = n => (n === null || n === undefined) ? '—' : n.toLocaleString('zh-CN');
-
-    document.getElementById('ovNodes').textContent = nf(st.dedup);
-    document.getElementById('ovReal').textContent = nf(st.real_ok);
-    const pct = st.real_tested ? Math.round(st.real_ok / st.real_tested * 100) : null;
-    // 「真实可用」旁边必须写清分母：997 里 334 和 10,216 里 334 是两回事
-    document.querySelector('#ovReal').nextElementSibling.textContent =
-      pct === null ? '真实可用' : `真实可用 ${pct}%`;
-    const best = st.subs && st.subs.best ? st.subs.best.count : null;
-    document.getElementById('ovBest').textContent = nf(best);
-    document.querySelector('#ovBest').nextElementSibling.textContent =
-      st.real_tested ? `优选（测 ${nf(st.real_tested)} 条）` : '优选';
-    // 隔离区优先用条数（缺口的另一半）；老数据没有 quarantine 就退回源状态计数
-    const q = st.quarantine || {};
-    document.getElementById('ovIso').textContent =
-      nf(q.total !== undefined && q.total !== null ? q.total : st.isolated);
-
-    if (st.checked_at) document.getElementById('ovWhen').textContent = `检测于 ${st.checked_at}`;
-
-    // 地区分布：条形长度按占可用总数的比例，最少 3px 保证罕见地区也看得见
-    const box = document.getElementById('ovRegions');
-    const regions = st.regions || {};
-    const total = Object.values(regions).reduce((a, b) => a + b, 0);
-    if (total) {
-      Object.entries(regions).forEach(([k, v]) => {
-        const el = document.createElement('span');
-        el.className = 'ovb';
-        const bar = document.createElement('i');
-        bar.style.width = Math.max(3, Math.round(v / total * 46)) + 'px';
-        const name = document.createElement('span');
-        name.textContent = k;
-        const num = document.createElement('em');
-        num.textContent = nf(v);
-        el.append(bar, name, num);
-        box.append(el);
-      });
-    }
-
-    // 结论行：把「TCP 可连」和「真实可用」的差距说透，这是整页最反直觉的一点
-    const note = document.getElementById('ovNote');
-    if (st.raw && st.dedup) {
-      note.innerHTML = '';
-      const b1 = document.createElement('b');
-      b1.textContent = `声明 ${nf(st.raw)} 条，去重后 ${nf(st.dedup)} 条入库`;
-      note.append(b1);
-      let tail = '';
-      if (q.total) {
-        // 主因写出来才解释得了缺口：绝大多数是明文 HTTP 代理，不是「解析失败」。
-        // 原因字符串自带的括注在这里要砍掉，否则一行里套两层括号，读不成句
-        const why = (q.top_reason || '').split('（')[0];
-        tail += `，另有 ${nf(q.total)} 条按安全规则隔离` +
-                (why ? `（${why} ${nf(q.top_count)} 条）` : '') + '，不进订阅。';
-      } else {
-        tail += '。';
-      }
-      if (st.real_tested) {
-        tail += `抽样 ${nf(st.real_tested)} 条做真实握手，${nf(st.real_ok)} 条能出网。` +
-                '端口能连不等于代理可用，所以卡片上同时给出「可连」和「可用」两个数。';
-      }
-      note.append(document.createTextNode(tail));
-    }
-    sec.hidden = false;
-  })();
-
-  /* ── 页头时间行 ──────────────────────────────────────────────────────
-     DATA.updated 一直带着值，但模板里没有承接它的元素，采集时间从没显示出来过。
-     顺手把「这页是不是放久了没刷」也判掉：超过 6 小时就直说，别让人拿旧数字当现状。 */
-  const updEl = document.getElementById('upd');
-  if (updEl && DATA.updated) {
-    const ageH = DATA.ts ? (Date.now() / 1000 - DATA.ts) / 3600 : 0;
-    updEl.append('数据更新于 ');
-    const stamp = document.createElement('b');
-    stamp.textContent = DATA.updated;
-    updEl.append(stamp);
-    if (ageH >= 6) {
-      const late = document.createElement('span');
-      late.className = 'stale';
-      late.textContent = ` · 已 ${Math.floor(ageH)} 小时未刷新`;
-      updEl.append(late);
-    } else {
-      updEl.append(' · 每 3 小时自动采集');
-    }
-  }
-
-  const groupsEl = document.getElementById('groups');
-  const liveEl = document.getElementById('live');
-  const tpl = document.getElementById('tpl-card');
-  const LABEL = '复制链接';
-  const timers = new WeakMap();
-
-  /* ── 二维码 ────────────────────────────────────────────────────────────
-     自己写，不引库：字节模式 + 纠错 L，版本 1–6（容量 134 字节，够放本页所有链接）。
-     Reed-Solomon、掩码评分、格式信息都在这里，只保留跑得起来的必要部分。 */
   const QR = (() => {
     // GF(256) 指数 / 对数表
     const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
@@ -884,450 +599,383 @@ html.lock,html.lock body{overflow:hidden}
     return { draw };
   })();
 
-  /* ── 渲染 ─────────────────────────────────────────────────────────── */
-  const frag = document.createDocumentFragment();
-
-  DATA.groups.forEach((g, gi) => {
-    const head = document.createElement('div');
-    head.className = 'ghead';
-    head.dataset.gi = gi;
-    const h2 = document.createElement('h2');
-    h2.className = 'gt';
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    badge.textContent = String(gi + 1);
-    const kern = document.createElement('span');
-    kern.className = 'kern';
-    kern.textContent = g.kern;
-    h2.append(badge, document.createTextNode(g.title), kern);
-
-    const desc = document.createElement('p');
-    desc.className = 'gdesc';
-    // 逐个客户端包一层 nowrap，换行只发生在「·」处
-    g.clients.split('·').map(s => s.trim()).filter(Boolean).forEach((name, i) => {
-      if (i) desc.append('\u00A0·\u00A0');
-      const sp = document.createElement('span');
-      sp.className = 'cl';
-      sp.textContent = name;
-      desc.append(sp);
-    });
-
-    head.append(h2, desc);
-    frag.append(head);
-
-    g.items.forEach(it => {
-      const node = tpl.content.firstElementChild.cloneNode(true);
-      const bad = (it.streak || 0) >= 2;
-      const cnf = !!it.cnbad;
-      const iso = it.src_state === 'isolated';
-      node.className = 'card' + (it.tag.indexOf('推荐') === 0 ? ' hi' : '') + (bad || cnf ? ' dim' : '');
-
-      node.dataset.gi = gi;
-      node._it = it;                                  // 筛选时读原始数据，不解析 DOM
-      node.querySelector('.tag').textContent = it.tag;
-      // 等级：没有评分就整个不出现，不写占位符「—」，那只会让人以为是数据坏了
-      const chip = node.querySelector('.gchip');
-      if (it.grade) {
-        chip.textContent = it.grade;
-        chip.dataset.g = it.grade;
-        chip.title = `来源评级 ${it.grade} · ${it.grade_score} 分（评分依据见质量报告）`;
-        chip.hidden = false;
-      }
-      // 异常标记分三档：单轮异常 / 连续两轮降级 / 三轮以上隔离。
-      // 混成一个「近期不稳」会让人分不清「刚抖了一下」和「已经不值得用」
-      const st = it.src_state;
-      const stb = node.querySelector('.flagx.stb');
-      if (st === 'watch') { stb.textContent = '单轮异常'; stb.hidden = false; }
-      else if (st === 'degraded') { stb.textContent = '连续失败·已降级'; stb.hidden = false; }
-      else if (st === 'recovering') { stb.textContent = '恢复观察中'; stb.hidden = false; }
-      else stb.hidden = !bad;
-      node.querySelector('.flagx.cnf').hidden = !cnf;
-      node.querySelector('.flagx.iso').hidden = !iso;
-      if (iso) node.classList.add('iso');
-      node.querySelector('.freq').textContent = it.freq;
-      // 用 == null 同时接住 null 和 undefined：源拉取失败时 count 可能是 null，
-      // 只判 === null 会漏成页面上显示「undefined 条节点」
-      node.querySelector('.cnum b').textContent = it.count == null ? '—' : String(it.count);
-      node.querySelector('.cnote').textContent = it.note;
-
-      const cls = node.querySelector('.cls');
-      (it.ok || []).forEach(name => {
-        const b = document.createElement('span');
-        b.className = 'cc';
-        b.textContent = name;
-        cls.append(b);
-      });
-      if (!cls.childNodes.length) cls.remove();
-
-      // 新鲜度：近 7 天有没有冒出新节点。总量大不等于还在更新——
-      // 一个源连续几周零新增，多半只是旧节点在被到处转发，本身早就停更了。
-      // 跟踪不足 7 天时不能报新增：那会儿所有节点都是「第一次见到」，
-      // 报出来只说明我们刚开始记录，不是源在产新节点。
-      const n7 = it.new7;
-      const lifeEl = node.querySelector('.life');
-      const span = DATA.life_span;
-      if (n7 !== null && n7 !== undefined) {
-        if (span != null && span < 7) {
-          lifeEl.textContent = `已跟踪 ${span} 天`;
-          lifeEl.title = '节点存活统计刚建立，满 7 天后改为显示新增节点数';
-        } else {
-          lifeEl.textContent = n7 > 0 ? `近 7 天新增 ${n7}` : '近 7 天无新增';
-          lifeEl.classList.toggle('stale', !n7);
-          if (it.med_age !== null && it.med_age !== undefined) {
-            lifeEl.title = `该源节点中位存活 ${it.med_age} 天`;
-          }
-        }
-        lifeEl.hidden = false;
-      }
-
-      // 作者写的「每日更新」是承诺，这行是仓库最后一次提交，两个都摆出来才不误导
-      const ag = it.age_h;
-      const ageEl = node.querySelector('.age');
-      if (ag !== null && ag !== undefined) {
-        ageEl.textContent = ag < 0.5 ? '源刚刚更新'
-          : ag < 1 ? `源 ${Math.round(ag * 60)} 分钟前更新`
-          : ag < 30 ? `源 ${ag.toFixed(ag < 10 ? 1 : 0)} 小时前更新`
-          : `源 ${Math.floor(ag / 24)} 天没更新，可能已停更`;
-        ageEl.classList.toggle('stale', ag >= 30);
-        ageEl.hidden = false;
-      }
-
-      // 源站这次没拿到内容：说清是源站这一侧的问题，别让人以为是自己客户端配错了
-      const sh = it.src_http;
-      const sb = node.querySelector('.srcbad');
-      if (sh && (sh.code === 0 || sh.code >= 400)) {
-        sb.textContent = sh.code === 0
-          ? `源站本次探测${sh.err === 'TimeoutError' ? '超时' : '失败'} · ${(sh.ms / 1000).toFixed(1)}s，链接可能暂时打不开`
-          : `源站返回 ${sh.code}，链接可能暂时打不开`;
-        sb.hidden = false;
-      }
-
-      const p = it.probe;
-      const probe = node.querySelector('.probe');
-      if (p && p.total) {
-        const pct = Math.round(p.ok / p.total * 100);
-        const bar = probe.querySelector('.bar');
-        probe.classList.add(pct >= 50 ? 'ok' : pct >= 20 ? 'warn' : 'bad');
-        // 端口口径从「可连」改成「端口可连」：它只说明有程序在听，
-        // 不说明 uuid 还有效。主指标已经让给下面的真实握手
-        probe.querySelector('.pl').textContent =
-          p.ok === 0 ? `端口抽样 ${p.total} · 全不通` : `端口可连 ${p.ok}/${p.total}`;
-        bar.value = Math.max(pct, 4);
-        bar.setAttribute('aria-label', `端口抽样 ${p.total} 个，可连 ${p.ok} 个，${pct}%`);
-        probe.querySelector('.pv').textContent = pct + '%';
-      } else {
-        probe.remove();
-      }
-
-      // 真实握手：经 mihomo 真的出网，拿到 204 才算可用。这是主指标，
-      // 排在端口口径前面——卡片上最该被看见的是「能用几条」，不是「端口开了几条」
-      const rt = it.rtest, ro = it.rok;
-      const realEl = node.querySelector('.real');
-      if (rt) {
-        const pct = Math.round(ro / rt * 100);
-        realEl.append(document.createTextNode('真实可用 '));
-        const b = document.createElement('b');
-        b.textContent = `${ro}/${rt}（${pct}%）`;
-        realEl.append(b);
-        // 低于 10% 才标红：免费节点真实可用率本来就低，20% 不算异常
-        realEl.classList.toggle('weak', pct < 10);
-        realEl.hidden = false;
-      }
-
-      const url = node.querySelector('.url');
-      url.textContent = it.url;
-
-      const btn = node.querySelector('.cbtn');
-      btn.dataset.url = it.url;
-      btn.dataset.tag = it.tag;
-      btn.setAttribute('aria-label', `复制「${it.tag}」的链接`);
-
-      frag.append(node);
-    });
-  });
-
-  groupsEl.append(frag);
-
-  /* ── P21 查找与筛选：搜索 / 客户端 / 排序 / 两个可用性开关 ────────────
-     所有筛选项都从真实卡片数据提取，不写死空类别；所有操作只改 hidden
-     与 DOM 顺序，不动采集数据，随时可清除复位。 */
-  const fAlive = document.getElementById('fAlive');
-  const fCn = document.getElementById('fCn');
-  const fcount = document.getElementById('fcount');
-  const fempty = document.getElementById('fempty');
-  const fClear = document.getElementById('fClear');
-  const fSearch = document.getElementById('fSearch');
-  const fProto = document.getElementById('fProto');
-  const fSort = document.getElementById('fSort');
-  const cards = [...groupsEl.querySelectorAll('.card')];
-
-  // 客户端选项来自真实卡片的 it.ok（Clash / sing-box / v2rayNG / Hiddify / 小火箭）。
-  // 按出现次数排序，多的在前；没有数据的标签不会出现。
-  const protoCount = new Map();
-  cards.forEach(c => (c._it && c._it.ok || []).forEach(name => {
-    protoCount.set(name, (protoCount.get(name) || 0) + 1);
-  }));
-  [...protoCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh'))
-    .forEach(([name, n]) => {
-      const o = document.createElement('option');
-      o.value = name;
-      o.textContent = `${name}（${n}）`;
-      fProto.append(o);
-    });
-
-  const fstate = { alive: false, cn: false, q: '', proto: '', sort: 'default' };
-  // 记住初始 DOM 顺序，默认排序即恢复它，排序可重复且可逆
-  const originalOrder = new Map(cards.map((c, i) => [c, i]));
-
-  /* 卡片序号：筛选后重排，滑到哪张都清楚是第几条 */
-  function renumber() {
-    let n = 0;
-    groupsEl.querySelectorAll('.card').forEach(c => {
-      if (c.hidden) { c.querySelector('.idx').textContent = ''; return; }
-      n += 1;
-      c.querySelector('.idx').textContent = String(n).padStart(2, '0');
-    });
-    return n;
+  /* ═══════════ 展示名映射（前端独立字段，不动 sources.yaml 的 name / ID / URL）═══════════
+     两个 ermaozi 来源用 sub 副标签区分；repo 为完整 GitHub 地址（详情用）。 */
+  const DISPLAY = {
+    'https://blog.ermao.net/sub/reachable/clash/ermao.net':        {name:'ermaozi',   sub:'Reachable', repo:'https://github.com/ermaozi/get_subscribe'},
+    'https://blog.ermao.net/sub/clash/ermao.net':                  {name:'ermaozi',   sub:'Full',      repo:'https://github.com/ermaozi/get_subscribe'},
+    'https://blog.ermao.net/sub/v2ray/ermao.net':                  {name:'ermaozi',   sub:'',          repo:'https://github.com/ermaozi/get_subscribe'},
+    'https://radarhub.top/clash.yaml':                             {name:'radarhub',  sub:'',          repo:''},
+    'https://radarhub.top/sing-box.json':                          {name:'radarhub',  sub:'',          repo:''},
+    'https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml': {name:'anaer',     sub:'',          repo:'https://github.com/anaer/Sub'},
+    'https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml':{name:'Barabama',sub:'',repo:'https://github.com/Barabama/FreeNodes'},
+    'https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub':{name:'Pawdroid',sub:'',repo:'https://github.com/Pawdroid/Free-servers'},
+    'https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt':{name:'ALIILAPRO',sub:'',repo:'https://github.com/ALIILAPRO/v2rayNG-Config'},
+    'https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub':{name:'v2rayfree',sub:'',repo:'https://github.com/free-nodes/v2rayfree'},
+    'https://raw.githubusercontent.com/free18/v2ray/main/v.txt':   {name:'free18',    sub:'',          repo:'https://github.com/free18/v2ray'},
+    'https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt':{name:'v2ray-configs',sub:'',repo:'https://github.com/MatinGhanbari/v2ray-configs'},
+    'https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json':{name:'bzfq21',sub:'',repo:'https://github.com/bzfq21/proxy-singbox'},
+    'https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json':{name:'awesome-vpn',sub:'',repo:'https://github.com/awesome-vpn/awesome-vpn'},
+    'https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt':{name:'Andrejewild',sub:'',repo:'https://github.com/Andrejewild/hiddify-singbox-configs-ru'}
+  };
+  const KEYS = {clash:'clash', v2ray:'v2ray', singbox:'singbox'};
+  const GROUP_CLASS = ['clash','v2ray','singbox'];
+  function disp(it){
+    const d = DISPLAY[it.url];
+    if (d) return d;
+    // 兜底：从 URL 猜一个可读名，但绝不改 url 本身
+    let n = 'source';
+    try { const u = new URL(it.url); n = u.hostname.replace(/^www\./,''); } catch(e){}
+    return {name:n, sub:'', repo:''};
+  }
+  function ageText(h){
+    if (h === null || h === undefined) return '—';
+    if (h < 0.5) return '刚刚';
+    if (h < 1) return Math.round(h*60)+' 分钟前';
+    if (h < 30) return (h<10 ? h.toFixed(1) : Math.round(h))+' 小时前';
+    return Math.floor(h/24)+' 天前';
+  }
+  function realPct(it){
+    if (!it.rtest) return null;
+    return Math.round((it.rok||0)/it.rtest*100);
+  }
+  function statusOf(it){
+    const p = realPct(it);
+    if (p === null) return {cls:'warn', txt:'样本不足'};
+    if (it.src_state === 'isolated') return {cls:'bad', txt:'已隔离'};
+    if (p >= 50) return {cls:'ok', txt:'正常'};
+    if (p >= 20) return {cls:'warn', txt:'偏低'};
+    return {cls:'bad', txt:'异常'};
   }
 
-  // 排序比较：缺失值一律排末尾，绝不把「没数据」当成 0 参与比较
-  function sortValue(it, key) {
-    if (key === 'real') return it.rtest ? it.rok / it.rtest : -1;
-    if (key === 'count') return it.count == null ? -1 : it.count;
-    if (key === 'fresh') return it.age_h == null ? -1 : -it.age_h; // 越小越新 → 取负升序
-    return 0;
+  /* ── 减少动画 / 低性能降级 ── */
+  const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const LOW = (navigator.hardwareConcurrency && navigator.hardwareConcurrency<=2)
+           || (navigator.deviceMemory && navigator.deviceMemory<=2);
+  if (REDUCE || LOW) document.documentElement.classList.add('no-motion');
+  if (LOW) {
+    const s=document.createElement('style');
+    s.textContent='*{animation:none!important;transition-duration:.01ms!important}';
+    document.head.appendChild(s);
   }
 
-  function applyFilter() {
-    const per = new Map();
-    const q = fstate.q.trim().toLocaleLowerCase();
-    cards.forEach(card => {
-      const it = card._it || {};
-      let ok = true;
-      if (fstate.alive) {
-        // 按真实可用率筛，不再按端口。阈值 50%：免费池里真实可用过半数
-        // 已经算好源，卡太严（比如 80%）会筛出个位数，等于没这个开关
-        ok = !!(it.rtest && it.rok / it.rtest >= 0.5);
-      }
-      if (ok && fstate.cn) ok = !it.cnbad;
-      if (ok && fstate.proto) ok = !!(it.ok || []).includes(fstate.proto);
-      if (ok && q) {
-        const hay = [it.tag, it.note, it.url].filter(Boolean).join(' ').toLocaleLowerCase();
-        ok = hay.includes(q);
-      }
-      card.hidden = !ok;
-      if (ok) per.set(card.dataset.gi, (per.get(card.dataset.gi) || 0) + 1);
-    });
-
-    // 排序：按分组分别重排，保持分组结构不变
-    if (fstate.sort === 'default') {
-      cards.forEach(c => c.parentNode.appendChild(c)); // 回到各自分组末尾 = 原顺序
-      cards.sort((a, b) => originalOrder.get(a) - originalOrder.get(b));
-      cards.forEach(c => c.parentNode.appendChild(c));
-    } else {
-      const groups = [...groupsEl.querySelectorAll('.ghead')].map(h => h.dataset.gi);
-      groups.forEach(gi => {
-        const list = cards.filter(c => c.dataset.gi === gi);
-        list.sort((a, b) => {
-          const av = sortValue(a._it || {}, fstate.sort);
-          const bv = sortValue(b._it || {}, fstate.sort);
-          if (av < 0 && bv < 0) return originalOrder.get(a) - originalOrder.get(b);
-          if (av < 0) return 1;
-          if (bv < 0) return -1;
-          return bv - av || originalOrder.get(a) - originalOrder.get(b);
-        });
-        list.forEach(c => c.parentNode.appendChild(c));
-      });
-    }
-
-    groupsEl.querySelectorAll('.ghead').forEach(h => {
-      h.hidden = !per.get(h.dataset.gi);
-    });
-    let n = 0;
-    per.forEach(v => { n += v; });
-    renumber();
-    const on = fstate.alive || fstate.cn || !!fstate.q || !!fstate.proto || fstate.sort !== 'default';
-    fcount.textContent = on ? `筛出 ${n} 条` : '';
-    fempty.hidden = !(on && n === 0);
-    fClear.hidden = !on;
-    void groupsEl.offsetHeight;
+  /* ── Toast ── */
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2000);
   }
 
-  [[fAlive, 'alive'], [fCn, 'cn']].forEach(([btn, key]) => {
-    btn.addEventListener('click', () => {
-      fstate[key] = !fstate[key];
-      btn.setAttribute('aria-pressed', String(fstate[key]));
-      applyFilter();
-    });
-  });
-  let searchTimer;
-  fSearch.addEventListener('input', () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => { fstate.q = fSearch.value; applyFilter(); }, 120);
-  });
-  fProto.addEventListener('change', () => { fstate.proto = fProto.value; applyFilter(); });
-  fSort.addEventListener('change', () => { fstate.sort = fSort.value; applyFilter(); });
-  function clearAll() {
-    fstate.alive = false; fstate.cn = false; fstate.q = ''; fstate.proto = ''; fstate.sort = 'default';
-    fAlive.setAttribute('aria-pressed', 'false');
-    fCn.setAttribute('aria-pressed', 'false');
-    fSearch.value = ''; fProto.value = ''; fSort.value = 'default';
-    applyFilter();
-    liveEl.textContent = '已清除全部筛选';
-  }
-  fClear.addEventListener('click', clearAll);
-  const fEmptyClear = document.getElementById('fEmptyClear');
-  if (fEmptyClear) fEmptyClear.addEventListener('click', clearAll);
-
-  /* 先把卡片真实高度钉进 contain-intrinsic-size，再让它们跳过渲染。
-     不这么做的话，视口外的卡只能按估值占位，滚动时逐张修正，文档高度会一路往下掉
-     （实测从 5214 掉到 4960），滚动条跟着抖。这里一次性布局，只多花几毫秒。 */
-  function pinHeights(list) {
-    list.forEach(el => { el.style.contentVisibility = 'visible'; });
-    void groupsEl.offsetHeight;                     // 先让卡真实渲染一次
-    list.forEach(el => {
-      const cs = getComputedStyle(el);
-      // contain-intrinsic-size 量的是 content-box，rect.height 是 border-box，
-      // 直接写进去每张卡会多出 padding 与边框（38px），页面高度就一路往下掉
-      const box = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
-                + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
-      el.style.containIntrinsicSize = Math.round(el.getBoundingClientRect().height - box) + 'px';
-    });
-    void groupsEl.offsetHeight;                     // 再强制一次，确保新尺寸被采纳
-    list.forEach(el => { el.style.contentVisibility = ''; });
-    void groupsEl.offsetHeight;
-  }
-
-  renumber();
-  pinHeights(cards);   // cards 已在筛选段定义为数组，不再重复声明
-
-  /* ── 复制 ─────────────────────────────────────────────────────────── */
-  function reset(btn) {
-    btn.removeAttribute('data-copied');
-    btn.removeAttribute('data-fading');
-    btn.querySelector('.cbtn-txt').textContent = LABEL;
-  }
-
-  function flash(btn, plain, ok) {
-    const prev = timers.get(btn);
-    if (prev) clearTimeout(prev);
-    btn.removeAttribute('data-fading');
-    btn.querySelector('.cbtn-txt').textContent = plain;
-    if (ok) btn.setAttribute('data-copied', ''); else btn.removeAttribute('data-copied');
-    // 重复点击重启计时，不叠加
-    timers.set(btn, setTimeout(() => {
-      btn.setAttribute('data-fading', '');
-      timers.set(btn, setTimeout(() => reset(btn), 300));
-    }, 2200));
-  }
-
-  function fallbackSelect(node) {
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    const sel = getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-
-  async function doCopy(btn, codeEl) {
-    const url = btn.dataset.url;
-    const tag = btn.dataset.tag;
+  /* ── 复制（含降级）── */
+  async function copyText(text, okMsg){
     try {
-      await navigator.clipboard.writeText(url);
-      flash(btn, '已复制 ✓', true);
-      liveEl.textContent = `已复制：${tag}`;
-    } catch {
-      const node = codeEl || btn.closest('.card').querySelector('.url');
-      fallbackSelect(node);
-      flash(btn, '已选中，长按复制', false);
-      liveEl.textContent = `复制失败，已选中「${tag}」的链接，请长按手动复制`;
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta=document.createElement('textarea');
+        ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        const ok=document.execCommand('copy'); ta.remove();
+        if(!ok) throw new Error('execCommand failed');
+      }
+      toast(okMsg || '已复制订阅链接');
+      return true;
+    } catch(e){
+      toast('复制失败，请在详情中长按链接手动复制');
+      return false;
     }
   }
 
-  /* ── 二维码弹窗 ───────────────────────────────────────────────────── */
-  const qrm = document.getElementById('qrm');
-  const qrmSheet = qrm.querySelector('.qr-sheet');
-  const qrmTitle = document.getElementById('qrmTitle');
-  const qrmClose = document.getElementById('qrmClose');
-  const qrmCanvas = qrm.querySelector('.qrc');
-  const qrmTip = qrm.querySelector('.qr-tip');
-  let qrBack = null;          // 记住哪个按钮打开的，关闭后把焦点还回去
-
-  function closeQr() {
-    if (qrm.hidden) return;
-    qrm.hidden = true;
-    document.documentElement.classList.remove('lock');
-    const back = qrBack;
-    qrBack = null;
-    if (back) back.focus({ preventScroll: true });
-  }
-
-  function openQr(btn) {
-    const card = btn.closest('.card');
-    const url = card.querySelector('.url').textContent.trim();
-
-    qrBack = btn;
-    qrmTitle.textContent = card.querySelector('.tag').textContent;
-
-    // 每次重开都重画：编码几毫秒，比缓存 canvas 与失败态更省心
-    qrmTip.textContent = '手机相机扫一下 · 存图的话长按图片或直接截图';
-    qrmCanvas.hidden = false;
-    if (!QR.draw(qrmCanvas, url)) {
-      qrmTip.textContent = '链接太长，二维码装不下，用卡片上的复制按钮';
-      qrmCanvas.hidden = true;
+  /* ── 概览（数字过渡）── */
+  function countUp(el, target, suffix){
+    if (REDUCE || LOW || target === null || target === undefined) {
+      el.textContent = (target===null||target===undefined) ? '—' : (target+suffix||'');
+      return;
     }
-
-    qrm.hidden = false;
-    document.documentElement.classList.add('lock');
-    qrmSheet.scrollTop = 0;
-    qrmClose.focus({ preventScroll: true });
+    const dur=700, t0=performance.now();
+    const num = typeof target === 'number' ? target : parseInt(target,10);
+    if (isNaN(num)) { el.textContent=target; return; }
+    function tick(t){
+      const k=Math.min(1,(t-t0)/dur);
+      const v=Math.round(num*(1-Math.pow(1-k,3)));
+      el.textContent=v+(suffix||'');
+      if(k<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
+  (function overview(){
+    const st = DATA.stats || {};
+    document.getElementById('upd').textContent = DATA.updated || st.checked_at || '—';
+    const aboutUpd = document.getElementById('aboutUpd');
+    if (aboutUpd) aboutUpd.textContent = DATA.updated || st.checked_at || '—';
+    countUp(document.getElementById('ovSrc'), st.sources ?? '—', '');
+    const rt = st.real_tested, ro = st.real_ok;
+    const ovReal = document.getElementById('ovReal');
+    if (rt && ro !== null && ro !== undefined) {
+      countUp(ovReal, Math.round(ro/rt*100), '%');
+    } else {
+      ovReal.textContent='样本不足'; ovReal.parentElement.classList.add('warn');
+    }
+    const t = st.checked_at || DATA.updated || '—';
+    document.getElementById('ovTime').textContent = String(t).slice(-5) || '—';
+  })();
 
-  qrmClose.addEventListener('click', closeQr);
-  // 只有点遮罩本身才关；点面板内部不关
-  qrm.addEventListener('click', e => { if (e.target === qrm) closeQr(); });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !qrm.hidden) closeQr();
+  /* ── 首页分组与卡片 ── */
+  const groupsEl = document.getElementById('groups');
+  const frag = document.createDocumentFragment();
+  DATA.groups.forEach((g, gi) => {
+    const cls = GROUP_CLASS[gi] || 'clash';
+    const sec = document.createElement('section');
+    sec.className = 'group';
+    const head = document.createElement('button');
+    head.type='button'; head.className='g-head '+cls;
+    head.setAttribute('aria-expanded','true');
+    head.innerHTML = '<span class="g-dot"></span><span class="g-title"></span>'
+      +'<span class="g-count"></span><span class="g-core"></span>'
+      +'<svg class="g-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    head.querySelector('.g-title').textContent = g.title;
+    head.querySelector('.g-count').textContent = g.items.length+' 条';
+    head.querySelector('.g-core').textContent = g.kern || '';
+    head.addEventListener('click',()=>{
+      const collapsed = sec.classList.toggle('collapsed');
+      head.setAttribute('aria-expanded', String(!collapsed));
+    });
+    sec.appendChild(head);
+
+    const list = document.createElement('div');
+    list.className='g-list';
+    g.items.forEach((it, ii) => {
+      const d = disp(it);
+      const stt = statusOf(it);
+      const pct = realPct(it);
+      const card = document.createElement('article');
+      card.className='card '+cls+(stt.cls==='bad' ? ' dim':'');
+      card.style.animationDelay = Math.min(ii*40, 320)+'ms';
+      card._it = it; card._d = d;
+      // 第一行
+      const r1=document.createElement('div'); r1.className='c-row1';
+      const name=document.createElement('span'); name.className='c-name'; name.textContent=d.name;
+      r1.appendChild(name);
+      if (d.sub){ const sub=document.createElement('span'); sub.className='c-sub'; sub.textContent=d.sub; r1.appendChild(sub); }
+      const status=document.createElement('span'); status.className='c-status '+stt.cls;
+      status.innerHTML='<i></i>'; status.appendChild(document.createTextNode(stt.txt));
+      r1.appendChild(status);
+      const acts=document.createElement('div'); acts.className='c-acts';
+      const detailBtn=document.createElement('button');
+      detailBtn.type='button'; detailBtn.className='icon-btn'; detailBtn.setAttribute('aria-label','查看 '+d.name+' 详情');
+      detailBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>';
+      detailBtn.dataset.act='detail';
+      const copyBtn=document.createElement('button');
+      copyBtn.type='button'; copyBtn.className='icon-btn'; copyBtn.setAttribute('aria-label','复制 '+d.name+' 订阅链接');
+      copyBtn.innerHTML='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>';
+      copyBtn.dataset.act='copy';
+      acts.append(detailBtn, copyBtn); r1.appendChild(acts);
+      // 第二行
+      const r2=document.createElement('div'); r2.className='c-row2 num';
+      const cnt = (it.count===null||it.count===undefined) ? '—' : it.count;
+      const r2a=document.createElement('span'); r2a.innerHTML='<b>'+cnt+'</b> 节点'; r2.appendChild(r2a);
+      const sep1=document.createElement('span'); sep1.className='sep'; sep1.textContent='·'; r2.appendChild(sep1);
+      const real=document.createElement('span'); real.className='real'+(pct!==null&&pct<10?' weak':'');
+      real.innerHTML = pct!==null ? '真实 <b>'+pct+'%</b>' : '无真实样本';
+      r2.appendChild(real);
+      const sep2=document.createElement('span'); sep2.className='sep'; sep2.textContent='·'; r2.appendChild(sep2);
+      const age=document.createElement('span'); age.textContent=ageText(it.age_h); r2.appendChild(age);
+      card.append(r1, r2);
+      // 整卡点击打开详情（按钮除外）
+      card.addEventListener('click', e=>{
+        if (e.target.closest('[data-act="copy"]')) {
+          copyText(it.url, '已复制 '+d.name+' 订阅链接');
+          const b=e.target.closest('.icon-btn'); b.classList.add('copied');
+          setTimeout(()=>b.classList.remove('copied'),1200);
+          return;
+        }
+        if (e.target.closest('[data-act="detail"]') || !e.target.closest('button')) openDetail(it, d, cls);
+      });
+      list.appendChild(card);
+    });
+    sec.appendChild(list);
+    frag.appendChild(sec);
+  });
+  groupsEl.appendChild(frag);
+
+  /* ── 详情弹层 ── */
+  const dmOverlay=document.getElementById('dmOverlay');
+  const dmTitle=document.getElementById('dmTitle'), dmSub=document.getElementById('dmSub');
+  const dmBody=document.getElementById('dmBody'), dmClose=document.getElementById('dmClose');
+  const dmCopy=document.getElementById('dmCopy'), dmQr=document.getElementById('dmQr'), dmRepo=document.getElementById('dmRepo');
+  let cur=null, lastFocus=null;
+
+  function row(k, vHtml, mono){
+    const r=document.createElement('div'); r.className='dm-row';
+    const kk=document.createElement('span'); kk.className='k'; kk.textContent=k;
+    const vv=document.createElement('div'); vv.className='v'+(mono?' mono':''); vv.innerHTML=vHtml;
+    r.append(kk,vv); return r;
+  }
+  function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function openDetail(it, d, cls){
+    cur={it,d};
+    lastFocus=document.activeElement;
+    dmTitle.textContent=d.name;
+    const gname = cls==='clash'?'Clash 系':cls==='v2ray'?'V2Ray 系':'sing-box 系';
+    dmSub.textContent='聚合订阅源 · '+gname+(d.sub?' · '+d.sub:'');
+    dmBody.innerHTML='';
+    const box=document.createElement('div'); box.className='dm-card';
+    if (d.repo) box.appendChild(row('项目仓库','<a href="'+esc(d.repo)+'" target="_blank" rel="noopener">'+esc(d.repo.replace(/^https?:\/\//,''))+'</a>'));
+    else box.appendChild(row('来源类型','公开订阅站点（无开源仓库）'));
+    box.appendChild(row('订阅地址',esc(it.url),true));
+    const cnt=(it.count===null||it.count===undefined)?'—':(it.count+' 条');
+    box.appendChild(row('可用节点','<span class="num">'+cnt+'</span>'));
+    const pct=realPct(it);
+    if (pct!==null) box.appendChild(row('真实可用率','<span class="num">'+(it.rok||0)+' / '+it.rtest+'（'+pct+'%）</span>'));
+    else box.appendChild(row('真实可用率','<span class="num">样本不足，暂不显示</span>'));
+    box.appendChild(row('检测样本','<span class="num">'+(it.rtest||0)+' 个</span>'));
+    const grade = it.grade ? (it.grade+(it.grade_score!==null&&it.grade_score!==undefined?(' · '+it.grade_score+' 分'):'')) : '暂无评分';
+    box.appendChild(row('质量等级',esc(grade)));
+    box.appendChild(row('国内直连',it.cnbad?'部分情况不可直连，需代理更新':'未发现明显异常'));
+    box.appendChild(row('适用客户端',(it.ok&&it.ok.length?it.ok.map(esc).join('、'):'按分组内核选择')));
+    box.appendChild(row('更新时间',ageText(it.age_h)));
+    dmBody.appendChild(box);
+    if (it.note){ const p=document.createElement('p'); p.className='dm-note'; p.textContent=it.note; dmBody.appendChild(p); }
+    const w=document.createElement('div'); w.className='dm-warn';
+    w.textContent='免费节点仅供技术学习与测试参考，稳定性与安全性无法保证；请遵守所在地区法律法规。';
+    dmBody.appendChild(w);
+    dmRepo.style.display = d.repo ? '' : 'none';
+    dmOverlay.hidden=false;
+    requestAnimationFrame(()=>dmOverlay.classList.add('show'));
+    document.documentElement.style.overflow='hidden';
+    dmClose.focus({preventScroll:true});
+  }
+  function closeDetail(){
+    if (dmOverlay.hidden) return;
+    dmOverlay.classList.remove('show');
+    document.documentElement.style.overflow='';
+    setTimeout(()=>{ dmOverlay.hidden=true; }, REDUCE?0:340);
+    cur=null;
+    if (lastFocus) lastFocus.focus({preventScroll:true});
+  }
+  dmClose.addEventListener('click',closeDetail);
+  dmOverlay.addEventListener('click',e=>{ if(e.target===dmOverlay) closeDetail(); });
+  dmCopy.addEventListener('click',()=>{ if(cur) copyText(cur.it.url,'已复制 '+cur.d.name+' 订阅链接'); });
+  dmRepo.addEventListener('click',()=>{ if(cur&&cur.d.repo) window.open(cur.d.repo,'_blank','noopener'); });
+
+  /* ── 二维码（复用 QR 编码器）── */
+  const qrOverlay=document.getElementById('qrOverlay');
+  const qrTitle=document.getElementById('qrTitle'), qrCanvas=document.getElementById('qrCanvas');
+  const qrTip=document.getElementById('qrTip'), qrClose=document.getElementById('qrClose'), qrCopy=document.getElementById('qrCopy');
+  let qrUrl=null, qrBack=null;
+  function closeQr(){
+    if (qrOverlay.hidden) return;
+    qrOverlay.classList.remove('show');
+    setTimeout(()=>{ qrOverlay.hidden=true; }, REDUCE?0:300);
+    if (qrBack) qrBack.focus({preventScroll:true});
+  }
+  function openQr(url, title, back){
+    qrUrl=url; qrBack=back||document.activeElement;
+    qrTitle.textContent=title||'订阅二维码';
+    qrTip.textContent='手机相机扫一下 · 存图请长按或截图';
+    qrOverlay.hidden=false;
+    qrCanvas.hidden=false;
+    if(!QR.draw(qrCanvas, url)){ qrCanvas.hidden=true; qrTip.textContent='链接过长，二维码装不下，请用复制按钮'; }
+    requestAnimationFrame(()=>qrOverlay.classList.add('show'));
+    qrClose.focus({preventScroll:true});
+  }
+  dmQr.addEventListener('click',()=>{ if(cur) openQr(cur.it.url, cur.d.name+' 订阅二维码', dmQr); });
+  qrClose.addEventListener('click',closeQr);
+  qrOverlay.addEventListener('click',e=>{ if(e.target===qrOverlay) closeQr(); });
+  qrCopy.addEventListener('click',()=>{ if(qrUrl) copyText(qrUrl,'已复制订阅链接'); });
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape') return;
+    if(!qrOverlay.hidden) closeQr();
+    else if(!dmOverlay.hidden) closeDetail();
   });
 
-  // 一次委托替代 11 个 onclick：按钮点击走按钮，链接框点击走同一张卡片的按钮
-  groupsEl.addEventListener('click', e => {
-    const qb = e.target.closest('.qbtn');
-    if (qb) return openQr(qb);
-    const btn = e.target.closest('.cbtn');
-    if (btn) return doCopy(btn);
-    const code = e.target.closest('.url');
-    if (code) {
-      const card = code.closest('.card');
-      doCopy(card.querySelector('.cbtn'), code);
-    }
-  });
+  /* ── 底部导航 ── */
+  const tabs=document.querySelectorAll('.tab');
+  const pages={home:document.getElementById('page-home'),data:document.getElementById('page-data'),guide:document.getElementById('page-guide'),about:document.getElementById('page-about')};
+  let dataLoaded=false;
+  function go(page){
+    Object.keys(pages).forEach(k=>{ pages[k].hidden = k!==page; });
+    tabs.forEach(t=>{
+      const on=t.dataset.page===page;
+      t.classList.toggle('active',on);
+      if(on) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current');
+    });
+    window.scrollTo({top:0,behavior:REDUCE?'auto':'smooth'});
+    if(page==='data' && !dataLoaded){ dataLoaded=true; loadDataCenter(); }
+  }
+  tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.page)));
 
-  /* ── 明暗跟随系统 ───────────────────────────────────────────────────
-     没有手动开关了，只跟系统的 prefers-color-scheme；
-     这里只负责把浏览器地址栏的主题色同步过去（light-dark() 自己会换面）。 */
-  const mq = matchMedia('(prefers-color-scheme: dark)');
-  const root = document.documentElement;
-  const effective = () => root.dataset.theme || (mq.matches ? 'dark' : 'light');
-
-  function paintTheme() {
-    const dark = effective() === 'dark';
-    document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
-      m.removeAttribute('media');
-      m.content = dark ? '#0B0C0F' : '#FAFBFC';
+  /* ── 数据中心（真实数据源，缺数据不伪造）── */
+  function statBox(b, label){
+    const d=document.createElement('div'); d.className='stat';
+    d.innerHTML='<b class="num">'+esc(b)+'</b><span>'+esc(label)+'</span>'; return d;
+  }
+  async function getJson(path){
+    try{ const r=await fetch(path,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.json(); }
+    catch(e){ return null; }
+  }
+  const RANK_LABEL={stable:'稳定',lowlat:'低延迟',fast:'高速',best:'综合优选'};
+  function rankRows(el, lists, counts, basis){
+    el.innerHTML='';
+    const keys=Object.keys(lists||{});
+    if(!keys.length){ el.innerHTML='<p class="data-note">榜单数据暂不可用</p>'; return; }
+    keys.forEach(k=>{
+      // 兼容两种结构：值直接是数组，或 {list:[...], label:...}
+      const raw=lists[k];
+      const arr=Array.isArray(raw) ? raw : (raw&&(raw.list||raw.items)) || [];
+      const label=(basis&&basis[k]&&basis[k].title) || (!Array.isArray(raw)&&raw&&raw.label) || RANK_LABEL[k] || k;
+      const cnt=(counts&&counts[k]!==undefined)?counts[k]:arr.length;
+      const h=document.createElement('div'); h.style.cssText='font-size:12px;color:var(--ink-2);margin:10px 0 2px;font-weight:600';
+      h.textContent=label+' · '+cnt+' 条';
+      el.appendChild(h);
+      if(!arr.length){ const p=document.createElement('p');p.className='data-note';p.textContent='暂无可展示条目';el.appendChild(p);return; }
+      arr.slice(0,5).forEach((n,i)=>{
+        const row=document.createElement('div'); row.className='rank-row';
+        const nm=(n.name||n.tag||n.addr||n.host||('节点'+(i+1)));
+        let vl = n.score!==undefined ? ('评分 '+n.score)
+               : (n.ms!==undefined ? n.ms+'ms'
+               : (n.rate!==undefined ? Math.round(n.rate*100)+'%' : (n.region||n.rg||n.proto||'')));
+        row.innerHTML='<span class="n">'+(i+1)+'</span><span class="nm">'+esc(nm)+'</span><span class="vl">'+esc(vl)+'</span>';
+        el.appendChild(row);
+      });
     });
   }
-
-  mq.addEventListener('change', () => { if (!root.dataset.theme) paintTheme(); });
-  paintTheme();
-
-  /* ── 入场 ─────────────────────────────────────────────────────────── */
-  /* 原来这里还有一段「副标题逐字晕开」，找的是 .sub —— 但 .sub 当时不在 DOM 里，
-     所以它从上线起就没执行过。现在 .sub 装的是带 <b> 的时间行，拆成单字会把
-     加粗和「已延迟」的配色一起拆掉，干脆去掉，只留 h1 的位移淡入。 */
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const h1 = document.querySelector('h1');
-    if (h1) h1.style.animation = 'rise .55s var(--e-out) both';
+  async function loadDataCenter(){
+    const st=DATA.stats||{};
+    const real=document.getElementById('dcReal');
+    real.appendChild(statBox(st.real_ok??'—','真实可用节点'));
+    real.appendChild(statBox(st.real_tested??'—','真实检测样本'));
+    const dcChecked=document.getElementById('dcChecked');
+    dcChecked.textContent = st.checked_at ? ('检测时间：'+st.checked_at+' · 口径：mihomo 真握手 204') : '检测时间暂不可用';
+    const score=document.getElementById('dcScore');
+    score.appendChild(statBox(st.sources??'—','来源数'));
+    score.appendChild(statBox(st.dedup??'—','去重入库节点'));
+    // 质量分布
+    const dist=document.getElementById('dcDist'); dist.innerHTML='';
+    const tags=st.tags||{};
+    Object.keys(tags).slice(0,8).forEach(k=>{ const c=document.createElement('span');c.className='chip';c.textContent=k+' '+tags[k];dist.appendChild(c); });
+    if(!dist.childNodes.length) dist.innerHTML='<p class="data-note">质量分布数据暂不可用</p>';
+    // 来源治理
+    const gov=document.getElementById('dcGov'); gov.innerHTML='';
+    const g=await getJson('data/source_governance.json');
+    if(g){
+      const dup=Array.isArray(g.duplicates)?g.duplicates.length:(g.duplicates?'—':'0');
+      const ov=Array.isArray(g.overlap)?g.overlap.length:'—';
+      gov.appendChild(statBox(dup,'同源/镜像源组'));
+      gov.appendChild(statBox(ov,'高度重合源组'));
+      gov.appendChild(statBox(g.obs_rounds??'—','观察轮次'));
+      const note=document.createElement('p'); note.className='data-note';
+      note.textContent='统计窗口 '+(g.window||'—')+' 天；地址按 sha256 存储，重合判断样本 <20 条不判。';
+      gov.appendChild(note);
+    } else gov.innerHTML='<p class="data-note">来源治理数据暂不可用</p>';
+    // 榜单
+    const picks=await getJson('data/picks.json');
+    rankRows(document.getElementById('dcPicks'), picks&&picks.lists, picks&&picks.counts, picks&&picks.basis);
+    const pn=document.getElementById('dcPickNote');
+    if(picks) pn.textContent='依据真实检测打分 · 统计窗口 '+(picks.window_days||'—')+' 天 · 生成于 '+(picks.updated||'—');
   }
 })();
 </script>
