@@ -47,6 +47,15 @@ fi
 # 1. 出网安全边界：SSRF/DNS 私网/重定向/大小/超时/脱敏/原子写（离线自测）
 run "安全边界自测 (netsafe)" "$PY" netsafe.py
 
+# 1b. P24：核心模块回归——这些 selftest 此前存在但 verify.sh 没调用，
+#     改动核心逻辑时不会被一键验证发现。全部离线、不写数据、不联网。
+run "真检测逻辑回归 (nodecheck)" "$PY" nodecheck.py --selftest
+run "评分逻辑回归 (nodescore)" "$PY" nodescore.py --selftest
+run "历史压缩回归 (history)" "$PY" history.py --selftest
+run "来源治理回归 (governance)" "$PY" governance.py --selftest
+run "优选榜单回归 (picks)" "$PY" picks.py --selftest
+run "源评分回归 (score)" "$PY" score.py --selftest
+
 # 2a. 同轮构建台账自测：run_id、阶段成功标记、跨轮与篡改拦截
 run "同轮台账自测 (run_ledger)" "$PY" run_ledger.py --selftest
 
