@@ -336,10 +336,14 @@ def save_history(doc, force=None):
     return True
 
 
-def annotate(rows, history=None, stamp=None, persist=True):
+def annotate(rows, history=None, stamp=None, persist=True, record=True):
     """给每行 stats 补上 score / grade / state / dims，并把本轮写进历史。
 
     返回 (rows, history)。rows 原地修改，顺序不变。
+
+    record=False 时只算不记：`collector.py --render` 会在采集之后重算一次
+    （评分口径改了要立刻反映到页面），那一轮的历史已经由采集写过了，
+    再记一次会让同一轮出现两条不同时间戳的条目，把「连续几轮」数乱。
     """
     hist = history if history is not None else load_history()
     hist.setdefault("sources", {})
@@ -399,6 +403,8 @@ def annotate(rows, history=None, stamp=None, persist=True):
                  "rtest": row.get("rtest"), "rok": row.get("rok"),
                  "fails_streak": row.get("fails_streak"), "penalty": penalty}
         # 同一轮重跑（--render、本地调试）应该覆盖而不是追加
+        if not record:
+            continue
         if series and series[-1].get("ts") == entry["ts"]:
             series[-1] = entry
         else:

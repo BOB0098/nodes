@@ -787,7 +787,7 @@ def rerender():
                 r["real_pct"] = (round(r["rok"] / r["rtest"] * 100, 1)
                                  if r["rtest"] else None)
         rows, _h = scoring.annotate(rows, scoring.load_history(), stamp=old.get("updated"),
-                                    persist=False)
+                                    persist=False, record=False)
         grades = {r["url"]: r for r in rows}
         print(f"  按新公式重算 {len(rows)} 个源："
               + " ".join(f"{r.get('grade')}{r.get('score')}" for r in rows[:6]) + " …")
