@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 07:37",
+ "updated": "2026-11-25 12:46",
  "rounds": 30,
  "sources": {
   "radarhub-clash": [
@@ -121,6 +121,20 @@
     "parsed": 495,
     "unique": 6,
     "alive_pct": 100,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 80.0,
+    "grade": "A",
+    "state": "ok",
+    "parsed": 495,
+    "unique": 4,
+    "alive_pct": 100,
+    "real_pct": 94.4,
+    "rtest": 90,
+    "rok": 85,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -246,6 +260,20 @@
     "alive_pct": 100,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 75.4,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 495,
+    "unique": 12,
+    "alive_pct": 100,
+    "real_pct": 100.0,
+    "rtest": 12,
+    "rok": 12,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "awesome-vpn": [
@@ -367,6 +395,20 @@
     "parsed": 35,
     "unique": 21,
     "alive_pct": 100,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 82.6,
+    "grade": "A",
+    "state": "ok",
+    "parsed": 35,
+    "unique": 20,
+    "alive_pct": 100,
+    "real_pct": 81.0,
+    "rtest": 21,
+    "rok": 17,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -492,6 +534,20 @@
     "alive_pct": 100,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 46.2,
+    "grade": "D",
+    "state": "ok",
+    "parsed": 20,
+    "unique": 18,
+    "alive_pct": 100,
+    "real_pct": 0.0,
+    "rtest": 18,
+    "rok": 0,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "pawdroid": [
@@ -613,6 +669,20 @@
     "parsed": 5,
     "unique": 0,
     "alive_pct": 100,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 54.3,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 10,
+    "unique": 1,
+    "alive_pct": 100,
+    "real_pct": null,
+    "rtest": 0,
+    "rok": 0,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -738,6 +808,20 @@
     "alive_pct": 96,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 72.6,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 348,
+    "unique": 193,
+    "alive_pct": 88,
+    "real_pct": 31.1,
+    "rtest": 90,
+    "rok": 28,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "ermao-clash-reachable": [
@@ -859,6 +943,20 @@
     "parsed": 219,
     "unique": 0,
     "alive_pct": 92,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 79.4,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 224,
+    "unique": 0,
+    "alive_pct": 100,
+    "real_pct": 67.8,
+    "rtest": 90,
+    "rok": 61,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -984,6 +1082,20 @@
     "alive_pct": 92,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 74.0,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 372,
+    "unique": 300,
+    "alive_pct": 96,
+    "real_pct": 30.0,
+    "rtest": 90,
+    "rok": 27,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "anaer": [
@@ -1105,6 +1217,20 @@
     "parsed": 1770,
     "unique": 1750,
     "alive_pct": 67,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 51.4,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 1770,
+    "unique": 1750,
+    "alive_pct": 67,
+    "real_pct": 0.0,
+    "rtest": 90,
+    "rok": 0,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -1230,6 +1356,20 @@
     "alive_pct": 83,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 80.4,
+    "grade": "A",
+    "state": "ok",
+    "parsed": 1381,
+    "unique": 692,
+    "alive_pct": 83,
+    "real_pct": 53.3,
+    "rtest": 90,
+    "rok": 48,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "ermao-v2ray": [
@@ -1351,6 +1491,20 @@
     "parsed": 332,
     "unique": 163,
     "alive_pct": 88,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 74.8,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 372,
+    "unique": 189,
+    "alive_pct": 83,
+    "real_pct": 26.7,
+    "rtest": 90,
+    "rok": 24,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -1476,6 +1630,20 @@
     "alive_pct": 88,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 60.5,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 305,
+    "unique": 10,
+    "alive_pct": 83,
+    "real_pct": 18.5,
+    "rtest": 65,
+    "rok": 12,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "v2rayfree": [
@@ -1597,6 +1765,20 @@
     "parsed": 16,
     "unique": 4,
     "alive_pct": 81,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 43.8,
+    "grade": "D",
+    "state": "ok",
+    "parsed": 23,
+    "unique": 10,
+    "alive_pct": 86,
+    "real_pct": 0.0,
+    "rtest": 4,
+    "rok": 0,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -1722,6 +1904,20 @@
     "alive_pct": 54,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 64.8,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 4668,
+    "unique": 2436,
+    "alive_pct": 54,
+    "real_pct": 7.8,
+    "rtest": 90,
+    "rok": 7,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "matinghanbari": [
@@ -1843,6 +2039,20 @@
     "parsed": 3884,
     "unique": 1762,
     "alive_pct": 54,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-25 12:46",
+    "score": 51.3,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 3884,
+    "unique": 1761,
+    "alive_pct": 54,
+    "real_pct": 0.0,
+    "rtest": 90,
+    "rok": 0,
     "fails_streak": 0,
     "penalty": 0
    }

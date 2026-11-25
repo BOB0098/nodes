@@ -1,0 +1,1 @@
+{"schema":1,"updated":"2026-11-25 12:59","days":[{"d":"2026-11-25","rounds":1,"tested":954,"ok":339,"new":611,"gone":0,"p50":614,"by_proto":{"vless":{"tested":367,"ok":98},"trojan":{"tested":143,"ok":70},"ss":{"tested":122,"ok":70},"hysteria2":{"tested":115,"ok":43},"socks5":{"tested":15,"ok":9},"anytls":{"tested":8,"ok":8},"vmess":{"tested":184,"ok":41}}}]}
