@@ -28,8 +28,8 @@
 }
 /* 详情弹层专用配色：暖米白，与首页区分 */
 .dmodal{
-  --d-bg:#F7F2EA; --d-surface:#FFFCF7; --d-ink:#302E32; --d-ink-2:#817A78;
-  --d-btn:#8174C9; --d-btn-ink:#FFFFFF; --d-line:#EAE2D8;
+  --d-bg:#F7F2EA; --d-surface:#FFFCF7; --d-ink:#302E32; --d-ink-2:#6E6866;
+  --d-btn:#6B5EB5; --d-btn-ink:#FFFFFF; --d-line:#EAE2D8;
 }
 /* 深色模式：保持同一视觉语言，降低亮度，纯色背景 */
 @media (prefers-color-scheme: dark){
@@ -44,7 +44,7 @@
   }
   .dmodal{
     --d-bg:#2A2622; --d-surface:#332E27; --d-ink:#F4EDE3; --d-ink-2:#C0B5A8;
-    --d-btn:#9B8FE6; --d-btn-ink:#FFFFFF; --d-line:#4A4238;
+    --d-btn:#6D5FB8; --d-btn-ink:#FFFFFF; --d-line:#4A4238;
   }
 }
 *{box-sizing:border-box}
@@ -155,6 +155,7 @@ header{padding:22px 2px 16px}
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:40;
   display:grid;grid-template-columns:repeat(4,1fr);
+  background:var(--surface); /* 回退：旧微信/Safari 不支持 color-mix 时用纯色 */
   background:color-mix(in srgb,var(--surface) 88%,transparent);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-top:1px solid var(--line);
