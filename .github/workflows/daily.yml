@@ -102,10 +102,19 @@ jobs:
         run: python3 nodecheck.py --speed
 
       # 评分与地区分类：只统计 nodecheck 里测过的节点，没测过的一律不算可用。
+      # 同时把本轮结果写进逐节点历史（data/node_history.json）与日趋势（trend.json）。
       - name: 节点评分与分类
         if: steps.gate.outputs.skip != 'true'
         continue-on-error: true
         run: python3 nodescore.py
+
+      # 四类优选榜单。必须在订阅之前：订阅的 best/stable/lowlat/fast 四组
+      # 直接读 picks.json 的成员与顺序，两边各筛一套就会出现
+      # 「页面上排第一的节点不在订阅第一行」。
+      - name: 生成优选榜单
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
+        run: python3 picks.py
 
       # 多格式订阅：Clash YAML / sing-box JSON / URI / Base64，按质量与地区分组。
       # 每种格式生成后立刻用自己的解析器读回来校验条数，只改扩展名不算输出成功。

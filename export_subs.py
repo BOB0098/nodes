@@ -32,6 +32,7 @@ import yaml
 import netsafe
 import nodes_parse
 from nodecheck import to_proxy
+from picks import FAST_BPS, LOWLAT_MS
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 EXPORT = os.path.join(BASE, "export")
@@ -41,16 +42,17 @@ MANIFEST = os.path.join(BASE, "data", "subscriptions.json")
 UA = "clash.meta"
 
 # 分组定义。(键, 中文名, 筛选函数)，顺序就是页面/清单里的顺序
+#
+# best / stable / lowlat / fast 四组改由 `data/picks.json` 决定成员与顺序：
+# 那边已经算好了「谁进榜、谁排第一」，订阅如果再按另一套条件筛一遍，
+# 就会出现「页面上排第一的节点不在订阅第一行」这种对不上的情况。
+# 其余分组仍用本文件的条件，它们只是地区切分。
 GROUPS = [
     ("all", "全部节点", lambda n, s, c: True),
-    ("best", "优选（真实可用且评分 B 以上）",
-     lambda n, s, c: (c.get("ok") and s.get("s", 0) >= 65)),
-    ("stable", "稳定（连续三轮可用）",
-     lambda n, s, c: "稳定" in (s.get("t") or [])),
-    ("lowlat", "低延迟（<200ms）",
-     lambda n, s, c: c.get("ok") and (c.get("ms") or 9999) < 200),
-    ("fast", "高速（≥2MB/s）",
-     lambda n, s, c: c.get("ok") and (c.get("bps") or 0) >= 2_000_000),
+    ("best", "优选（本轮通过，不在连续失败中）", None),
+    ("stable", "稳定（测过 ≥3 次、成功率 ≥80%）", None),
+    ("lowlat", f"低延迟（≤{LOWLAT_MS}ms）", None),
+    ("fast", f"高速（≥{FAST_BPS // 1000}KB/s）", None),
     ("hk", "香港", lambda n, s, c: s.get("rg") == "香港"),
     ("tw", "中国台湾", lambda n, s, c: s.get("rg") == "中国台湾"),
     ("jp", "日本", lambda n, s, c: s.get("rg") == "日本"),
@@ -59,6 +61,39 @@ GROUPS = [
     ("kr", "韩国", lambda n, s, c: s.get("rg") == "韩国"),
     ("eu", "欧洲", lambda n, s, c: s.get("rg") == "欧洲"),
 ]
+
+# 由 picks.json 决定成员的分组
+PICK_GROUPS = {"best", "stable", "lowlat", "fast"}
+
+
+def select(key, pred, nodes, ck, sc, pick_sets=None, pick_order=None):
+    """按分组键选出节点并排好序。抽成函数是为了能单独测——
+    筛选逻辑埋在 main 的循环里时，「榜单成员是否真的进了订阅」没人验证过。
+    """
+    pick_sets = pick_sets or {}
+    pick_order = pick_order or {}
+    picked = []
+    for n in nodes:
+        fp = n.get("fp") or ""
+        c = ck.get(fp) or {}
+        s = sc.get(fp) or {}
+        if key in PICK_GROUPS:
+            # 榜单已经保证了「本轮通过，或最近 7 天成功过且历史成功率 ≥90%」。
+            # 不再额外要求本轮 ok——抽样只有 12%，那样会把订阅压到几十条
+            if fp[:16] not in pick_sets.get(key, ()):
+                continue
+        elif key != "all" and not c.get("ok"):
+            # 其余分组一律要求「真实测过且通过」：没测过 = 未验证，不能算可用
+            continue
+        try:
+            if pred is None or pred(n, s, c):
+                picked.append(n)
+        except Exception:
+            continue
+    # 订阅里的顺序就是榜单顺序：客户端里第一条该是最能打的那条
+    if key in pick_order:
+        picked.sort(key=lambda n: pick_order[key].get((n.get("fp") or "")[:16], 9999))
+    return picked
 
 
 def load(path, default):
@@ -254,23 +289,21 @@ def main():
             os.chmod(d, 0o700)
         except OSError:
             pass
-    manifest = {"updated": check.get("updated"), "formats": ["clash", "singbox", "uri", "b64"],
+    manifest = {"schema": 2, "updated": check.get("updated"),
+                "formats": ["clash", "singbox", "uri", "b64"],
                 "groups": [], "failed": []}
 
+    # 榜单成员与顺序。用指纹前 16 位做键，和 history.py / lifecycle.py 同口径
+    picks_doc = load(os.path.join(BASE, "data", "picks.json"), {})
+    pick_sets, pick_order = {}, {}
+    for k, arr in (picks_doc.get("lists") or {}).items():
+        pick_sets[k] = {r.get("fp", "")[:16] for r in arr}
+        pick_order[k] = {r.get("fp", "")[:16]: i for i, r in enumerate(arr)}
+    if not pick_sets:
+        print("  没有 data/picks.json，榜单相关分组将为空（先跑 picks.py）")
+
     for key, label, pred in GROUPS:
-        picked = []
-        for n in nodes:
-            fp = n.get("fp")
-            c = ck.get(fp) or {}
-            s = sc.get(fp) or {}
-            # all 之外一律要求「真实测过且通过」：没测过 = 未验证，不能算可用
-            if key != "all" and not c.get("ok"):
-                continue
-            try:
-                if pred(n, s, c):
-                    picked.append(n)
-            except Exception:
-                continue
+        picked = select(key, pred, nodes, ck, sc, pick_sets, pick_order)
         if not picked:
             manifest["groups"].append({"key": key, "label": label, "count": 0,
                                        "note": "无符合条件的节点"})
@@ -363,6 +396,23 @@ def selftest():
     # 校验函数必须能发现条数不符，否则等于没校验
     chk(not verify("clash", y, 4)[0], "条数不符时校验失败")
     chk(not verify("singbox", j, 99)[0], "sing-box 条数不符时失败")
+
+    # 榜单成员与顺序必须原样进订阅。这里最容易出现「页面排第一、
+    # 订阅第一行却是别人」——两套筛选各自为政时没人会发现
+    fpn = [{"fp": "a" * 32 + "", "name": "A"},
+           {"fp": "b" * 32, "name": "B"},
+           {"fp": "c" * 32, "name": "C"}]
+    ck = {"a" * 32: {"ok": True}, "b" * 32: {"ok": True}, "c" * 32: {"ok": False}}
+    sets = {"stable": {"c" * 16, "b" * 16}}          # A 不在榜上，C 本轮没通过
+    order = {"stable": {"c" * 16: 0, "b" * 16: 1}}   # C 本该排第一
+    got = select("stable", None, fpn, ck, {}, sets, order)
+    chk([x["name"] for x in got] == ["C", "B"], f"榜单成员与顺序进订阅（{got}）")
+    got2 = select("all", lambda n, s, c: True, fpn, ck, {}, sets, order)
+    chk(len(got2) == 3, "all 组不受 picks 影响，含未通过的节点")
+
+    # 非榜单分组仍然要求本轮通过：没测过不等于可用
+    got3 = select("jp", lambda n, s, c: True, fpn, ck, {}, sets, order)
+    chk(len(got3) == 2, "地区组只收本轮通过的")
 
     print("\n" + ("全部通过" if ok else "有失败项"))
     return 0 if ok else 1

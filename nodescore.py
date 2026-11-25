@@ -22,15 +22,13 @@ import os
 import time
 from collections import Counter
 
+import history
 import netsafe
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 NODECHECK = os.path.join(BASE, "data", "nodecheck.json")
 OUT = os.path.join(BASE, "data", "node_scores.json")
-HIST = os.path.join(BASE, "data", "node_score_history.json")
 EXPORT = os.path.join(BASE, "export")
-
-KEEP_ROUNDS = 10
 
 # 出口国家 → 页面上那 8 个分类。任务书要求按真实出口 IP 分，
 # 不用节点名里的国旗：名字是作者自己写的，与实际出口经常对不上。
@@ -68,33 +66,24 @@ def is_datacenter(rec):
 
 
 def update_history(results, hist):
-    """连续成功/失败轮次。只更新本轮测到的节点，没测的保持原样——
-    抽样每轮覆盖不同节点，把「这轮没抽到」当成「失败」会误伤。"""
-    nodes = hist.setdefault("nodes", {})
-    for fp, r in results.items():
-        h = nodes.setdefault(fp, {"ok_streak": 0, "fail_streak": 0,
-                                  "last_ok": None, "checked": 0, "ever_ok": False})
-        h["checked"] = h.get("checked", 0) + 1
-        if r.get("ok"):
-            h["ok_streak"] = h.get("ok_streak", 0) + 1
-            h["fail_streak"] = 0
-            # 「曾经成功过」是区分「不稳定」和「一直就没通过」的唯一依据。
-            # 不记这个，一个从没连上过的节点连续两轮失败也会被标成「不稳定」，
-            # 读起来像「它曾经好过、后来坏了」，与事实不符。
-            h["ever_ok"] = True
-        else:
-            h["fail_streak"] = h.get("fail_streak", 0) + 1
-            h["ok_streak"] = 0
-        h["last_ok"] = bool(r.get("ok"))
-    return hist
+    """把本轮检测写进逐节点历史。保留这个薄封装是为了自测能单独调，
+    真正的累积、时段分桶、窗口裁剪都在 history.py 里。
+
+    `ever_ok` 的坑在 P18 修掉了：旧版本用布尔字段标「曾经成功过」，字段是后加的，
+    早期记录没有它，导致 152 条「明明刚成功过」的节点被当成从没通过。
+    现在直接看累计成功次数 hits。
+    """
+    return hist, history.observe(hist, results)
 
 
 def score_one(rec, h):
     """返回 (分数, 标签列表)。不可用的节点直接 0 分，不参与排序。"""
     tags = []
     if not rec.get("ok"):
-        fs = (h or {}).get("fail_streak", 1)
-        ever = (h or {}).get("ever_ok", False)
+        fs = int((h or {}).get("fail_run") or 1)
+        # 「曾经成功过」看累计成功次数。早期版本用独立布尔字段记这个，
+        # 字段是后加的、老记录里没有，152 条刚成功过的节点被误判成从未通过
+        ever = int((h or {}).get("hits") or 0) > 0
         if fs >= 3:
             tags.append("隔离")
         elif fs == 2 and ever:
@@ -126,9 +115,14 @@ def score_one(rec, h):
         if bps >= 2_000_000:
             tags.append("高速")
 
-    ok_streak = (h or {}).get("ok_streak", 1)
-    s += 15 * min(1.0, ok_streak / 3)           # 连续三轮可用才拿满
-    if ok_streak >= 3:
+    # 稳定性 15 分按「累计成功率 + 样本量」给，不再按连续成功次数：
+    # 抽样率 12% 时，连续三轮都被抽中且都成功是极小概率事件，
+    # 一个真正稳定的节点也拿不到「稳定」标签（实测 2,800 条里只有 122 条）。
+    # unknown（样本不足）给 5 分，既不当满分也不当 0——测过一次就成功，
+    # 不足以证明稳定，但也不该比「从没测过」还低。
+    stab, stab_note = history.stability(h)
+    s += {"stable": 15.0, "fair": 9.0, "poor": 0.0}.get(stab, 5.0)
+    if stab == "stable":
         tags.append("稳定")
 
     if not is_datacenter(rec):
@@ -165,19 +159,34 @@ def main():
     nodes = load(os.path.join(EXPORT, "nodes_full.json"), [])
     by_fp = {n["fp"]: n for n in nodes} if nodes else {}
 
-    hist = load(HIST, {"nodes": {}, "rounds": KEEP_ROUNDS})
-    hist = update_history(results, hist)
+    hist = history.load()
+    if not hist.get("nodes"):
+        # 首次切到新结构时把旧记录带过来。只迁能确定的部分，其余标 migrated，
+        # 样本攒够之前不参与「稳定」判定
+        hist, n_old = history.migrate_legacy(hist)
+        if n_old:
+            print(f"  已从 node_score_history.json 迁移 {n_old} 条旧记录")
+    today = history.day_of()
+    hist, stat = update_history(results, hist)
+    print(f"  历史：本轮见 {stat['seen']}，新增 {stat['new']}，"
+          f"回归 {stat['revived']}，跟踪中 {stat['total']}")
 
-    scores, regions, per_src = {}, Counter(), {}
+    scores, regions, per_src, stabs = {}, Counter(), {}, Counter()
     for fp, rec in results.items():
-        h = hist["nodes"].get(fp)
+        h = hist["nodes"].get(fp[:16])
         s, tags = score_one(rec, h)
         g = grade_of(s, rec.get("ok"))
         cc = rec.get("cc") or ""
         region = REGION.get(cc, "其他") if cc else "未知"
+        stab, stab_note = history.stability(h)
+        stabs[stab] += 1
         scores[fp] = {"s": s, "g": g, "t": tags, "cc": cc, "rg": region,
                       "ms": rec.get("ms"), "bps": rec.get("bps"),
-                      "asn": rec.get("asn"), "isp": rec.get("isp")}
+                      "asn": rec.get("asn"), "isp": rec.get("isp"),
+                      # 稳定性判定要看样本量，页面上不能只给一个「稳定」了事
+                      "stab": stab, "stab_note": stab_note,
+                      "tries": int((h or {}).get("tries") or 0),
+                      "hits": int((h or {}).get("hits") or 0)}
         if rec.get("ok"):
             regions[region] += 1
         src = (by_fp.get(fp) or {}).get("src")
@@ -194,6 +203,9 @@ def main():
                        # 生成优选订阅时也是按这些标签分桶
                        "tags": dict(Counter(t for v in scores.values()
                                             for t in v["t"]).most_common()),
+                       # 稳定性三态分布。unknown 占比高说明抽样还没覆盖够，
+                       # 这不是缺陷，是「还在攒证据」——页面上要如实显示
+                       "stability": dict(stabs.most_common()),
                        "avg_score": round(sum(v["s"] for v in scores.values())
                                           / max(1, len(scores)), 1)},
            "by_source": per_src, "nodes": scores}
@@ -203,14 +215,39 @@ def main():
     if not force:
         print("  （本地运行，不写入 node_scores.json）")
     else:
-        # 原子写：两个文件都是页面与订阅的数据源，写到一半被中断会留下
+        # 原子写：三个文件都是页面与订阅的数据源，写到一半被中断会留下
         # 截断的 JSON，下一轮 collector 读到就整页空白
         netsafe.write_atomic(OUT, json.dumps(doc, ensure_ascii=False,
                                              separators=(",", ":")))
-        hist["updated"] = check.get("updated")
-        netsafe.write_atomic(HIST, json.dumps(hist, ensure_ascii=False,
-                                              separators=(",", ":")))
-        print(f"  节点评分 -> {os.path.relpath(OUT, BASE)}")
+        pruned = history.prune(hist, today)
+        history.save(hist)
+        # 旧历史文件已经并入 node_history.json，留着会让人以为还有两套历史。
+        # 原始值（ok_streak / checked）在 Git 历史里可查，不丢信息。
+        if os.path.exists(history.LEGACY):
+            try:
+                os.remove(history.LEGACY)
+                print("  旧 node_score_history.json 已并入并移除")
+            except OSError:
+                pass
+        if pruned:
+            print(f"  历史裁剪：{pruned} 条超出 {history.WINDOW_DAYS} 天窗口")
+
+        # 日趋势：一天一行。拿它画 7/30 天曲线比每次重算几万条历史快两个数量级
+        tdoc = history.load_trend()
+        ms_all = [r["ms"] for r in results.values()
+                  if r.get("ok") and isinstance(r.get("ms"), (int, float))]
+        by_proto = {}
+        for r in results.values():
+            p = r.get("proto") or "?"
+            cell = by_proto.setdefault(p, [0, 0])
+            cell[0] += 1
+            cell[1] += 1 if r.get("ok") else 0
+        history.trend_add(tdoc, len(results), doc["summary"]["ok"], ms_all,
+                          new=stat["new"], gone=stat["gone"],
+                          by_proto=by_proto, today=today)
+        history.save_trend(tdoc)
+        print(f"  节点评分 -> {os.path.relpath(OUT, BASE)}"
+              f"  历史 {history.size_kb()} KB / 趋势 {len(tdoc['days'])} 天")
 
     # 打印按源的真实可用率：这是 P7 对页面最有用的一个数
     print(f"\n真实检测小结：测 {doc['summary']['tested']}，"
@@ -234,35 +271,48 @@ def selftest():
 
     fast = {"ok": True, "ms": 80, "bps": 6_000_000, "isp": "Comcast Cable",
             "country": "United States"}
-    s, t = score_one(fast, {"ok_streak": 3})
+    h_fast = {"tries": 3, "hits": 3, "ok_run": 3, "fail_run": 0, "slots": "333000"}
+    s, t = score_one(fast, h_fast)
     chk(s == 95.0, f"满分场景 {s}（上限 95，媒体 5 分未实现）")
     chk("低延迟" in t and "高速" in t and "稳定" in t and "非机房" in t, "标签齐全")
 
     slow = {"ok": True, "ms": 900, "isp": "Hetzner", "country": "Germany"}
-    s2, t2 = score_one(slow, {"ok_streak": 1})
+    s2, t2 = score_one(slow, {"tries": 1, "hits": 1, "ok_run": 1, "fail_run": 0})
     chk(s2 < 45, f"慢且机房 {s2}")
     chk("机房 IP" in t2 and "低延迟" not in t2, "机房标签")
+    chk("稳定" not in t2, "只测过一次不给稳定标签")
+
+    # 稳定标签必须来自样本量，不是来自「连续」：三条同分但样本不同
+    one = score_one(fast, {"tries": 1, "hits": 1, "ok_run": 1, "fail_run": 0})[0]
+    five = score_one(fast, {"tries": 5, "hits": 5, "ok_run": 5, "fail_run": 0})[0]
+    chk(five - one == 10.0, f"样本从 1 涨到 5，稳定分从 5 到 15（差 {five - one}）")
+    flaky = score_one(fast, {"tries": 5, "hits": 2, "ok_run": 0, "fail_run": 1})[0]
+    chk(flaky < five, f"成功率 40% 的节点评分低于全成功（{flaky} < {five}）")
 
     dead = {"ok": False}
-    chk(score_one(dead, {"fail_streak": 3, "ever_ok": True})[1] == ["隔离"],
+    chk(score_one(dead, {"fail_run": 3, "hits": 5})[1] == ["隔离"],
         "连续三轮失败 → 隔离")
-    chk(score_one(dead, {"fail_streak": 2, "ever_ok": True})[1] == ["不稳定"],
+    chk(score_one(dead, {"fail_run": 2, "hits": 5})[1] == ["不稳定"],
         "曾能用 + 两轮失败 → 不稳定")
-    chk(score_one(dead, {"fail_streak": 2, "ever_ok": False})[1] == ["待复测"],
+    chk(score_one(dead, {"fail_run": 2, "hits": 0})[1] == ["待复测"],
         "从未成功 + 两轮失败 → 仍是待复测，不叫不稳定")
-    chk(score_one(dead, {"fail_streak": 1, "ever_ok": True})[1] == ["待复测"],
+    chk(score_one(dead, {"fail_run": 1, "hits": 5})[1] == ["待复测"],
         "一轮失败 → 待复测")
+    # 旧版本用 ever_ok 布尔字段，字段后加导致老记录缺失；
+    # 现在看 hits，一条「刚成功过但 ever_ok 没写」的记录也能正确判成不稳定
+    chk(score_one(dead, {"fail_run": 2, "hits": 1})[1] == ["不稳定"],
+        "hits>0 即可判曾成功，不依赖 ever_ok 字段")
 
     chk(grade_of(95, True) == "S" and grade_of(0, False) == "—", "等级边界")
     chk(REGION["JP"] == "日本" and REGION.get("ZZ", "其他") == "其他", "地区映射")
 
     h = {"nodes": {}}
-    h = update_history({"a": {"ok": True}, "b": {"ok": False}}, h)
-    h = update_history({"a": {"ok": True}}, h)
-    chk(h["nodes"]["a"]["ok_streak"] == 2 and h["nodes"]["b"]["ok_streak"] == 0,
+    h, _ = update_history({"a" * 32: {"ok": True}, "b" * 32: {"ok": False}}, h)
+    h, _ = update_history({"a" * 32: {"ok": True}}, h)
+    chk(h["nodes"]["a" * 16]["ok_run"] == 2 and h["nodes"]["b" * 16]["ok_run"] == 0,
         "连续成功计数，未测节点保持原状")
-    chk(h["nodes"]["a"]["ever_ok"] and not h["nodes"]["b"]["ever_ok"],
-        "ever_ok 只对真正成功过的节点置位")
+    chk(h["nodes"]["a" * 16]["hits"] == 2 and h["nodes"]["b" * 16]["hits"] == 0,
+        "累计成功只对真正成功过的节点累加")
 
     print("\n" + ("全部通过" if ok else "有失败项"))
     return 0 if ok else 1

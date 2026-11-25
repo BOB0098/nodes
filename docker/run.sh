@@ -5,11 +5,13 @@
 # 顺序不能换：
 #   1 collector   采源、解析、去重、写 data/nodes.json 与页面
 #   2 nodecheck   mihomo 真握手，写 data/nodecheck.json
-#   3 nodescore   打分、地区、标签，写 data/node_scores.json
-#   4 collector --render  把 2、3 的结果读回来重渲染（不联网）
-#   5 export_subs 生成各类订阅与校验
+#   3 nodescore   打分、地区、标签；累积 node_history.json 与 trend.json
+#   4 picks       四类优选榜单，写 data/picks.json
+#   5 export_subs 生成各类订阅与校验（四类榜单组直接读 picks）
+#   6 collector --render  把 2、3、5 的结果读回来重渲染（不联网）
+#   7 check_consistency   页面/数据/订阅/榜单必须是同一个数
 #
-# 失败处理：2、3、5 失败不阻断后面（和 CI 的 continue-on-error 一致），
+# 失败处理：2–6 失败不阻断后面（和 CI 的 continue-on-error 一致），
 # 但 1 失败必须停下——采不到数据就往下走，后面的步骤会拿旧数据算出
 # 一份看起来正常的结果，那是最危险的情况。
 set -uo pipefail
@@ -66,8 +68,10 @@ step "安全边界自测"    1 python3 netsafe.py
 step "采集+解析+去重"  1 python3 collector.py
 step "真实握手检测"    0 python3 nodecheck.py --speed
 step "评分与分类"      0 python3 nodescore.py
-step "重渲染页面"      0 python3 collector.py --render
+step "生成优选榜单"    0 python3 picks.py
 step "生成订阅"        0 python3 export_subs.py
+step "重渲染页面"      0 python3 collector.py --render
+step "一致性检查"      1 python3 check_consistency.py
 
 # 一行结论，方便从 cron 日志里直接看出这轮值不值得看
 python3 - <<'PY'

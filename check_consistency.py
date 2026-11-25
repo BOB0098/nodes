@@ -16,6 +16,7 @@
 3. index.html 内嵌 DATA 的 stats.dedup 与 nodes.json 一致
 4. 各文件的 updated 时间戳差值 ≤ 阈值（默认 90 分钟，超过说明不是同一轮）
 5. schema 版本存在且为已知值
+6. picks.json 的四类榜单条数与订阅同名分组一致（P18）
 
 第 4 项在现阶段是「警告」不是「失败」：订阅在检测之后生成，天然晚十几分钟。
 P20 引入 manifest 后，这一项会变成硬性要求。
@@ -149,6 +150,30 @@ def main():
         warn("nodes.json 没有 schema 字段（旧格式，下次采集会补上）")
     elif sv != SCHEMA:
         bad(f"nodes.json schema={sv}，本脚本认 {SCHEMA}")
+
+    # 6. 榜单与订阅。订阅的 best/stable/lowlat/fast 四组直接由 picks.json 决定，
+    # 所以两边的条数必须相等。不相等只有两种可能：picks 里混进了节点库中
+    # 已下架的节点，或者订阅生成时漏掉了某些节点——两种都该在发布前拦住
+    picks = load(os.path.join(DATA, "picks.json"))
+    if "__error__" in picks:
+        warn("data/picks.json 读不出来，跳过榜单比对")
+    elif "__error__" in subs:
+        warn("subscriptions.json 不可用，跳过榜单比对")
+    else:
+        pl = {k: len(v) for k, v in (picks.get("lists") or {}).items()}
+        sg = {g.get("key"): g.get("count") for g in (subs.get("groups") or [])}
+        diff = [f"{k} 榜 {pl[k]} / 订阅 {sg.get(k)}"
+                for k in sorted(pl) if k in sg and sg.get(k) != pl[k]]
+        if diff:
+            bad("榜单与订阅条数不一致：" + "；".join(diff))
+        elif pl:
+            dropped = picks.get("dropped") or 0
+            ok(f"榜单 {len(pl)} 组条数与订阅一致"
+               + (f"（已剔除下架 {dropped} 条）" if dropped else ""))
+        # 榜单里出现订阅不支持的分组，说明两边定义已经分叉
+        extra = [k for k in pl if k not in sg]
+        if extra:
+            warn("榜单有分组未出现在订阅清单：" + "、".join(extra))
 
     print()
     if fails:

@@ -494,9 +494,18 @@ def run_batch(items, base_port, do_speed=False):
 
 # ── 抽样与主流程 ────────────────────────────────────────────────────────────
 
-def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None):
+def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None, tries=None):
     """按来源分层抽样。分层而不是纯随机：小源只有几十条，纯随机可能一条都抽不到，
-    「这个源真实可用率 0%」就成了「没抽到」的假象。"""
+    「这个源真实可用率 0%」就成了「没抽到」的假象。
+
+    tries 给定时（{指纹前16位: 已测次数}），同源内优先抽**测得少**的节点。
+    纯随机下每轮抽 12%，八轮只能覆盖 1-(1-0.12)^8 ≈ 64%，一个节点要攒到
+    「测过 3 次」平均需要 25 轮（三天）。按覆盖度优先，前八轮就能把全库走一遍，
+    之后才开始重复——同样预算下，稳定标签的判定提前约两倍。
+
+    同 tries 的节点之间仍然随机，且随机数由种子决定，所以**同一轮同一种子
+    抽出的结果完全可复现**（selftest 有断言）。
+    """
     rnd = random.Random(daily_seed() if seed is None else seed)
     by_src = {}
     for n in nodes:
@@ -504,7 +513,9 @@ def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None):
     picked = []
     for src in sorted(by_src):
         arr = by_src[src]
-        rnd.shuffle(arr)
+        rnd.shuffle(arr)                      # 先打散，sorted 稳定，同权重保持随机顺序
+        if tries:
+            arr = sorted(arr, key=lambda n: tries.get((n.get("fp") or "")[:16], 0))
         picked.extend(arr[:per_src])
     rnd.shuffle(picked)
     return picked[:total]
@@ -631,7 +642,21 @@ def main():
         print("  ⚠ 已中止，避免把环境故障写成数据结论")
         return 2
 
-    picked = sample(nodes, per_src=per_src, total=max_total)
+    # 抽样优先覆盖「还没测过几次」的节点。历史文件读失败时退回纯随机的老行为，
+    # 不能让一个可选优化把整轮检测拖下水
+    tries = None
+    try:
+        import history as _hist
+        tries = {k: int(v.get("tries") or 0)
+                 for k, v in (_hist.load().get("nodes") or {}).items()}
+        if tries:
+            unseen = sum(1 for n in nodes
+                         if tries.get((n.get("fp") or "")[:16], 0) == 0)
+            print(f"  历史覆盖：{len(tries)} 条有记录，本轮未测过的 {unseen} 条优先")
+    except Exception as e:
+        print(f"  （历史读取失败，退回随机抽样：{type(e).__name__}）")
+
+    picked = sample(nodes, per_src=per_src, total=max_total, tries=tries)
     if shards > 1:
         picked = picked[shard::shards]
     print(f"真实检测：备选 {len(nodes)} 条，抽样 {len(picked)} 条"
@@ -714,6 +739,18 @@ def selftest():
     a = [x["fp"] for x in sample(nodes, 20, 100)]
     b = [x["fp"] for x in sample(nodes, 20, 100)]
     chk(a == b, "抽样可复现")
+
+    # 覆盖度优先：给了 tries 之后，同源内先抽没测过的。这是 P18 的核心改了——
+    # 纯随机下攒到「测过 3 次」要三天，覆盖度优先能把这段压到一天左右
+    # 前 16 位必须各不相同，否则 tries 表会把不同节点当成同一个
+    nodes2 = [{"fp": f"{i:016d}" + "b" * 16, "src": "s"} for i in range(60)]
+    tr = {f"{i:016d}": 4 for i in range(30)}          # 前 30 个测过 4 次
+    got = sample(nodes2, per_src=30, total=30, seed=7, tries=tr)
+    chk(len(got) == 30 and all(tr.get(x["fp"][:16], 0) == 0 for x in got),
+        "覆盖度优先：未测过的节点先被抽中")
+    got2 = sample(nodes2, per_src=60, total=60, seed=7, tries=tr)
+    chk(len(got2) == 60 and sum(1 for x in got2 if tr.get(x["fp"][:16], 0) == 0) == 30,
+        "预算够时两者都要，测过的排在后面")
 
     # 失败分类：以前全记 HTTP 000，四种原因挤成一个标签
     chk(CURL_ERR[6] == "dns" and CURL_ERR[35] == "tls" and CURL_ERR[28] == "timeout",
