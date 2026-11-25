@@ -176,6 +176,53 @@ button.pill:active{transform:scale(.96)}
 .fcount{font-size:12px;color:var(--ink-3);margin-left:2px}
 .fempty{text-align:center;color:var(--ink-2);font-size:13.5px;line-height:1.8;padding:30px 16px}
 
+/* ── P21 可折叠区块：默认收起，只露标题，主内容（源列表）上移 ─────────── */
+details.fold{padding:0}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  min-height:44px;padding:8px 13px;user-select:none}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+details.fold>summary .sec-tag{margin:0}
+.fold-hint{font-size:11px;color:var(--ink-3);margin-left:auto}
+.fold-hint:after{content:"▾";display:inline-block;margin-left:4px;transition:transform .2s var(--e-out)}
+details.fold[open]>summary{border-bottom:1px solid var(--stroke)}
+details.fold[open] .fold-hint:after{transform:rotate(180deg)}
+.fold-body{padding:10px 13px 6px}
+.fold-body .cl-note{margin:0 0 4px}
+
+/* ── P21 工具栏：搜索 + 客户端筛选 + 排序 ─────────────────────────────── */
+.tools{margin:12px 0 2px;display:flex;flex-direction:column;gap:8px}
+.tool-search{width:100%}
+.tinput,.tselect{font-family:inherit;font-size:13px;color:var(--ink);background:var(--card-bg);
+  border:1px solid var(--stroke);border-radius:var(--r-sq);box-shadow:var(--sh-press);
+  min-height:44px;padding:0 12px;width:100%;box-sizing:border-box}
+.tinput::placeholder{color:var(--ink-3)}
+.tinput:focus-visible,.tselect:focus-visible{outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px light-dark(rgba(0,122,255,.16),rgba(10,132,255,.28))}
+.tselect{cursor:pointer;appearance:none;-webkit-appearance:none;padding-right:34px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238E8E93' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center}
+.tool-row{display:flex;gap:8px}
+.tool-row>*{flex:1 1 0;min-width:0}
+.fclear{font-family:inherit;font-size:11.5px;color:var(--accent);background:none;border:0;
+  cursor:pointer;padding:8px 10px;min-height:44px;text-decoration:underline;text-underline-offset:2px}
+.fclear[hidden]{display:none}
+.fclear:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent);border-radius:6px}
+.fclear-clear{font-family:inherit;font-size:12.5px;color:var(--accent);background:var(--surf-solid);
+  border:1px solid var(--stroke);border-radius:var(--r-sq);cursor:pointer;min-height:44px;
+  padding:0 18px;margin-top:10px}
+.fclear-clear:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent)}
+@media (min-width:768px){
+  .tools{flex-direction:row;align-items:center;flex-wrap:wrap}
+  .tool-search{flex:2 1 240px;width:auto}
+  .tool-row{flex:1 1 320px}
+  .tools>.filters{flex:0 0 auto;margin:0}
+}
+/* 触控区保证：筛选按钮与开关在移动端不小于 44px 高 */
+@media (max-width:767px){
+  .fbtn,.fclear{min-height:44px;display:inline-flex;align-items:center}
+}
+
 
 /* ── 「怎么用」区块 ────────────────────────────────────────────────────── */
 .sec{background:var(--card-bg);border:1px solid var(--card-line);border-radius:var(--r-card);
@@ -414,55 +461,85 @@ html.lock,html.lock body{overflow:hidden}
 </header>
 
 
-<section class="sec">
-  <div class="sec-t"><span class="sec-tag">订阅流程</span></div>
-  <div class="gs"><span class="i">1</span><div><b>复制一条链接</b><p>点下面任意卡片的「复制链接」按钮</p></div></div>
-  <div class="gs"><span class="i">2</span><div><b>导入客户端</b><p>客户端的「配置」或「订阅」页 → 点 + → 从剪贴板导入</p></div></div>
-  <div class="gs"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中它 → 打开代理开关</p></div></div>
-</section>
-
-<section class="sec" id="ovSec" hidden>
-  <div class="sec-t"><span class="sec-tag">数据总览</span><span class="ov-when" id="ovWhen"></span></div>
-  <div class="ov">
-    <div class="ov-k"><b id="ovNodes">—</b><span>去重后入库</span></div>
-    <div class="ov-k"><b id="ovReal">—</b><span>真实可用</span></div>
-    <div class="ov-k"><b id="ovBest">—</b><span>优选</span></div>
-    <div class="ov-k"><b id="ovIso">—</b><span>隔离未入库</span></div>
+<!-- P21：首屏只留核心状态与主操作。教程/总览/下载默认收起，渐进披露 -->
+<details class="sec fold" id="howSec">
+  <summary><span class="sec-tag">怎么订阅</span><span class="fold-hint">3 步 · 点开看</span></summary>
+  <div class="fold-body">
+    <div class="gs"><span class="i">1</span><div><b>复制一条链接</b><p>点下面任意卡片的「复制链接」按钮</p></div></div>
+    <div class="gs"><span class="i">2</span><div><b>导入客户端</b><p>客户端的「配置」或「订阅」页 → 点 + → 从剪贴板导入</p></div></div>
+    <div class="gs"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中它 → 打开代理开关</p></div></div>
   </div>
-  <div class="ov-bars" id="ovRegions"></div>
-  <p class="ov-note" id="ovNote"></p>
-</section>
+</details>
 
-<div class="filters" role="group" aria-label="按可用性筛选">
-  <button class="fbtn" type="button" id="fAlive" aria-pressed="false">只看真实可用 ≥50%</button>
-  <button class="fbtn" type="button" id="fCn" aria-pressed="false">只看国内可直连</button>
-  <span class="fcount" id="fcount" aria-live="polite"></span>
+<details class="sec fold" id="ovSec" hidden>
+  <summary><span class="sec-tag">数据总览</span><span class="ov-when" id="ovWhen"></span><span class="fold-hint">点开看</span></summary>
+  <div class="fold-body">
+    <div class="ov">
+      <div class="ov-k"><b id="ovNodes">—</b><span>去重后入库</span></div>
+      <div class="ov-k"><b id="ovReal">—</b><span>真实可用</span></div>
+      <div class="ov-k"><b id="ovBest">—</b><span>优选</span></div>
+      <div class="ov-k"><b id="ovIso">—</b><span>隔离未入库</span></div>
+    </div>
+    <div class="ov-bars" id="ovRegions"></div>
+    <p class="ov-note" id="ovNote"></p>
+  </div>
+</details>
+
+<!-- P21：搜索 + 按真实客户端标签筛选 + 质量排序；选项由 JS 从真实卡片提取 -->
+<div class="tools" role="group" aria-label="查找与筛选订阅源">
+  <div class="tool-search">
+    <label class="sr" for="fSearch">搜索订阅源</label>
+    <input id="fSearch" class="tinput" type="search" placeholder="搜索名称 / 备注 / 链接" autocomplete="off" aria-label="搜索订阅源名称、备注或链接">
+  </div>
+  <div class="tool-row">
+    <label class="sr" for="fProto">按客户端筛选</label>
+    <select id="fProto" class="tselect" aria-label="按客户端筛选"><option value="">全部客户端</option></select>
+    <label class="sr" for="fSort">排序方式</label>
+    <select id="fSort" class="tselect" aria-label="排序方式">
+      <option value="default">默认（推荐优先）</option>
+      <option value="real">真实可用率</option>
+      <option value="count">节点条数</option>
+      <option value="fresh">最近更新</option>
+    </select>
+  </div>
+  <div class="filters" role="group" aria-label="按可用性筛选">
+    <button class="fbtn" type="button" id="fAlive" aria-pressed="false">只看真实可用 ≥50%</button>
+    <button class="fbtn" type="button" id="fCn" aria-pressed="false">只看国内可直连</button>
+    <span class="fcount" id="fcount" aria-live="polite"></span>
+    <button class="fclear" type="button" id="fClear" hidden>清除筛选</button>
+  </div>
 </div>
 
 <div id="groups"></div>
 
 <!-- 空态紧跟列表，之前挂在免责声明后面，筛空了提示会跑到页面最下方 -->
-<p class="fempty" id="fempty" hidden>这个组合下没有源<br><span style="color:var(--ink-3);font-size:13px">两个条件同时开太严了，关掉一个试试</span></p>
+<div class="fempty" id="fempty" hidden>这个组合下没有匹配的订阅源<br>
+  <span style="color:var(--ink-3);font-size:13px">换个关键词，或关掉一个筛选条件</span><br>
+  <button class="fclear-clear" type="button" id="fEmptyClear">清除筛选</button>
+</div>
 
-<section class="sec">
-  <div class="sec-t sec-t-c"><span class="sec-tag">主流客户端下载</span><span class="cl-note">GitHub 链接需科学上网</span></div>
-  <div class="cl-row"><span class="cl-k">电脑</span>
-    <a class="clink" href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank" rel="noopener">Clash Verge Rev</a>
-    <a class="clink" href="https://github.com/2dust/v2rayN" target="_blank" rel="noopener">v2rayN</a>
-    <a class="clink" href="https://github.com/MetaCubeX/ClashX.Meta" target="_blank" rel="noopener">ClashX.Meta</a>
+<details class="sec fold" id="clSec">
+  <summary><span class="sec-tag">主流客户端下载</span><span class="fold-hint">点开看</span></summary>
+  <div class="fold-body">
+    <p class="cl-note">GitHub 链接需科学上网</p>
+    <div class="cl-row"><span class="cl-k">电脑</span>
+      <a class="clink" href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank" rel="noopener">Clash Verge Rev</a>
+      <a class="clink" href="https://github.com/2dust/v2rayN" target="_blank" rel="noopener">v2rayN</a>
+      <a class="clink" href="https://github.com/MetaCubeX/ClashX.Meta" target="_blank" rel="noopener">ClashX.Meta</a>
+    </div>
+    <div class="cl-row"><span class="cl-k">安卓</span>
+      <a class="clink" href="https://github.com/2dust/v2rayNG" target="_blank" rel="noopener">v2rayNG</a>
+      <a class="clink" href="https://github.com/chen08209/FlClash" target="_blank" rel="noopener">FlClash</a>
+    </div>
+    <div class="cl-row"><span class="cl-k">iOS</span>
+      <a class="clink" href="https://github.com/SagerNet/sing-box" target="_blank" rel="noopener">sing-box</a>
+    </div>
+    <div class="cl-row"><span class="cl-k">全平台</span>
+      <a class="clink" href="https://github.com/hiddify/hiddify-app" target="_blank" rel="noopener">Hiddify</a>
+      <a class="clink" href="https://github.com/KaringX/karing" target="_blank" rel="noopener">Karing</a>
+    </div>
   </div>
-  <div class="cl-row"><span class="cl-k">安卓</span>
-    <a class="clink" href="https://github.com/2dust/v2rayNG" target="_blank" rel="noopener">v2rayNG</a>
-    <a class="clink" href="https://github.com/chen08209/FlClash" target="_blank" rel="noopener">FlClash</a>
-  </div>
-  <div class="cl-row"><span class="cl-k">iOS</span>
-    <a class="clink" href="https://github.com/SagerNet/sing-box" target="_blank" rel="noopener">sing-box</a>
-  </div>
-  <div class="cl-row"><span class="cl-k">全平台</span>
-    <a class="clink" href="https://github.com/hiddify/hiddify-app" target="_blank" rel="noopener">Hiddify</a>
-    <a class="clink" href="https://github.com/KaringX/karing" target="_blank" rel="noopener">Karing</a>
-  </div>
-</section>
+</details>
 
 <p class="disc disc-a">本站仅收录第三方公开发布的订阅链接，不生产节点、不改写原始链接。请遵守当地法律法规，违规使用后果自负。</p>
 </div>
@@ -967,12 +1044,36 @@ html.lock,html.lock body{overflow:hidden}
 
   groupsEl.append(frag);
 
-  /* ── 筛选：两个开关都只是改 hidden，不改数据 ────────────────────────── */
+  /* ── P21 查找与筛选：搜索 / 客户端 / 排序 / 两个可用性开关 ────────────
+     所有筛选项都从真实卡片数据提取，不写死空类别；所有操作只改 hidden
+     与 DOM 顺序，不动采集数据，随时可清除复位。 */
   const fAlive = document.getElementById('fAlive');
   const fCn = document.getElementById('fCn');
   const fcount = document.getElementById('fcount');
   const fempty = document.getElementById('fempty');
-  const fstate = { alive: false, cn: false };
+  const fClear = document.getElementById('fClear');
+  const fSearch = document.getElementById('fSearch');
+  const fProto = document.getElementById('fProto');
+  const fSort = document.getElementById('fSort');
+  const cards = [...groupsEl.querySelectorAll('.card')];
+
+  // 客户端选项来自真实卡片的 it.ok（Clash / sing-box / v2rayNG / Hiddify / 小火箭）。
+  // 按出现次数排序，多的在前；没有数据的标签不会出现。
+  const protoCount = new Map();
+  cards.forEach(c => (c._it && c._it.ok || []).forEach(name => {
+    protoCount.set(name, (protoCount.get(name) || 0) + 1);
+  }));
+  [...protoCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh'))
+    .forEach(([name, n]) => {
+      const o = document.createElement('option');
+      o.value = name;
+      o.textContent = `${name}（${n}）`;
+      fProto.append(o);
+    });
+
+  const fstate = { alive: false, cn: false, q: '', proto: '', sort: 'default' };
+  // 记住初始 DOM 顺序，默认排序即恢复它，排序可重复且可逆
+  const originalOrder = new Map(cards.map((c, i) => [c, i]));
 
   /* 卡片序号：筛选后重排，滑到哪张都清楚是第几条 */
   function renumber() {
@@ -985,9 +1086,18 @@ html.lock,html.lock body{overflow:hidden}
     return n;
   }
 
+  // 排序比较：缺失值一律排末尾，绝不把「没数据」当成 0 参与比较
+  function sortValue(it, key) {
+    if (key === 'real') return it.rtest ? it.rok / it.rtest : -1;
+    if (key === 'count') return it.count == null ? -1 : it.count;
+    if (key === 'fresh') return it.age_h == null ? -1 : -it.age_h; // 越小越新 → 取负升序
+    return 0;
+  }
+
   function applyFilter() {
     const per = new Map();
-    groupsEl.querySelectorAll('.card').forEach(card => {
+    const q = fstate.q.trim().toLocaleLowerCase();
+    cards.forEach(card => {
       const it = card._it || {};
       let ok = true;
       if (fstate.alive) {
@@ -996,18 +1106,46 @@ html.lock,html.lock body{overflow:hidden}
         ok = !!(it.rtest && it.rok / it.rtest >= 0.5);
       }
       if (ok && fstate.cn) ok = !it.cnbad;
+      if (ok && fstate.proto) ok = !!(it.ok || []).includes(fstate.proto);
+      if (ok && q) {
+        const hay = [it.tag, it.note, it.url].filter(Boolean).join(' ').toLocaleLowerCase();
+        ok = hay.includes(q);
+      }
       card.hidden = !ok;
       if (ok) per.set(card.dataset.gi, (per.get(card.dataset.gi) || 0) + 1);
     });
+
+    // 排序：按分组分别重排，保持分组结构不变
+    if (fstate.sort === 'default') {
+      cards.forEach(c => c.parentNode.appendChild(c)); // 回到各自分组末尾 = 原顺序
+      cards.sort((a, b) => originalOrder.get(a) - originalOrder.get(b));
+      cards.forEach(c => c.parentNode.appendChild(c));
+    } else {
+      const groups = [...groupsEl.querySelectorAll('.ghead')].map(h => h.dataset.gi);
+      groups.forEach(gi => {
+        const list = cards.filter(c => c.dataset.gi === gi);
+        list.sort((a, b) => {
+          const av = sortValue(a._it || {}, fstate.sort);
+          const bv = sortValue(b._it || {}, fstate.sort);
+          if (av < 0 && bv < 0) return originalOrder.get(a) - originalOrder.get(b);
+          if (av < 0) return 1;
+          if (bv < 0) return -1;
+          return bv - av || originalOrder.get(a) - originalOrder.get(b);
+        });
+        list.forEach(c => c.parentNode.appendChild(c));
+      });
+    }
+
     groupsEl.querySelectorAll('.ghead').forEach(h => {
       h.hidden = !per.get(h.dataset.gi);
     });
     let n = 0;
     per.forEach(v => { n += v; });
     renumber();
-    const on = fstate.alive || fstate.cn;
+    const on = fstate.alive || fstate.cn || !!fstate.q || !!fstate.proto || fstate.sort !== 'default';
     fcount.textContent = on ? `筛出 ${n} 条` : '';
     fempty.hidden = !(on && n === 0);
+    fClear.hidden = !on;
     void groupsEl.offsetHeight;
   }
 
@@ -1018,6 +1156,24 @@ html.lock,html.lock body{overflow:hidden}
       applyFilter();
     });
   });
+  let searchTimer;
+  fSearch.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { fstate.q = fSearch.value; applyFilter(); }, 120);
+  });
+  fProto.addEventListener('change', () => { fstate.proto = fProto.value; applyFilter(); });
+  fSort.addEventListener('change', () => { fstate.sort = fSort.value; applyFilter(); });
+  function clearAll() {
+    fstate.alive = false; fstate.cn = false; fstate.q = ''; fstate.proto = ''; fstate.sort = 'default';
+    fAlive.setAttribute('aria-pressed', 'false');
+    fCn.setAttribute('aria-pressed', 'false');
+    fSearch.value = ''; fProto.value = ''; fSort.value = 'default';
+    applyFilter();
+    liveEl.textContent = '已清除全部筛选';
+  }
+  fClear.addEventListener('click', clearAll);
+  const fEmptyClear = document.getElementById('fEmptyClear');
+  if (fEmptyClear) fEmptyClear.addEventListener('click', clearAll);
 
   /* 先把卡片真实高度钉进 contain-intrinsic-size，再让它们跳过渲染。
      不这么做的话，视口外的卡只能按估值占位，滚动时逐张修正，文档高度会一路往下掉
@@ -1038,9 +1194,8 @@ html.lock,html.lock body{overflow:hidden}
     void groupsEl.offsetHeight;
   }
 
-  const cards = groupsEl.querySelectorAll('.card');
   renumber();
-  pinHeights([...cards]);
+  pinHeights(cards);   // cards 已在筛选段定义为数组，不再重复声明
 
   /* ── 复制 ─────────────────────────────────────────────────────────── */
   function reset(btn) {
