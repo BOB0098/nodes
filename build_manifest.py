@@ -34,8 +34,9 @@ from datetime import datetime, timedelta, timezone
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, "data")
 MANIFEST = os.path.join(DATA, "build_manifest.json")
+LEDGER_PATH = os.path.join(DATA, "run_ledger.json")
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2   # P23：加入 pipeline（run_id + 阶段成功证明）
 TZ = timezone(timedelta(hours=8))  # 全项目统一东八区
 
 # 纳入清单的产物。页面、核心数据、订阅、状态、榜单一个都不能少。
@@ -177,10 +178,27 @@ def build():
         "picks": pick_counts,
     }
 
-    # build_id = 数据基准时间 + 产物摘要前 10 位。同输入必得同 id，可复现。
+    # P23：同轮构建证明。run_ledger 记录本轮 run_id 与每个关键阶段是否真实
+    # 成功执行。manifest 只有把它也吸收进来，才能保证「哈希一致」不等于
+    # 「旧产物被新 build_id 冒充」——阶段缺失时 check 会直接失败。
+    import run_ledger
+    ledger = run_ledger.load()
+    pipe_ok, pipe_errs = run_ledger.check()
+    pipeline = {
+        "run_id": ledger.get("run_id"),
+        "started_at": ledger.get("started_at"),
+        "stages_ok": sorted((ledger.get("stages") or {}).keys()),
+        "stage_count": len(ledger.get("stages") or {}),
+        "expected_stages": run_ledger.STAGE_KEYS,
+        "complete": pipe_ok,
+        "errors": pipe_errs,
+    }
+
+    # build_id = 数据基准时间 + 产物摘要 + 同轮标记前 10 位。同输入必得同 id。
     digest_src = json.dumps(
         {"latest": latest, "counts": counts,
-         "hashes": {k: v.get("sha256") for k, v in artifacts.items()}},
+         "hashes": {k: v.get("sha256") for k, v in artifacts.items()},
+         "run_id": pipeline["run_id"], "stages_ok": pipeline["stages_ok"]},
         sort_keys=True, ensure_ascii=False,
     ).encode("utf-8")
     digest = hashlib.sha256(digest_src).hexdigest()[:10]
@@ -194,6 +212,7 @@ def build():
         "data_basis_ts": latest,
         "counts": counts,
         "artifacts": artifacts,
+        "pipeline": pipeline,
         "compatibility": {
             "note": "订阅路径、文件名与四种格式保持不变；manifest 只做校验，不改任何产物。",
             "formats": ["clash", "singbox", "uri", "b64"],
@@ -219,6 +238,19 @@ def verify(m, expect_missing=False):
     missing = [k for k, v in (m.get("artifacts") or {}).items() if v.get("missing")]
     if missing and not expect_missing:
         errs.append("manifest 记录了缺失产物：" + ", ".join(missing))
+    # P23：manifest 必须带同轮构建证明。缺 pipeline、阶段不全、或当前台账
+    # 校验失败，都说明这轮产物不是「所有阶段都成功执行」得来的。
+    pipe = m.get("pipeline") or {}
+    if not pipe.get("run_id"):
+        errs.append("manifest 缺 pipeline.run_id（无法证明同轮构建）")
+    if not pipe.get("complete"):
+        errs.append("manifest 的 pipeline 不完整：" + "；".join(pipe.get("errors") or ["未知原因"]))
+    import run_ledger
+    live_ok, live_errs = run_ledger.check()
+    if not live_ok:
+        errs.append("当前台账校验失败：" + "；".join(live_errs))
+    elif live_ok and pipe.get("run_id") != (run_ledger.load().get("run_id")):
+        errs.append("manifest.run_id 与当前台账 run_id 不一致")
     return (not errs), errs
 
 
@@ -240,6 +272,15 @@ def selftest():
     chk(norm_ts("不是时间") is None, "无效值返回 None 而非伪造 0")
     chk(norm_ts("02-30 99:99", 2026) is None, "非法日期返回 None")
 
+    # P23：verify 依赖同轮台账。selftest 先建一个完整台账（模拟本轮所有
+    # 阶段成功），结束后恢复——否则本地没有台账会让「原 manifest 校验通过」
+    # 误判。这测的是真实 CI 场景：先 start+mark，再 build+verify。
+    import run_ledger
+    ledger_backup = open(LEDGER_PATH, "rb").read() if os.path.isfile(LEDGER_PATH) else None
+    run_ledger.start("selftest-p23")
+    for key in run_ledger.STAGE_KEYS:
+        run_ledger.mark(key)
+
     # manifest 结构
     m = build()
     chk(m.get("schema_version") == SCHEMA_VERSION, "schema_version 正确")
@@ -260,6 +301,25 @@ def selftest():
     good2, _ = verify(m)
     chk(good2, "原 manifest 校验通过")
 
+    # P23：pipeline 证明
+    pipe = m.get("pipeline") or {}
+    chk(pipe.get("run_id") == "selftest-p23", "manifest 带本轮 run_id")
+    chk(pipe.get("complete") is True, "阶段齐全时 pipeline.complete=True")
+    chk(pipe.get("stage_count") == len(run_ledger.STAGE_KEYS),
+        f"pipeline 覆盖全部 {len(run_ledger.STAGE_KEYS)} 个阶段")
+    # 篡改 pipeline 必须失败
+    bad_pipe = json.loads(json.dumps(m))
+    bad_pipe["pipeline"]["complete"] = False
+    good3, errs3 = verify(bad_pipe)
+    chk(not good3 and any("pipeline" in e for e in errs3), "pipeline 不完整时校验失败")
+
+    # 恢复 selftest 前的台账状态
+    if ledger_backup is not None:
+        with open(LEDGER_PATH, "wb") as f:
+            f.write(ledger_backup)
+    elif os.path.isfile(LEDGER_PATH):
+        os.remove(LEDGER_PATH)
+
     print("\n" + ("全部通过" if ok else "有失败项"))
     return 0 if ok else 1
 
@@ -276,14 +336,18 @@ def main():
     force = (os.environ.get("GITHUB_ACTIONS") == "true"
              or os.environ.get("NODES_FORCE_WRITE") == "1"
              or "--write" in sys.argv)
+    if not good:
+        # P23：校验不通过就绝不写盘。先前的实现是「先写后报错」，会在磁盘
+        # 留下一个 pipeline 不完整的 manifest——一旦下游误配 continue-on-error，
+        # 这个残缺清单可能被当成有效产物。宁可什么都不写。
+        print("校验失败，不写 manifest：")
+        for e in errs:
+            print("  ✘", e)
+        return 1
     if not force:
         print("本地默认不写盘。用 --write 或 NODES_FORCE_WRITE=1 生成 data/build_manifest.json")
         print(f"build_id={m['build_id']}  产物 {len(m['artifacts'])} 个  "
               f"节点 {m['counts']['nodes_total']}  真实可用 {m['counts']['real_ok']}")
-        if not good:
-            for e in errs:
-                print("  ✘", e)
-            return 1
         return 0
     with open(MANIFEST, "w", encoding="utf-8") as f:
         json.dump(m, f, ensure_ascii=False, indent=2)
@@ -291,10 +355,6 @@ def main():
     print(f"  {len(m['artifacts'])} 个产物  节点 {m['counts']['nodes_total']}  "
           f"实测 {m['counts']['tested']}  真实可用 {m['counts']['real_ok']}"
           f"（{m['counts']['real_ok_pct']}%）")
-    if not good:
-        for e in errs:
-            print("  ✘", e)
-        return 1
     return 0
 
 

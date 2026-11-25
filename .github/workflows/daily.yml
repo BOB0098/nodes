@@ -74,6 +74,13 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         run: python3 netsafe.py
 
+      # P23：本轮开始，用 GITHUB_RUN_ID 建同轮台账。后续每个关键阶段成功
+      # 后 mark 一笔，manifest 生成前 check——任一阶段失败就不会 mark，
+      # 台账不完整 → check 失败 → 不 push，旧数据无法冒充新一轮。
+      - name: 初始化同轮台账
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 run_ledger.py start
+
       - name: 采集并重建页面
         if: steps.gate.outputs.skip != 'true'
         # 单源 150s 预算 × 15 源 / 6 并发，最坏约 6 分钟。给到 15 分钟：
@@ -82,7 +89,7 @@ jobs:
         env:
           # 查「源最后提交时间」要打 14 次 GitHub API：带 token 5000/小时，不带只有 60
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python3 collector.py
+        run: python3 collector.py && python3 run_ledger.py mark collect
 
       # mihomo 二进制 21MB，每轮重下要 20-40 秒。版本号进 key，
       # 升级时自动失效，不会拿着旧内核测新协议
@@ -95,21 +102,20 @@ jobs:
 
       # 真实代理检测：TCP 端口能连不等于代理可用。抽样后交给 mihomo 真握手，
       # 能不能出网、延迟多少、出口在哪个国家，都从这条真实链路里量。
-      # 自检（DIRECT）不通过时脚本会自己中止，避免把机房网络故障写成「节点全挂」。
+      # P23：去掉 continue-on-error——检测失败必须中断本轮，绝不拿上一轮的
+      # nodecheck.json 冒充新检测结果继续发布。失败即保留远端上一版。
       - name: 真实代理检测
         if: steps.gate.outputs.skip != 'true'
-        continue-on-error: true      # 检测失败不该拖垮整轮采集，保留上一轮结果
         timeout-minutes: 40
         # --speed 只对已经握手成功的节点下载 512KB 测速。不测的话评分里
         # 速度那 20 分恒为 0，可用节点的分数上限只有 75，最优选永远凑不够
-        run: python3 nodecheck.py --speed
+        run: python3 nodecheck.py --speed && python3 run_ledger.py mark detect
 
       # 评分与地区分类：只统计 nodecheck 里测过的节点，没测过的一律不算可用。
       # 同时把本轮结果写进逐节点历史（data/node_history.json）与日趋势（trend.json）。
       - name: 节点评分与分类
         if: steps.gate.outputs.skip != 'true'
-        continue-on-error: true
-        run: python3 nodescore.py
+        run: python3 nodescore.py && python3 run_ledger.py mark score
 
       # 四类优选榜单。必须在订阅之前：订阅的 best/stable/lowlat/fast 四组
       # 直接读 picks.json 的成员与顺序，两边各筛一套就会出现
@@ -118,20 +124,17 @@ jobs:
       # 放在评分之后：状态直接取 score.py 的判定，治理层不再跑一遍状态机。
       - name: 来源治理与重复源识别
         if: steps.gate.outputs.skip != 'true'
-        continue-on-error: true
-        run: python3 governance.py
+        run: python3 governance.py && python3 run_ledger.py mark governance
 
       - name: 生成优选榜单
         if: steps.gate.outputs.skip != 'true'
-        continue-on-error: true
-        run: python3 picks.py
+        run: python3 picks.py && python3 run_ledger.py mark picks
 
       # 多格式订阅：Clash YAML / sing-box JSON / URI / Base64，按质量与地区分组。
       # 每种格式生成后立刻用自己的解析器读回来校验条数，只改扩展名不算输出成功。
       - name: 生成订阅（多格式）
         if: steps.gate.outputs.skip != 'true'
-        continue-on-error: true
-        run: python3 export_subs.py
+        run: python3 export_subs.py && python3 run_ledger.py mark subs
 
       # 重渲染放在订阅之后：页面要显示「优选 220 条」这类数字，就得先让
       # subscriptions.json 落盘。以前渲染在订阅之前，页面永远读上一轮的条数，
@@ -139,8 +142,14 @@ jobs:
       # --render 现在会按新公式重算源评分，所以它同时也是「改公式后生效」的入口。
       - name: 重渲染页面
         if: steps.gate.outputs.skip != 'true'
-        continue-on-error: true
-        run: python3 collector.py --render
+        run: python3 collector.py --render && python3 run_ledger.py mark render
+
+      # P23：manifest 之前先验同轮台账。任一关键阶段没成功 mark、run_id
+      # 不一致、或阶段产物被改动，这里就退出码 1，job 中断、不 push——
+      # 旧产物不会被打上新 build_id 冒充本轮。
+      - name: 同轮构建校验
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 run_ledger.py check
 
       # P20：所有产物落盘后钉一个统一 manifest。必须在 render 之后——
       # render 会改 index.html，manifest 记的哈希必须是最终版，否则一致性

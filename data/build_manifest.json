@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "build_id": "20261125T1415-83f54311ea",
-  "generated_at": "2026-11-25T14:53:15+08:00",
+  "schema_version": 2,
+  "build_id": "20261125T1415-4e0ce209f5",
+  "generated_at": "2026-11-25T15:49:08+08:00",
   "timezone": "Asia/Shanghai (+08:00)",
   "data_basis_ts": 1795587300,
   "counts": {
@@ -104,6 +104,31 @@
       "updated_raw": "2026-11-25 14:15",
       "updated_ts": 1795587300
     }
+  },
+  "pipeline": {
+    "run_id": "p23-final",
+    "started_at": "2026-11-25T15:49:08+08:00",
+    "stages_ok": [
+      "collect",
+      "detect",
+      "governance",
+      "picks",
+      "render",
+      "score",
+      "subs"
+    ],
+    "stage_count": 7,
+    "expected_stages": [
+      "collect",
+      "detect",
+      "score",
+      "governance",
+      "picks",
+      "subs",
+      "render"
+    ],
+    "complete": true,
+    "errors": []
   },
   "compatibility": {
     "note": "订阅路径、文件名与四种格式保持不变；manifest 只做校验，不改任何产物。",

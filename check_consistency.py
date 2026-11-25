@@ -250,6 +250,28 @@ def main():
             dup = len(gov.get("duplicates") or [])
             ok(f"来源治理覆盖 {len(covered)} 个源（同源地址 {dup} 组，观察期 {obs} 个）")
 
+    # 10. 同轮构建证明（P23）：manifest 必须带完整 pipeline，且当前台账
+    #     校验通过。这堵住的真实缺陷是：检测/评分等步骤 continue-on-error
+    #     失败后仍继续，旧产物被新 build_id 冒充新一轮发布。
+    if has_manifest:
+        pipe = mf.get("pipeline") or {}
+        if not pipe.get("run_id"):
+            bad("manifest 缺 pipeline.run_id（无法证明同轮构建）")
+        elif not pipe.get("complete"):
+            bad("manifest 的 pipeline 不完整：" + "；".join(pipe.get("errors") or ["未知原因"]))
+        else:
+            import run_ledger
+            live_ok, live_errs = run_ledger.check()
+            if not live_ok:
+                bad("当前阶段台账校验失败：" + "；".join(live_errs))
+            elif (run_ledger.load().get("run_id")) != pipe.get("run_id"):
+                bad("台账 run_id 与 manifest 不一致（跨轮产物）")
+            else:
+                ok(f"同轮构建证明通过：run_id={pipe.get('run_id')}，"
+                   f"{pipe.get('stage_count')}/{len(run_ledger.STAGE_KEYS)} 个阶段成功")
+    else:
+        warn("无 manifest，跳过同轮构建证明检查")
+
     # 9. 节点数量异常下降（P22）：上游改格式/被封时，最常见的事故不是
     #    数据错，而是数据「少了但看起来正常」。只比同一口径的入库条数，
     #    不拿来源数/检测次数混比。下降超过阈值就拦下发布。

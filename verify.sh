@@ -47,7 +47,10 @@ fi
 # 1. 出网安全边界：SSRF/DNS 私网/重定向/大小/超时/脱敏/原子写（离线自测）
 run "安全边界自测 (netsafe)" "$PY" netsafe.py
 
-# 2. 统一构建清单自测：时间规范化、sha256、计数
+# 2a. 同轮构建台账自测：run_id、阶段成功标记、跨轮与篡改拦截
+run "同轮台账自测 (run_ledger)" "$PY" run_ledger.py --selftest
+
+# 2b. 统一构建清单自测：时间规范化、sha256、计数、pipeline 证明
 run "构建清单自测 (build_manifest)" "$PY" build_manifest.py --selftest
 
 # 3. 订阅生成/反解自测：四种格式能被自己读回来
