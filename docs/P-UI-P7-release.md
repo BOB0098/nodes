@@ -1,7 +1,14 @@
 # UI 重设计 · P7 最终验收发布报告
 
-> 分支 `ui-redesign` → `main`，基线 `e3b1bb3` → 发布 `（合并后填写）`
+> 分支 `ui-redesign` → `main`，基线 `e3b1bb3` → 发布 `7e87e1b`
 > 发布时间：2026-11-25
+
+## 0. 发布与线上验证结论（已实测）
+
+- 快进合并 `ui-redesign` → `main`，线上 main = `7e87e1b`。
+- Actions `pages build and deployment`：**success**。
+- 线上 <https://bob0098.github.io/nodes/> 实测：15 卡 / 3 组、英文简称、暖米白详情变量、底部导航、旧搜索控件已移除；数据中心线上 fetch 显示 20 行榜单；0 页面错误。
+- 线上截图：`docs/ui-screenshots/live-home-390.png`、`live-data-390.png`。
 
 ## 1. Git 提交记录（每阶段独立提交）
 
@@ -31,7 +38,7 @@
 | 电脑适配 | 通过 | 1024/1440 居中布局合理 |
 | 加载性能 | 通过 | 模板减小 25%，首卡 82ms，无外部依赖 |
 | 原有采集/检测/自动更新 | 通过 | 业务文件零改动，Actions 工作流未改 |
-| GitHub Pages 部署 | 见第 5 节 | 合并后验证 |
+| GitHub Pages 部署 | 通过 | Actions success + 线上实测 15 卡/20 榜行/0 错误 |
 
 ## 3. 业务保护核验（硬证据）
 
