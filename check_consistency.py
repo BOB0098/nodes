@@ -175,6 +175,21 @@ def main():
         if extra:
             warn("榜单有分组未出现在订阅清单：" + "、".join(extra))
 
+    # 7. 来源治理（P19）：治理记录必须覆盖当轮所有启用源，
+    # 否则「异常源」可能只是治理步骤没跑到，看着像正常
+    gov = load(os.path.join(DATA, "source_governance.json"))
+    if "__error__" in gov:
+        warn("data/source_governance.json 读不出来，跳过来源治理比对")
+    else:
+        covered = gov.get("sources") or {}
+        declared = int((gov.get("whitelist") or {}).get("enabled") or 0)
+        if declared and len(covered) != declared:
+            bad(f"来源治理覆盖 {len(covered)} 个源，但白名单启用 {declared} 个")
+        elif covered:
+            obs = sum(1 for r in covered.values() if r.get("under_observation"))
+            dup = len(gov.get("duplicates") or [])
+            ok(f"来源治理覆盖 {len(covered)} 个源（同源地址 {dup} 组，观察期 {obs} 个）")
+
     print()
     if fails:
         print(f"结论：{len(fails)} 项不一致，{len(warns)} 项警告")

@@ -27,6 +27,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, "data")
 STATS_PATH = os.path.join(DATA, "sources_stats.json")
 HISTORY_PATH = os.path.join(DATA, "source_history.json")
+GOV_PATH = os.path.join(DATA, "source_governance.json")  # P19 新源观察期
 REPORT_PATH = os.path.join(BASE, "docs", "P4-source-quality.md")
 
 # ── 权重：合计 100 ──
@@ -336,6 +337,27 @@ def save_history(doc, force=None):
     return True
 
 
+def min_grade(a, b):
+    """取较低等级。新源观察期用：分数算得再高，也不越过观察上限。"""
+    ia = GRADE_ORDER.index(a) if a in GRADE_ORDER else len(GRADE_ORDER)
+    ib = GRADE_ORDER.index(b) if b in GRADE_ORDER else len(GRADE_ORDER)
+    return GRADE_ORDER[max(ia, ib)]
+
+
+def observation_caps():
+    """P19：新增源前 3 轮的等级封顶。治理文件不存在时不设限——
+    不能因为治理模块还没跑过就把所有源都压成 B。"""
+    try:
+        doc = json.load(open(GOV_PATH, encoding="utf-8"))
+    except Exception:
+        return {}
+    out = {}
+    for name, r in (doc.get("sources") or {}).items():
+        if r.get("under_observation") and r.get("grade_cap"):
+            out[name] = r["grade_cap"]
+    return out
+
+
 def annotate(rows, history=None, stamp=None, persist=True, record=True):
     """给每行 stats 补上 score / grade / state / dims，并把本轮写进历史。
 
@@ -348,6 +370,7 @@ def annotate(rows, history=None, stamp=None, persist=True, record=True):
     hist = history if history is not None else load_history()
     hist.setdefault("sources", {})
     stamp = stamp or datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M")
+    caps = observation_caps()
 
     # 环境切换就重来：本地的 8% 和机房的 8% 不是同一个数，
     # 接在一起会把「换了个出口」算成「源在变差」
@@ -373,6 +396,10 @@ def annotate(rows, history=None, stamp=None, persist=True, record=True):
             g = downgrade(g, 1)
         elif state == "isolated":
             g = "D"
+        obs_cap = caps.get(row.get("name"))
+        if obs_cap:
+            g = min_grade(g, obs_cap)
+        row["observation_cap"] = obs_cap
         penalty = penalty_of(series) if not failed else 0
 
         row["score"] = score
@@ -644,6 +671,8 @@ def selftest():
     checks.append(("单轮异常→两轮降级→三轮隔离", seq == ["watch", "degraded", "isolated", "isolated"], str(seq)))
     checks.append(("恢复先观察一轮", next_state("isolated", False, 0) == "recovering"
                    and next_state("recovering", False, 0) == "ok", "recovering→ok"))
+    checks.append(("新源等级封顶", min_grade("S", "B") == "B"
+                   and min_grade("C", "B") == "C", "min_grade"))
 
     hist = {"updated": None, "env": "dry", "rounds": KEEP_ROUNDS, "sources": {}}
     for i in range(9):

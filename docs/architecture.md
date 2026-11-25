@@ -1,6 +1,6 @@
 # 架构
 
-一条数据从「别人仓库里的一行文本」到「用户手机上能连的节点」，中间有六步。每一步的产物都是磁盘上的一个文件——这既是缓存，也是出问题时唯一能查的东西。
+一条数据从「别人仓库里的一行文本」到「用户手机上能连的节点」，中间有八步。每一步的产物都是磁盘上的一个文件——这既是缓存，也是出问题时唯一能查的东西。
 
 ```
 sources.yaml（15 个源）
@@ -13,6 +13,7 @@ sources.yaml（15 个源）
       │   Clash YAML / sing-box JSON / URI 列表 / Base64
       │   入库前校验：地址、协议、UUID、reality 公钥、URI 可解析
       ├──► data/quarantine.json（隔离区，按原因计数，不含凭据）
+      ├──► data/source_keys.json（去重前逐源地址哈希，供 P19 重合度分析）
       ▼
 ③  去重 + 生命周期 ────────────► data/nodes.json（脱敏，页面数据）
       │   全参数指纹 16 位 hex；lifecycle 记 [首次, 最近]
@@ -27,9 +28,12 @@ sources.yaml（15 个源）
       │   └─► data/trend.json（日级聚合，365 天）
       │   可用 30 / 延迟 20 / 速度 20 / 稳定 15 / IP 质量 10 / 流媒体 5(恒 0)
       ▼
-⑥  榜单 picks.py ──────────────► data/picks.json（稳定/低延迟/高速/综合）
+⑥  治理 governance.py ─────────► data/source_governance.json
+      │   重复仓库/镜像/内容重合 + 逐源指标 + 新源观察期（不联网）
       ▼
-⑦  输出 export_subs.py ────────► export/subs/<组>.<4 种格式>
+⑦  榜单 picks.py ──────────────► data/picks.json（稳定/低延迟/高速/综合）
+      ▼
+⑧  输出 export_subs.py ────────► export/subs/<组>.<4 种格式>
           collector.py --render ─► index.html（单文件，数据内嵌）
 ```
 
@@ -42,6 +46,8 @@ sources.yaml（15 个源）
 **渲染必须在最后**：`collector.py --render` 会把 `node_scores.json` 读回来补进卡片。采集那一步也渲染一次，但那时的卡片还没有真实检测结果——这一步是覆盖，不是重复。
 
 **榜单必须在订阅之前**：订阅的 best / stable / lowlat / fast 四组直接读 `picks.json` 的成员与顺序，不再自己筛一遍。顺序反了会发出上一轮的榜单——「页面第一」与「订阅第一行」就不是同一个节点。
+
+**治理必须在评分之后**：治理层直接读当轮 `sources_stats.json` 里的状态，不自己再跑一遍状态机。放在评分之前会把「单轮观察」推进成「两轮降级」，一个失败记两次。
 
 **订阅生成在渲染之后**：它读 `picks.json` 与 `nodes.json` 的隔离状态，渲染出的页面要显示「优选 N 条」，得先让 `subscriptions.json` 落盘。
 
@@ -59,6 +65,8 @@ nodecheck.py ── history.py（读覆盖度决定抽谁）+ netsafe.py + mihom
 nodescore.py ── history.py + netsafe.py
 history.py ──── netsafe.py（只负责存哪一段历史、怎么压）
 picks.py ───── history.py + netsafe.py
+governance.py ─ score.py（只读状态）/ sources_io.py / netsafe.py
+                  └─ screen.py 复用 content_type_ok（HTTP 200 假订阅识别）
 export_subs.py ─ nodes_parse.py + nodecheck.to_proxy（复用协议映射）
                   ├─ picks.py（四类榜单的成员与顺序）
                   └─ netsafe.py
@@ -81,6 +89,7 @@ clienttest.py ─ nodes_parse.py + 三个客户端二进制
 | 检测结果异常下滑 | 回归闸门拦下，不写 `nodecheck.json`，退出码 3 | **保留** |
 | 评分失败 | 卡片等级为 null，订阅退回「只按可用性挑」 | 保留 |
 | 订阅生成失败 | `subscriptions.json` 的 `failed` 里逐条记原因 | 保留上一份订阅文件 |
+| 治理生成失败 | 观察期封顶与重合度暂缺；`score.py` 读不到治理文件时不设限 | 保留（不会误压存量源） |
 | 榜单生成失败 | `picks.json` 保持上一轮，订阅四组也停在上一轮 | 保留（页面与订阅仍然自洽） |
 | 历史写盘失败 | 本轮结果没进历史，稳定性判定原地不动 | 保留（不丢已有累积） |
 | 渲染失败 | 页面不更新，数据文件已写 | 数据是新的、页面是旧的（可 `--render` 补） |

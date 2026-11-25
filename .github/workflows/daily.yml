@@ -111,6 +111,13 @@ jobs:
       # 四类优选榜单。必须在订阅之前：订阅的 best/stable/lowlat/fast 四组
       # 直接读 picks.json 的成员与顺序，两边各筛一套就会出现
       # 「页面上排第一的节点不在订阅第一行」。
+      # P19：重复仓库 / 镜像 / 内容重合识别 + 逐源指标 + 新源观察期。
+      # 放在评分之后：状态直接取 score.py 的判定，治理层不再跑一遍状态机。
+      - name: 来源治理与重复源识别
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
+        run: python3 governance.py
+
       - name: 生成优选榜单
         if: steps.gate.outputs.skip != 'true'
         continue-on-error: true

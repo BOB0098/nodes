@@ -29,6 +29,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import netsafe  # noqa: E402
+import governance  # noqa: E402  P19 内容类型校验（含 HTML 假订阅嗅探）
 import nodes_parse  # noqa: E402
 import sources_io  # noqa: E402
 
@@ -158,10 +159,14 @@ def fetch(url, limit=LIMIT, timeout=20):
     try:
         with netsafe.opener().open(req, timeout=timeout) as r:
             data = r.read(limit + 1)
+            ctype = r.headers.get("Content-Type", "")
+            # HTTP 200 也可能给的是登录页 / CDN 错误页。以前只会报「解析 0 条」，
+            # 看不出根因；现在在拉取阶段就分出「内容不对」这一类。
+            ctype_ok, why = governance.content_type_ok(ctype, data[:512])
             return {"code": r.status, "ms": int((time.time() - t0) * 1000),
                     "data": data[:limit], "size": len(data),
                     "truncated": len(data) > limit,
-                    "ctype": r.headers.get("Content-Type", "")}
+                    "ctype": ctype, "ctype_ok": ctype_ok, "ctype_why": why}
     except urllib.error.HTTPError as e:
         return {"code": e.code, "ms": int((time.time() - t0) * 1000), "data": b"", "size": 0}
     except Exception as e:
@@ -298,6 +303,9 @@ def screen_one(cand, known, lib_size):
         rec.update(verdict="unverified",
                    reasons=[f"全通道不可达（attempts: {', '.join(r.get('tried') or [])}）"],
                    tried=r.get("tried"))
+        return rec
+    if not r.get("ctype_ok", True):
+        rec.update(verdict="reject", reasons=[f"内容类型校验失败：{r.get('ctype_why')}"])
         return rec
     try:
         rj = []

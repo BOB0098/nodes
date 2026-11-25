@@ -367,7 +367,31 @@ def measure(items, use_cache=False):
                 print(f"  ✘ 计数失败 {netsafe.mask_text(str(e))[:40]}")
 
     probes = probe_all(addrs)
-    return counts, probes, fps
+    return counts, probes, fps, addrs
+
+
+def write_source_keys(addrs, stamp=None):
+    """P19：按源落盘**地址哈希**，供重复源识别使用。
+
+    nodes.json 是去重后的结果，同一个地址只会归属一个源，拿它算源间重合度
+    永远是 0——这是口径错误，不是「源不重复」。这里在去重之前截住每源原始
+    地址，用 sha256 前 16 位存集合：既能算 Jaccard，又不把地址明文写进
+    公开仓库（地址加端口本身就是可直接订阅的节点信息）。
+    """
+    doc = {
+        "updated": stamp or datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
+        "method": "sha256(addr)[:16]，地址明文不落盘；样本 <20 不判重合",
+        "sources": {},
+    }
+    for url, arr in (addrs or {}).items():
+        nm = SRC_NAME_BY_URL.get(url)
+        if not nm:
+            continue
+        doc["sources"][nm] = sorted({hashlib.sha256(str(a).encode()).hexdigest()[:16]
+                                     for a in (arr or [])})
+    netsafe.write_atomic(os.path.join(OUT_DATA, "source_keys.json"),
+                         json.dumps(doc, ensure_ascii=False, separators=(",", ":")))
+    return sum(len(v) for v in doc["sources"].values())
 
 
 def extract_addrs(data):
@@ -867,8 +891,9 @@ def main():
 
     print("\n统计各条订阅的节点数...")
     items = [it for g in GROUPS for it in g["items"]]
-    counts, probes, fps = measure(items, use_cache)
-
+    counts, probes, fps, addrs = measure(items, use_cache)
+    nkeys = write_source_keys(addrs)
+    print(f"  源地址哈希已落盘：{nkeys} 条（去重前口径，供 P19 重合度分析）")
     print("\n测各条源站自身可达性...")
     srcstat = probe_sources(items)
 

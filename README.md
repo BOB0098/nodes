@@ -70,6 +70,13 @@ P2 的实测结果（17 个候选）：
 自动发现由 `discover.py` 每周跑一次，只写 `data/candidates.json` 候选队列——
 **永远不会自动把新源加进订阅**，必须人工审核后置 `enabled: true`。
 
+每轮还会跑 `governance.py` 做来源治理（不联网，读当轮产物）：把 GitHub 主站 /
+raw / 三种 jsdelivr 通道归一，识别重复仓库、镜像和同仓库不同文件；在去重**之前**
+按源存地址哈希，算源间内容重合度；记录每个源近 30 轮的抓取成功率、真实可用率、
+重复率、最近成功时间和连续失败次数。**新增源前 3 轮等级封顶 B**，存量源不追溯；
+异常源按单轮观察 / 两轮降级 / 三轮隔离处理，隔离不是删除，恢复两轮即回正常。
+报告见 [`docs/P19-governance.md`](docs/P19-governance.md)。
+
 ## 真实可用率
 
 前面说的「可连率」都是 TCP 握手——端口开着就算通。但端口通不等于代理能用：
@@ -205,6 +212,10 @@ python3 restore.py to <sha>             # 恢复（当前内容自动备份）
 python3 restore.py undo                 # 撤销上一次恢复
 ```
 
+候选源接入额外校验内容类型：HTTP 200 但返回登录页 HTML 会被判为
+「内容类型校验失败」，而不是含糊地记成「解析 0 条」。治理层与审核层都不写
+`sources.yaml`——白名单只有人工能改。
+
 细节与残余风险见 [docs/P13-security.md](docs/P13-security.md)。
 
 ## 说明
@@ -261,6 +272,8 @@ python3 collector.py            # 采集并重建 index.html（读 sources.yaml�
 python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
 python3 nodecheck.py --speed    # mihomo 真握手 + 测速（需 curl，会自己下 mihomo）
 python3 nodescore.py            # 评分、地区、标签；同时累积节点历史与日趋势
+python3 governance.py           # 来源治理：重复源/重合度/逐源指标/观察期
+python3 governance.py --selftest # 重复源、恶意 URL、超大响应、故障恢复四项验收
 python3 picks.py                # 四类优选榜单（稳定/低延迟/高速/综合）
 python3 export_subs.py          # 生成各格式订阅并逐个反解校验
 python3 screen.py               # 审核候选源（试采集→解析→去重→真实检测）

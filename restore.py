@@ -48,6 +48,8 @@ ALLOW = [
     "data/subscriptions.json",
     "data/sources_stats.json",
     "data/source_history.json",
+    "data/source_governance.json",
+    "data/source_keys.json",
     "data/health.json",
     "docs/P4-source-quality.md",
 ]
