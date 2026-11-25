@@ -139,8 +139,18 @@ jobs:
         continue-on-error: true
         run: python3 collector.py --render
 
-      # 发布门禁：页面内嵌数、nodes.json、subscriptions.json 必须是同一轮同一个数。
-      # 这三个值以前各写各的（9,845 / 9,846），没有任何一处会把它们放在一起比。
+      # P20：所有产物落盘后钉一个统一 manifest。必须在 render 之后——
+      # render 会改 index.html，manifest 记的哈希必须是最终版，否则一致性
+      # 检查会拿旧哈希去比新页面，把正常一轮误判成「产物被改动」。
+      - name: 生成统一构建清单
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 build_manifest.py --write
+
+      # 发布门禁：页面、数据、订阅、状态必须同一轮同一个数，且产物哈希
+      # 与 manifest 吻合。旧版时间正则认不出「2026-11-25 14:15」，把相差
+      # 13 分钟的两份数据报成「差 0 分钟」；现在统一规范化 + 哈希硬校验。
+      # 这一步没有 continue-on-error：失败即中断，下面的 git 提交不会执行，
+      # 远端保留上一版可用产物。
       - name: 一致性检查
         if: steps.gate.outputs.skip != 'true'
         run: python3 check_consistency.py
@@ -153,7 +163,9 @@ jobs:
           # 只提交页面与脱敏数据。全量导出含凭据，已移到 export/ 并 gitignore，
           # 通过下面的 artifact 步骤交付，不入库。
           # docs/P4-source-quality.md 与 docs/P19-governance.md 每轮分别由 score.py / governance.py 重写，随数据一起提交
-          git add index.html data/ docs/P4-source-quality.md docs/P19-governance.md
+          # data/build_manifest.json 由本轮 build_manifest.py 生成，必须与产物同提交，
+          # 否则下一轮一致性检查会拿旧哈希比新数据，把正常更新误判成篡改。
+          git add index.html data/ docs/P4-source-quality.md docs/P19-governance.md docs/P20-subscriptions.md
           if git diff --cached --quiet; then
             echo "内容无变化，不提交"
             exit 0

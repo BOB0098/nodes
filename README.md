@@ -206,6 +206,23 @@ token，`print(e)` 一次就可能把凭据写进公开的 Actions 日志。
 环境异常，`nodecheck.json` 保持不动，页面继续用旧数据。所有 JSON 都是原子写
 （先写临时文件再 rename），中断时留下的是旧文件而不是半个 JSON。
 
+**统一构建清单（P20）**：每轮产物全部生成后，`build_manifest.py` 会把页面、节点、
+检测、评分、榜单、订阅、状态、治理、趋势共 9 个文件钉在同一个 `build_id` 上，
+逐个记录 sha256、字节数、原始时间戳和统一口径的计数。发布前 `check_consistency.py`
+拿它做硬校验：任何一个产物被单独改过、计数对不上、或时间戳相差超过 90 分钟，
+就拦下发布——CI 里这一步没有 `continue-on-error`，失败即不 push，远端保留上一版。
+这解决的是一个真实事故：页面写 `11-25 14:02`、订阅写 `2026-11-25 14:15`，旧正则
+只认前者，把相差 13 分钟的两份数据报成「差 0 分钟，同一轮」。
+
+```bash
+python3 build_manifest.py --write   # 生成统一清单（CI 每轮自动执行）
+python3 check_consistency.py        # 发布门禁：同一轮 + 哈希吻合才放行
+python3 drill_publish.py            # 发布失败回滚演练：注入坏产物→拦下→恢复
+```
+
+订阅路径、文件名与四种格式（clash / sing-box / URI / base64）在 P20 里未改动，
+旧订阅入口继续可用；manifest 只做校验，不改任何产物。
+
 数据回滚不用记 git 命令：
 
 ```bash
@@ -279,6 +296,10 @@ python3 governance.py           # 来源治理：重复源/重合度/逐源指�
 python3 governance.py --selftest # 重复源、恶意 URL、超大响应、故障恢复四项验收
 python3 picks.py                # 四类优选榜单（稳定/低延迟/高速/综合）
 python3 export_subs.py          # 生成各格式订阅并逐个反解校验
+python3 build_manifest.py --selftest  # 统一清单自测（时间规范化/哈希/可复现）
+python3 build_manifest.py --write     # 生成统一构建清单
+python3 check_consistency.py          # 发布门禁（页面/数据/订阅/状态同一轮）
+python3 drill_publish.py              # 发布失败回滚演练（不改仓库）
 python3 screen.py               # 审核候选源（试采集→解析→去重→真实检测）
 python3 discover.py --dry-run   # 检索新的候选仓库，只看结果不落盘
 python3 score.py --report       # 用现有 stats 重算评分并重写质量报告

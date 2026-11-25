@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "build_id": "20261125T1415-a47216686f",
+  "generated_at": "2026-11-25T14:32:49+08:00",
+  "timezone": "Asia/Shanghai (+08:00)",
+  "data_basis_ts": 1795587300,
+  "counts": {
+    "nodes_total": 10059,
+    "dedup": 10059,
+    "tested": 952,
+    "real_ok": 315,
+    "real_ok_pct": 33.1,
+    "groups": {
+      "all": 10059,
+      "best": 200,
+      "stable": 62,
+      "lowlat": 27,
+      "fast": 17,
+      "hk": 11,
+      "tw": 12,
+      "jp": 7,
+      "sg": 6,
+      "us": 78,
+      "kr": 6,
+      "eu": 157
+    },
+    "picks": {
+      "stable": 62,
+      "lowlat": 27,
+      "fast": 17,
+      "best": 200
+    }
+  },
+  "artifacts": {
+    "index_html": {
+      "path": "index.html",
+      "desc": "内嵌 DATA 的页面",
+      "sha256": "b8cc53c9eb62400112d377aeb1fb052472170a904feda01745f36bc0f8d238c0",
+      "bytes": 74039,
+      "updated_raw": "11-25 14:02",
+      "updated_ts": 1795586520
+    },
+    "nodes": {
+      "path": "data/nodes.json",
+      "desc": "节点库",
+      "sha256": "7f79ae9f6139d1efcf9d9dbde11787af3dfee8f403f73b313fa6e0a2d4c4bb89",
+      "bytes": 1574975,
+      "updated_raw": "11-25 14:02",
+      "updated_ts": 1795586520
+    },
+    "nodecheck": {
+      "path": "data/nodecheck.json",
+      "desc": "真握手检测",
+      "sha256": "2cd122dc06c7e594f1fb43593b1646e791baa0d1aec1b60cd9258d8bccb181e1",
+      "bytes": 135635,
+      "updated_raw": "2026-11-25 14:15",
+      "updated_ts": 1795587300
+    },
+    "scores": {
+      "path": "data/node_scores.json",
+      "desc": "源评分与标签",
+      "sha256": "1d42e8ddc671db76d8c69c9db507805c05a1a158555a6e6375080c572db18829",
+      "bytes": 207808,
+      "updated_raw": "2026-11-25 14:15",
+      "updated_ts": 1795587300
+    },
+    "picks": {
+      "path": "data/picks.json",
+      "desc": "四类优选榜单",
+      "sha256": "5c740d0f7eb51efbdfcf846d8a2e5579ba8cfa2cd6f2e6e00d002b95445d150b",
+      "bytes": 90730,
+      "updated_raw": "2026-11-25 14:15",
+      "updated_ts": 1795587300
+    },
+    "subscriptions": {
+      "path": "data/subscriptions.json",
+      "desc": "多格式订阅清单",
+      "sha256": "48ee9773b8c816779218adaefdfb1f225d8f339861c71d9a1fd6424f169fc69a",
+      "bytes": 4580,
+      "updated_raw": "2026-11-25 14:15",
+      "updated_ts": 1795587300
+    },
+    "status": {
+      "path": "data/status.json",
+      "desc": "源抓取状态",
+      "sha256": "c85adfcc4c4cebf8ece4b4deb68b15e5368ab6e2af2b6bc03977eb4f744e8aff",
+      "bytes": 1769,
+      "updated_raw": "11-25 14:02",
+      "updated_ts": 1795586520
+    },
+    "governance": {
+      "path": "data/source_governance.json",
+      "desc": "来源治理",
+      "sha256": "e0c22e199786a9a277d208ab0a02ef39330d0966d0cf3aeb0d40e51a814c0289",
+      "bytes": 31399,
+      "updated_raw": "2026-11-25 14:15",
+      "updated_ts": 1795587300
+    },
+    "trend": {
+      "path": "data/trend.json",
+      "desc": "日趋势",
+      "sha256": "325e853bf877dbf0543c76fc75d823ee765879d6065125214e382289095aaf1d",
+      "bytes": 368,
+      "updated_raw": "2026-11-25 14:15",
+      "updated_ts": 1795587300
+    }
+  },
+  "compatibility": {
+    "note": "订阅路径、文件名与四种格式保持不变；manifest 只做校验，不改任何产物。",
+    "formats": [
+      "clash",
+      "singbox",
+      "uri",
+      "b64"
+    ],
+    "groups_inherit": [
+      "all",
+      "best",
+      "stable",
+      "lowlat",
+      "fast",
+      "hk",
+      "tw",
+      "jp",
+      "sg",
+      "us",
+      "kr",
+      "eu"
+    ]
+  }
+}

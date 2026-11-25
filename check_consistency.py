@@ -1,33 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""发布前一致性检查：页面、数据、订阅是不是同一轮、同一个数。
+"""发布前一致性检查：页面、数据、订阅、状态是不是同一轮、同一个数。
 
 这个脚本存在的理由是一次真实事故：同一轮里 `nodes.json` 写 9,845、
 `subscriptions.json` 写 9,846、内嵌到 `index.html` 的又是 9,846。
 三个数字差 1，没人发现，因为没有任何一处会把它们放在一起比。
 
+P20 起增加 build manifest 硬校验（data/build_manifest.json）：
+旧版时间正则只认「11-25 14:02」，认不出「2026-11-25 14:15」，后者被
+跳过，于是「差 13 分钟」的两份数据被报成「差 0 分钟，同一轮」。现在
+所有时间统一用 build_manifest.norm_ts 解析，且 manifest 存在时逐产物
+核对 sha256 与计数——任何一个产物被单独改过而不重生成 manifest，
+发布就被拦下，远端保留上一版。
+
+兼容：manifest 缺失时（P20 之前的历史数据或本地手工环境）自动降级为
+旧口径——时间戳为警告、跳过哈希校验。CI 里 daily.yml 会先跑
+build_manifest.py，所以正式发布一定是硬校验。
+
 用法：
-    python3 check_consistency.py          # 校验，不一致退出码 1
-    python3 check_consistency.py --quiet  # 只输出失败项
-
-检查项：
-1. nodes.json 的 stats.dedup 与 nodes 数组长度一致
-2. nodes.json 里 stats.subs.*.count 与 subscriptions.json 同名分组一致
-3. index.html 内嵌 DATA 的 stats.dedup 与 nodes.json 一致
-4. 各文件的 updated 时间戳差值 ≤ 阈值（默认 90 分钟，超过说明不是同一轮）
-5. schema 版本存在且为已知值
-6. picks.json 的四类榜单条数与订阅同名分组一致（P18）
-
-第 4 项在现阶段是「警告」不是「失败」：订阅在检测之后生成，天然晚十几分钟。
-P20 引入 manifest 后，这一项会变成硬性要求。
+    python3 check_consistency.py            # 校验，不一致退出码 1
+    python3 check_consistency.py --quiet    # 只输出失败项
 """
 import json
 import os
 import re
 import sys
 
+from build_manifest import norm_ts, sha256_file, ARTIFACTS, SCHEMA_VERSION
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, "data")
+MANIFEST = os.path.join(DATA, "build_manifest.json")
 SCHEMA = 2
 MAX_SKEW_MIN = 90
 
@@ -40,12 +43,15 @@ def load(path):
         return {"__error__": f"{type(e).__name__}: {e}"}
 
 
-def mins(t):
-    """'11-25 07:50' → 当日分钟数。跨日不管，差一天会自然超过阈值。"""
-    m = re.match(r"(\d{2})-(\d{2})\s+(\d{2}):(\d{2})", str(t or ""))
-    if not m:
+def mins(t, year_hint=None):
+    """旧格式的兼容入口，内部走统一规范化。返回当日分钟数或 None。"""
+    ts = norm_ts(t, year_hint)
+    if ts is None:
         return None
-    return int(m.group(3)) * 60 + int(m.group(4))
+    from datetime import datetime
+    from build_manifest import TZ
+    dt = datetime.fromtimestamp(ts, TZ)
+    return dt.hour * 60 + dt.minute
 
 
 def embedded(index_html):
@@ -77,17 +83,20 @@ def main():
 
     def warn(msg):
         warns.append(msg)
-        print("  ! " + msg)
+        if not quiet:
+            print("  ! " + msg)
 
     nodes = load(os.path.join(DATA, "nodes.json"))
     subs = load(os.path.join(DATA, "subscriptions.json"))
     page = embedded(os.path.join(BASE, "index.html"))
+    mf = load(MANIFEST)
+    has_manifest = "__error__" not in mf and mf.get("schema_version") == SCHEMA_VERSION
 
     if "__error__" in nodes:
         bad("data/nodes.json 读不出来：" + nodes["__error__"])
         return 1
 
-    print("一致性检查")
+    print("一致性检查" + ("（manifest 硬校验）" if has_manifest else "（无 manifest，旧口径）"))
 
     # 1. 节点数组长度
     n = len(nodes.get("nodes") or [])
@@ -126,23 +135,44 @@ def main():
         else:
             bad(f"index.html 内嵌条数 {pd} ≠ nodes.json {n}")
 
-    # 4. 时间戳
-    ts = {
-        "nodes": mins(nodes.get("updated")),
-        "subs": mins((subs or {}).get("updated")),
-    }
-    if page is not None:
-        ts["page"] = mins(page.get("updated"))
+    # 4. 时间戳：统一用 norm_ts 解析所有格式。有 manifest 时取各产物的
+    #    updated_ts，无 manifest 时用各文件 updated 兜底。
+    year_hint = None
+    for doc in (subs, load(os.path.join(DATA, "nodecheck.json")),
+                load(os.path.join(DATA, "picks.json"))):
+        t = norm_ts(doc.get("updated") if isinstance(doc, dict) else None)
+        if t:
+            from datetime import datetime
+            from build_manifest import TZ
+            year_hint = datetime.fromtimestamp(t, TZ).year
+            break
+    if has_manifest:
+        ts = {k: (v or {}).get("updated_ts")
+              for k, v in (mf.get("artifacts") or {}).items()
+              if isinstance(v, dict) and (v or {}).get("updated_ts")}
+    else:
+        ts = {
+            "nodes": norm_ts(nodes.get("updated"), year_hint),
+            "subs": norm_ts(subs.get("updated") if isinstance(subs, dict) else None, year_hint),
+        }
+        if page is not None:
+            ts["page"] = norm_ts(page.get("updated"), year_hint)
     known = {k: v for k, v in ts.items() if v is not None}
     if len(known) >= 2:
-        skew = max(known.values()) - min(known.values())
-        detail = " / ".join(f"{k} {v // 60:02d}:{v % 60:02d}" for k, v in known.items())
+        skew = (max(known.values()) - min(known.values())) // 60
+        detail = " / ".join(
+            f"{k} {(v % 86400) // 3600:02d}:{(v % 3600) // 60:02d}"
+            for k, v in known.items())
         if skew <= MAX_SKEW_MIN:
-            ok(f"时间戳同一轮（差 {skew} 分钟）：{detail}")
+            ok(f"时间戳同一轮（差 {skew} 分钟，{len(known)} 个产物）：{detail}")
         else:
-            warn(f"时间戳相差 {skew} 分钟，超过 {MAX_SKEW_MIN}：{detail}")
+            msg = f"时间戳相差 {skew} 分钟，超过 {MAX_SKEW_MIN}：{detail}"
+            if has_manifest:
+                bad(msg + "（同一 manifest 内不允许）")
+            else:
+                warn(msg)
     else:
-        warn("时间戳字段缺失，无法比对")
+        warn("可解析的时间戳不足 2 个，无法比对")
 
     # 5. schema
     sv = nodes.get("schema")
@@ -151,9 +181,7 @@ def main():
     elif sv != SCHEMA:
         bad(f"nodes.json schema={sv}，本脚本认 {SCHEMA}")
 
-    # 6. 榜单与订阅。订阅的 best/stable/lowlat/fast 四组直接由 picks.json 决定，
-    # 所以两边的条数必须相等。不相等只有两种可能：picks 里混进了节点库中
-    # 已下架的节点，或者订阅生成时漏掉了某些节点——两种都该在发布前拦住
+    # 6. 榜单与订阅
     picks = load(os.path.join(DATA, "picks.json"))
     if "__error__" in picks:
         warn("data/picks.json 读不出来，跳过榜单比对")
@@ -170,13 +198,11 @@ def main():
             dropped = picks.get("dropped") or 0
             ok(f"榜单 {len(pl)} 组条数与订阅一致"
                + (f"（已剔除下架 {dropped} 条）" if dropped else ""))
-        # 榜单里出现订阅不支持的分组，说明两边定义已经分叉
         extra = [k for k in pl if k not in sg]
         if extra:
             warn("榜单有分组未出现在订阅清单：" + "、".join(extra))
 
-    # 7. 来源治理（P19）：治理记录必须覆盖当轮所有启用源，
-    # 否则「异常源」可能只是治理步骤没跑到，看着像正常
+    # 7. 来源治理
     gov = load(os.path.join(DATA, "source_governance.json"))
     if "__error__" in gov:
         warn("data/source_governance.json 读不出来，跳过来源治理比对")
@@ -190,11 +216,53 @@ def main():
             dup = len(gov.get("duplicates") or [])
             ok(f"来源治理覆盖 {len(covered)} 个源（同源地址 {dup} 组，观察期 {obs} 个）")
 
+    # 8. build manifest 硬校验（P20）
+    if not has_manifest:
+        warn("没有 build_manifest.json，跳过产物哈希校验（CI 应先跑 build_manifest.py）")
+    else:
+        # 8a. 逐产物 sha256——任何一个被单独改过就拦下发布
+        bad_hash = []
+        checked = 0
+        for key, meta in (mf.get("artifacts") or {}).items():
+            rel = meta.get("path")
+            expected = meta.get("sha256")
+            if not rel or not expected:
+                continue
+            path = os.path.join(BASE, rel)
+            if not os.path.isfile(path):
+                bad_hash.append(f"{rel} 文件缺失")
+                continue
+            if sha256_file(path) != expected:
+                bad_hash.append(f"{rel} 已被改动（与 manifest 哈希不符）")
+            checked += 1
+        if bad_hash:
+            bad("manifest 产物校验失败：" + "；".join(bad_hash))
+        else:
+            ok(f"manifest 覆盖的 {checked} 个产物 sha256 全部吻合")
+
+        # 8b. manifest 计数与磁盘一致
+        c = mf.get("counts") or {}
+        if c.get("nodes_total") not in (None, n):
+            bad(f"manifest.nodes_total={c.get('nodes_total')} ≠ 磁盘 {n}")
+        if c.get("dedup") not in (None, dedup):
+            bad(f"manifest.dedup={c.get('dedup')} ≠ 磁盘 {dedup}")
+        if "__error__" not in subs:
+            sg_now = {g.get("key"): g.get("count") for g in (subs.get("groups") or [])}
+            if c.get("groups") and c["groups"] != sg_now:
+                bad("manifest.counts.groups 与磁盘订阅分组不一致")
+            elif c.get("groups"):
+                ok(f"manifest 订阅 {len(c['groups'])} 组计数与磁盘一致")
+        if (c.get("picks") and "__error__" not in picks
+                and c["picks"] != {k: len(v) for k, v in (picks.get("lists") or {}).items()}):
+            bad("manifest.counts.picks 与磁盘榜单不一致")
+        ok(f"manifest build_id={mf.get('build_id')}，口径节点 {c.get('nodes_total')} / "
+           f"实测 {c.get('tested')} / 真实可用 {c.get('real_ok')}")
+
     print()
     if fails:
-        print(f"结论：{len(fails)} 项不一致，{len(warns)} 项警告")
+        print(f"结论：{len(fails)} 项不一致，{len(warns)} 项警告 → 拦下发布")
         return 1
-    print(f"结论：全部一致" + (f"，{len(warns)} 项警告" if warns else ""))
+    print(f"结论：全部一致" + (f"，{len(warns)} 项警告" if warns else "") + " → 允许发布")
     return 0
 
 

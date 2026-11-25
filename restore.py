@@ -46,6 +46,7 @@ ALLOW = [
     "data/picks.json",
     "data/node_lifecycle.json",
     "data/subscriptions.json",
+    "data/build_manifest.json",
     "data/sources_stats.json",
     "data/source_history.json",
     "data/source_governance.json",
