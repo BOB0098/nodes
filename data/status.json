@@ -1,81 +1,81 @@
 {
- "updated": "11-25 12:46",
- "ts": 1795581963,
+ "updated": "11-25 14:02",
+ "ts": 1795586539,
  "sources": [
   {
    "url": "https://blog.ermao.net/sub/reachable/clash/ermao.net",
    "code": 200,
-   "ms": 299
+   "ms": 206
   },
   {
    "url": "https://radarhub.top/clash.yaml",
    "code": 200,
-   "ms": 96
+   "ms": 56
   },
   {
    "url": "https://blog.ermao.net/sub/clash/ermao.net",
    "code": 200,
-   "ms": 323
+   "ms": 251
   },
   {
    "url": "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml",
    "code": 200,
-   "ms": 37
+   "ms": 13
   },
   {
    "url": "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/clashmeta.yaml",
    "code": 200,
-   "ms": 36
+   "ms": 11
   },
   {
    "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
    "code": 200,
-   "ms": 17
+   "ms": 12
   },
   {
    "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
    "code": 200,
-   "ms": 299
+   "ms": 213
   },
   {
    "url": "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
    "code": 200,
-   "ms": 13
+   "ms": 14
   },
   {
    "url": "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
    "code": 200,
-   "ms": 32
+   "ms": 10
   },
   {
    "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
    "code": 200,
-   "ms": 276
+   "ms": 9
   },
   {
    "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
    "code": 200,
-   "ms": 37
+   "ms": 139
   },
   {
    "url": "https://radarhub.top/sing-box.json",
    "code": 200,
-   "ms": 85
+   "ms": 52
   },
   {
    "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json",
    "code": 200,
-   "ms": 38
+   "ms": 9
   },
   {
    "url": "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/sing-box.json",
    "code": 200,
-   "ms": 135
+   "ms": 10
   },
   {
    "url": "https://raw.githubusercontent.com/Andrejewild/hiddify-singbox-configs-ru/main/sub.txt",
    "code": 200,
-   "ms": 33
+   "ms": 10
   }
  ]
 }

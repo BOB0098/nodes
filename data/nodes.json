@@ -1,9 +1,9 @@
 {
  "schema": 2,
- "updated": "11-25 12:46",
- "ts": 1795581963,
+ "updated": "11-25 14:02",
+ "ts": 1795586539,
  "life_span": 1,
- "raw": 15789,
+ "raw": 15790,
  "errors": [],
  "groups": [
   {
@@ -28,20 +28,20 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 299
+      "ms": 206
      },
-     "age_h": 0.0,
+     "age_h": 1.3,
      "streak": 0,
      "grade": "B",
-     "grade_score": 77.4,
+     "grade_score": 78.2,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 10,
-     "rok": 63,
+     "rok": 56,
      "rtest": 90,
      "new7": 220,
      "med_age": 1,
-     "rank_real": 63.0,
+     "rank_real": 56.0,
      "rank_has_real": 1
     },
     {
@@ -61,20 +61,20 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 36
+      "ms": 11
      },
-     "age_h": 88.8,
+     "age_h": 90.0,
      "streak": 0,
      "grade": "B",
-     "grade_score": 77.4,
+     "grade_score": 77.0,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 6,
-     "rok": 47,
+     "rok": 34,
      "rtest": 90,
      "new7": 735,
      "med_age": 1,
-     "rank_real": 47.0,
+     "rank_real": 34.0,
      "rank_has_real": 1
     },
     {
@@ -94,12 +94,12 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 323
+      "ms": 251
      },
-     "age_h": 0.0,
+     "age_h": 1.3,
      "streak": 0,
      "grade": "C",
-     "grade_score": 57.5,
+     "grade_score": 59.1,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 8,
@@ -127,9 +127,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 37
+      "ms": 13
      },
-     "age_h": 8.2,
+     "age_h": 9.5,
      "streak": 0,
      "grade": "D",
      "grade_score": 48.4,
@@ -160,20 +160,20 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 96
+      "ms": 56
      },
-     "age_h": 0.0,
+     "age_h": 1.3,
      "streak": 0,
      "grade": "A",
      "grade_score": 80.0,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 9,
-     "rok": 87,
+     "rok": 88,
      "rtest": 90,
      "new7": 363,
      "med_age": 1,
-     "rank_real": 87.0,
+     "rank_real": 88.0,
      "rank_has_real": 1
     }
    ]
@@ -195,26 +195,26 @@
      "url": "https://raw.githubusercontent.com/free18/v2ray/main/v.txt",
      "count": 372,
      "probe": {
-      "ok": 23,
+      "ok": 20,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 276
+      "ms": 9
      },
-     "age_h": 0.3,
+     "age_h": 1.6,
      "streak": 0,
      "grade": "B",
-     "grade_score": 71.0,
+     "grade_score": 72.1,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 6,
-     "rok": 29,
+     "rok": 37,
      "rtest": 90,
-     "new7": 308,
+     "new7": 307,
      "med_age": 1,
-     "rank_real": 29.0,
+     "rank_real": 37.0,
      "rank_has_real": 1
     },
     {
@@ -229,60 +229,26 @@
      "url": "https://blog.ermao.net/sub/v2ray/ermao.net",
      "count": 372,
      "probe": {
-      "ok": 20,
+      "ok": 19,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 299
+      "ms": 213
      },
-     "age_h": 0.0,
+     "age_h": 1.3,
      "streak": 0,
      "grade": "B",
-     "grade_score": 71.8,
+     "grade_score": 73.4,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 9,
-     "rok": 27,
+     "rok": 17,
      "rtest": 90,
-     "new7": 199,
+     "new7": 202,
      "med_age": 1,
-     "rank_real": 27.0,
-     "rank_has_real": 1
-    },
-    {
-     "tag": "推荐 · 精选稳定",
-     "note": "量少质高，失效慢",
-     "ok": [
-      "v2rayNG",
-      "小火箭"
-     ],
-     "no": [],
-     "freq": "6 小时更新",
-     "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-     "count": 10,
-     "probe": {
-      "ok": 8,
-      "total": 8
-     },
-     "cnbad": false,
-     "src_http": {
-      "code": 200,
-      "ms": 17
-     },
-     "age_h": 0.7,
-     "streak": 0,
-     "grade": "B",
-     "grade_score": 70.7,
-     "src_state": "ok",
-     "src_state_label": "正常",
-     "prio": 10,
-     "rok": 7,
-     "rtest": 8,
-     "new7": 8,
-     "med_age": 1,
-     "rank_real": 7.0,
+     "rank_real": 17.0,
      "rank_has_real": 1
     },
     {
@@ -304,54 +270,54 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 13
+      "ms": 14
      },
-     "age_h": 0.1,
+     "age_h": 0.3,
      "streak": 0,
      "grade": "C",
-     "grade_score": 61.8,
+     "grade_score": 59.1,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 8,
      "rok": 4,
      "rtest": 90,
-     "new7": 4378,
+     "new7": 4377,
      "med_age": 1,
      "rank_real": 4.0,
      "rank_has_real": 1
     },
     {
-     "tag": "多协议合集",
-     "note": "近 4000 条，含 ss / vless / vmess",
+     "tag": "推荐 · 精选稳定",
+     "note": "量少质高，失效慢",
      "ok": [
       "v2rayNG",
       "小火箭"
      ],
      "no": [],
-     "freq": "每日更新",
-     "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
-     "count": 3884,
+     "freq": "6 小时更新",
+     "url": "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
+     "count": 11,
      "probe": {
-      "ok": 13,
-      "total": 24
+      "ok": 11,
+      "total": 11
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 37
+      "ms": 12
      },
-     "age_h": 6.6,
+     "age_h": 1.0,
      "streak": 0,
-     "grade": "D",
-     "grade_score": 49.3,
+     "grade": "B",
+     "grade_score": 68.6,
      "src_state": "ok",
      "src_state_label": "正常",
-     "prio": 4,
-     "rok": 2,
-     "rtest": 90,
-     "new7": 1761,
+     "prio": 10,
+     "rok": 4,
+     "rtest": 6,
+     "new7": 6,
      "med_age": 1,
-     "rank_real": 2.0,
+     "rank_real": 4.0,
      "rank_has_real": 1
     },
     {
@@ -372,12 +338,12 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 32
+      "ms": 10
      },
-     "age_h": 1.3,
+     "age_h": 2.6,
      "streak": 0,
-     "grade": "D",
-     "grade_score": 40.8,
+     "grade": "C",
+     "grade_score": 53.2,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 7,
@@ -386,6 +352,40 @@
      "new7": 10,
      "med_age": 1,
      "rank_real": 2.0,
+     "rank_has_real": 1
+    },
+    {
+     "tag": "多协议合集",
+     "note": "近 4000 条，含 ss / vless / vmess",
+     "ok": [
+      "v2rayNG",
+      "小火箭"
+     ],
+     "no": [],
+     "freq": "每日更新",
+     "url": "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/base64/all_sub.txt",
+     "count": 3884,
+     "probe": {
+      "ok": 13,
+      "total": 24
+     },
+     "cnbad": false,
+     "src_http": {
+      "code": 200,
+      "ms": 139
+     },
+     "age_h": 7.9,
+     "streak": 0,
+     "grade": "C",
+     "grade_score": 52.9,
+     "src_state": "ok",
+     "src_state_label": "正常",
+     "prio": 4,
+     "rok": 0,
+     "rtest": 90,
+     "new7": 1761,
+     "med_age": 1,
+     "rank_real": 0.0,
      "rank_has_real": 1
     }
    ]
@@ -407,26 +407,26 @@
      "url": "https://raw.githubusercontent.com/bzfq21/proxy-singbox/main/singbox-config.json",
      "count": 348,
      "probe": {
-      "ok": 21,
+      "ok": 22,
       "total": 24
      },
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 38
+      "ms": 9
      },
-     "age_h": 3.6,
+     "age_h": 4.9,
      "streak": 0,
      "grade": "B",
      "grade_score": 69.6,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 8,
-     "rok": 28,
+     "rok": 30,
      "rtest": 90,
      "new7": 193,
      "med_age": 1,
-     "rank_real": 28.0,
+     "rank_real": 30.0,
      "rank_has_real": 1
     },
     {
@@ -447,20 +447,20 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 135
+      "ms": 10
      },
-     "age_h": 20.9,
+     "age_h": 22.2,
      "streak": 0,
      "grade": "A",
-     "grade_score": 80.6,
+     "grade_score": 80.4,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 7,
-     "rok": 16,
+     "rok": 15,
      "rtest": 20,
      "new7": 20,
      "med_age": 1,
-     "rank_real": 16.0,
+     "rank_real": 15.0,
      "rank_has_real": 1
     },
     {
@@ -481,9 +481,9 @@
      "cnbad": false,
      "src_http": {
       "code": 200,
-      "ms": 33
+      "ms": 10
      },
-     "age_h": 0.8,
+     "age_h": 1.0,
      "streak": 0,
      "grade": "D",
      "grade_score": 43.2,
@@ -515,59 +515,59 @@
      "cnbad": true,
      "src_http": {
       "code": 200,
-      "ms": 85
+      "ms": 52
      },
-     "age_h": 0.0,
+     "age_h": 1.3,
      "streak": 0,
      "grade": "B",
-     "grade_score": 75.4,
+     "grade_score": 74.3,
      "src_state": "ok",
      "src_state_label": "正常",
      "prio": 10,
-     "rok": 11,
+     "rok": 12,
      "rtest": 12,
      "new7": 12,
      "med_age": 1,
-     "rank_real": 11.0,
+     "rank_real": 12.0,
      "rank_has_real": 1
     }
    ]
   }
  ],
  "delta": {
-  "add": 159,
-  "drop": 83
+  "add": 0,
+  "drop": 0
  },
  "stats": {
-  "raw": 15789,
-  "dedup": 10060,
-  "real_tested": 954,
-  "real_ok": 339,
+  "raw": 15790,
+  "dedup": 10059,
+  "real_tested": 952,
+  "real_ok": 315,
   "regions": {
-   "欧洲": 141,
-   "美国": 92,
-   "其他": 41,
-   "香港": 20,
-   "未知": 13,
-   "新加坡": 11,
-   "韩国": 10,
-   "中国台湾": 7,
-   "日本": 4
+   "欧洲": 157,
+   "美国": 78,
+   "其他": 20,
+   "未知": 18,
+   "中国台湾": 12,
+   "香港": 11,
+   "日本": 7,
+   "新加坡": 6,
+   "韩国": 6
   },
   "tags": {
-   "待复测": 438,
-   "可用": 339,
-   "非机房": 246,
-   "隔离": 177,
-   "机房 IP": 93,
-   "稳定": 44,
-   "低延迟": 22,
+   "待复测": 565,
+   "可用": 315,
+   "非机房": 231,
+   "机房 IP": 84,
+   "隔离": 72,
+   "稳定": 25,
+   "低延迟": 17,
    "高速": 9
   },
-  "checked_at": "11-25 12:59",
+  "checked_at": "11-25 14:15",
   "subs": {
    "all": {
-    "count": 10060,
+    "count": 10059,
     "label": "全部节点"
    },
    "best": {
@@ -575,43 +575,43 @@
     "label": "优选（本轮通过，不在连续失败中）"
    },
    "stable": {
-    "count": 60,
+    "count": 62,
     "label": "稳定（测过 ≥3 次、成功率 ≥80%）"
    },
    "lowlat": {
-    "count": 32,
+    "count": 27,
     "label": "低延迟（≤300ms）"
    },
    "fast": {
-    "count": 14,
+    "count": 17,
     "label": "高速（≥1000KB/s）"
    },
    "hk": {
-    "count": 20,
+    "count": 11,
     "label": "香港"
    },
    "tw": {
-    "count": 7,
+    "count": 12,
     "label": "中国台湾"
    },
    "jp": {
-    "count": 4,
+    "count": 7,
     "label": "日本"
    },
    "sg": {
-    "count": 11,
+    "count": 6,
     "label": "新加坡"
    },
    "us": {
-    "count": 92,
+    "count": 78,
     "label": "美国"
    },
    "kr": {
-    "count": 10,
+    "count": 6,
     "label": "韩国"
    },
    "eu": {
-    "count": 141,
+    "count": 157,
     "label": "欧洲"
    }
   },
@@ -623,7 +623,7 @@
   "isolated": 0,
   "protos": {
    "VMess": 5492,
-   "VLESS": 2198,
+   "VLESS": 2197,
    "Shadowsocks": 1059,
    "Trojan": 1007,
    "Hysteria2": 219,
@@ -22705,52 +22705,17 @@
    "src": "Barabama"
   },
   {
-   "name": "英国+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "英国",
-   "addr": "2.26.251.236:443",
-   "src": "Pawdroid"
-  },
-  {
-   "name": "爱沙尼亚+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "196.196.148.85:443",
-   "src": "Pawdroid"
-  },
-  {
-   "name": "法国+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "法国",
-   "addr": "81.49.182.202:443",
-   "src": "Pawdroid"
-  },
-  {
-   "name": "爱沙尼亚+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "196.196.148.85:443",
-   "src": "Pawdroid"
-  },
-  {
-   "name": "美国+CloudFlare节点",
+   "name": "美国+V2CROSS.COM",
    "proto": "VLESS",
    "region": "美国",
-   "addr": "172.64.150.205:2083",
+   "addr": "8a2e72t.nl20.h1clayd.shop:443",
    "src": "Pawdroid"
   },
   {
-   "name": "罗马尼亚+V2CROSS.COM",
+   "name": "美国+Xerox",
    "proto": "VLESS",
-   "region": "罗马尼亚",
-   "addr": "185.247.224.206:443",
-   "src": "Pawdroid"
-  },
-  {
-   "name": "法国+V2CROSS.COM",
-   "proto": "VLESS",
-   "region": "法国",
-   "addr": "81.49.182.202:443",
+   "region": "美国",
+   "addr": "13.141.36.63:443",
    "src": "Pawdroid"
   },
   {
@@ -22758,6 +22723,27 @@
    "proto": "VLESS",
    "region": "罗马尼亚",
    "addr": "193.168.140.175:443",
+   "src": "Pawdroid"
+  },
+  {
+   "name": "西班牙+V2CROSS.COM",
+   "proto": "VLESS",
+   "region": "西班牙",
+   "addr": "196.245.52.187:443",
+   "src": "Pawdroid"
+  },
+  {
+   "name": "塞舌尔+V2CROSS.COM",
+   "proto": "VLESS",
+   "region": "罗马尼亚",
+   "addr": "196.199.122.2:443",
+   "src": "Pawdroid"
+  },
+  {
+   "name": "法国+V2CROSS.COM",
+   "proto": "VLESS",
+   "region": "法国",
+   "addr": "81.49.182.202:443",
    "src": "Pawdroid"
   },
   {
@@ -23968,6 +23954,13 @@
    "name": "🇩🇪 德国 | DEU",
    "proto": "VLESS",
    "region": "德国",
+   "addr": "172.64.150.205:2083",
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "name": "🇩🇪 德国 | DEU",
+   "proto": "VLESS",
+   "region": "德国",
    "addr": "free-server.techsonic.dev:443",
    "src": "尔毛子·V2Ray"
   },
@@ -24004,6 +23997,13 @@
    "proto": "VLESS",
    "region": "德国",
    "addr": "mintleaf.moltex.click:443",
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "name": "🇩🇪 德国 | DEU",
+   "proto": "VLESS",
+   "region": "德国",
+   "addr": "81.49.182.202:443",
    "src": "尔毛子·V2Ray"
   },
   {
@@ -24137,6 +24137,13 @@
    "proto": "VLESS",
    "region": "美国",
    "addr": "195.208.123.6:29976",
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "name": "🇸🇪 瑞典 | SWE",
+   "proto": "VLESS",
+   "region": "瑞典",
+   "addr": "185.247.224.206:443",
    "src": "尔毛子·V2Ray"
   },
   {
@@ -53676,13 +53683,6 @@
    "name": "🆔ar14n24b 🔒 VL-TCP- ❔ XX 103ms",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "13.141.36.63:443",
-   "src": "ALIILAPRO"
-  },
-  {
-   "name": "🆔ar14n24b 🔒 VL-TCP- ❔ XX 103ms",
-   "proto": "VLESS",
-   "region": "其他",
    "addr": "195.206.235.234:443",
    "src": "ALIILAPRO"
   },
@@ -56375,13 +56375,6 @@
    "src": "free18"
   },
   {
-   "name": "🇸🇨_塞舌尔 (4)",
-   "proto": "VLESS",
-   "region": "其他",
-   "addr": "196.199.122.2:443",
-   "src": "free18"
-  },
-  {
    "name": "🇳🇱_荷兰 (28)",
    "proto": "VLESS",
    "region": "荷兰",
@@ -56480,13 +56473,6 @@
    "src": "free18"
   },
   {
-   "name": "🇩🇪_德国 (21)",
-   "proto": "VLESS",
-   "region": "德国",
-   "addr": "8a2e72t.nl20.h1clayd.shop:443",
-   "src": "free18"
-  },
-  {
    "name": "🇩🇪_德国 (22)",
    "proto": "VLESS",
    "region": "德国",
@@ -56536,6 +56522,13 @@
    "src": "free18"
   },
   {
+   "name": "🇩🇪_德国 (26)",
+   "proto": "VLESS",
+   "region": "德国",
+   "addr": "2.26.251.236:443",
+   "src": "free18"
+  },
+  {
    "name": "🇷🇺_俄罗斯 (14)",
    "proto": "VLESS",
    "region": "俄罗斯",
@@ -56557,17 +56550,17 @@
    "src": "free18"
   },
   {
-   "name": "🇸🇨_塞舌尔 (17)",
+   "name": "🇸🇨_塞舌尔 (16)",
    "proto": "VLESS",
    "region": "其他",
    "addr": "196.196.148.85:443",
    "src": "free18"
   },
   {
-   "name": "🇸🇨_塞舌尔 (21)",
+   "name": "🇸🇨_塞舌尔 (17)",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "196.245.52.187:443",
+   "addr": "196.196.148.85:443",
    "src": "free18"
   },
   {
@@ -70931,126 +70924,126 @@
    "name": "🔥 megavpn (мега впн) в тг -> @vpnsmegabo",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "cedar.kryonix.space:443",
+   "addr": "hazel.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "02 🇪🇺 02 • обход глушилок #2 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "elm.kryonix.space:443",
+   "addr": "juniper.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "03 🇪🇺 03 • обход глушилок #3 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "owl.zentaris.website:443",
+   "addr": "birch.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "04 🇪🇺 04 • обход глушилок #4 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "willow.kryonix.space:443",
+   "addr": "cedar.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "05 🇪🇺 05 • обход глушилок #5 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "nep.cryptoventura.online:443",
+   "addr": "elm.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "06 🇪🇺 06 • обход глушилок #6 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "monte.quantumveritas.monster:443",
+   "addr": "alder.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "07 🇪🇺 07 • обход глушилок #7 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "maple.kryonix.space:443",
+   "addr": "gain.novacelestia.live:443",
    "src": "Andrejewild"
   },
   {
    "name": "08 🇪🇺 08 • обход глушилок #8 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "tenet.ultraveltrion.cyou:443",
+   "addr": "rowan.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "09 🇪🇺 09 • обход глушилок #9 | mega vpn ",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "poplar.kryonix.space:443",
+   "addr": "owl.zentaris.website:443",
    "src": "Andrejewild"
   },
   {
    "name": "10 🇪🇺 10 • обход глушилок #10 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "gain.novacelestia.live:443",
+   "addr": "willow.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "11 🇪🇺 11 • обход глушилок #11 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "rowan.kryonix.space:443",
+   "addr": "nep.cryptoventura.online:443",
    "src": "Andrejewild"
   },
   {
    "name": "12 🇪🇺 12 • обход глушилок #12 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "linden.kryonix.space:443",
+   "addr": "maple.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "13 🇪🇺 13 • обход глушилок #13 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "birch.kryonix.space:443",
+   "addr": "tenet.ultraveltrion.cyou:443",
    "src": "Andrejewild"
   },
   {
    "name": "14 🇪🇺 14 • обход глушилок #14 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "alder.kryonix.space:443",
+   "addr": "poplar.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "15 🇪🇺 15 • обход глушилок #15 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "juniper.kryonix.space:443",
+   "addr": "monte.quantumveritas.monster:443",
    "src": "Andrejewild"
   },
   {
    "name": "16 🇪🇺 16 • обход глушилок #16 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "hazel.kryonix.space:443",
+   "addr": "linden.kryonix.space:443",
    "src": "Andrejewild"
   },
   {
    "name": "17 🇪🇺 17 • обход глушилок #17 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "stremnina.online:443",
+   "addr": "231ccd11c72e7354.topology.gslb.yccdn.ru:443",
    "src": "Andrejewild"
   },
   {
    "name": "18 🇪🇺 18 • обход глушилок #18 | mega vpn",
    "proto": "VLESS",
    "region": "其他",
-   "addr": "231ccd11c72e7354.topology.gslb.yccdn.ru:443",
+   "addr": "stremnina.online:443",
    "src": "Andrejewild"
   }
  ]
