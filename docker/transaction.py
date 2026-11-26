@@ -4,6 +4,8 @@
 The data directory is a bind mount, so the directory itself cannot be atomically
 swapped. Restore replaces its contents except for ``data/logs``; it also restores
 the page, generated quality/governance reports, and private subscription exports.
+Docker bind mounts are supported when their APP_ROOT paths are ordinary mount
+points; symlinked output paths are rejected before snapshot or restore.
 """
 from __future__ import annotations
 
@@ -62,8 +64,25 @@ def _outside_root(root: Path, backup: Path) -> tuple[Path, Path]:
     return root, backup
 
 
+def _validate_output_paths(root: Path) -> None:
+    """Fail closed if an output path or parent can redirect writes outside root."""
+    for rel in OUTPUTS:
+        relative = Path(rel)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError(f"output path is not relative to APP_ROOT: {rel}")
+        path = root
+        for part in relative.parts:
+            path = path / part
+            if path.is_symlink():
+                raise ValueError(f"symlink in APP_ROOT output path: {rel}")
+        parent = (root / relative).parent.resolve()
+        if parent != root and root not in parent.parents:
+            raise ValueError(f"output path escapes APP_ROOT: {rel}")
+
+
 def snapshot(root: Path, backup: Path) -> None:
     root, backup = _outside_root(root, backup)
+    _validate_output_paths(root)
     backup.mkdir(parents=True, exist_ok=True)
     existed = {}
     for rel in OUTPUTS:
@@ -95,6 +114,7 @@ def _restore_data(root_data: Path, backup_data: Path, originally_existed: bool) 
 
 def restore(root: Path, backup: Path) -> None:
     root, backup = _outside_root(root, backup)
+    _validate_output_paths(root)
     state_path = backup / "state.json"
     existed = json.loads(state_path.read_text(encoding="utf-8"))
     for rel in OUTPUTS:
