@@ -1,27 +1,25 @@
 #!/usr/bin/env bash
-# 一轮完整采集。和 .github/workflows/daily.yml 的顺序一一对应，
-# 这样「CI 上跑出来的」和「自己机器上跑出来的」是同一件事。
+# 一轮完整采集。核心阶段顺序和发布门禁与 .github/workflows/daily.yml 对齐。
 #
 # 顺序不能换：
-#   1 collector   采源、解析、去重、写 data/nodes.json 与页面
-#   2 nodecheck   mihomo 真握手，写 data/nodecheck.json
-#   3 nodescore   打分、地区、标签；累积 node_history.json 与 trend.json
-#   4 governance  重复源识别、逐源指标、新源观察期（读 1、3 的产物，不联网）
-#   5 picks       四类优选榜单，写 data/picks.json
-#   6 export_subs 生成各类订阅与校验（四类榜单组直接读 picks）
-#   7 collector --render  把 2、3、6 的结果读回来重渲染（不联网）
-#   8 check_consistency   页面/数据/订阅/榜单必须是同一个数
+#   1 collector   采源、解析、去重
+#   2 nodecheck   mihomo 真握手
+#   3 nodescore   评分、地区、标签及历史
+#   4 governance  重复源识别、逐源指标、新源观察期
+#   5 picks       四类优选榜单
+#   6 export_subs 生成各类订阅并校验
+#   7 collector --render 生成最终 nodes.json 与页面
+#   8 run ledger / manifest / 隐私 / 一致性发布门禁
 #
-# 失败处理：2–6 失败不阻断后面（和 CI 的 continue-on-error 一致），
-# 但 1 失败必须停下——采不到数据就往下走，后面的步骤会拿旧数据算出
-# 一份看起来正常的结果，那是最危险的情况。
+# 任一核心步骤失败即停止，并把 data、页面、报告和订阅导出恢复为本轮前快照。
 set -uo pipefail
 
-cd /app || exit 1
+APP_ROOT="${APP_ROOT:-/app}"
+cd "$APP_ROOT" || exit 1
 export NODES_FORCE_WRITE=1          # 本地/自建环境没有 GITHUB_ACTIONS 变量
 export PYTHONUNBUFFERED=1
 
-LOG_DIR="${LOG_DIR:-/app/data/logs}"
+LOG_DIR="${LOG_DIR:-$APP_ROOT/data/logs}"
 mkdir -p "$LOG_DIR"
 
 # 互斥：两轮重叠会互相覆盖 data/*.json，而且两边都在写 index.html
@@ -40,14 +38,40 @@ if [ "${SKIP_GATE:-0}" != "1" ] && [ -f data/nodes.json ]; then
   fi
 fi
 
-step() {                            # step <名字> <必须成功 1/0> <命令...>
-  local name="$1" must="$2"; shift 2
+# 先备份实际可变产物；data/logs 保留运行日志，私密 export 只在本地权限受限的
+# 临时目录中保存。快照失败时尚未运行任何业务阶段，因此可以安全中止。
+BACKUP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/nodes-output-backup.XXXXXX") || exit 1
+if ! python3 docker/transaction.py snapshot "$APP_ROOT" "$BACKUP_DIR"; then
+  rm -rf "$BACKUP_DIR"
+  exit 1
+fi
+finish_run() {
+  local rc=$?
+  local cleanup_backup=1
+  trap - EXIT
+  if [ "$rc" -ne 0 ]; then
+    echo "[$(date '+%F %T')] 本轮失败（rc=$rc），恢复运行前产物"
+    if ! python3 docker/transaction.py restore "$APP_ROOT" "$BACKUP_DIR"; then
+      echo "[$(date '+%F %T')] ✘ 产物恢复失败；请检查数据目录，快照保留于 $BACKUP_DIR"
+      cleanup_backup=0
+      rc=1
+    fi
+  fi
+  if [ "$cleanup_backup" -eq 1 ]; then
+    rm -rf "$BACKUP_DIR"
+  fi
+  exit "$rc"
+}
+trap finish_run EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+step() {                            # step <名字> <命令...>；所有阶段都是硬门禁
+  local name="$1"; shift
   local t0 rc
   t0=$(date +%s)
   echo "[$(date '+%F %T')] ▶ $name"
-  # 必须先把 rc 抢下来再判断。写成 `if "$@"; then … fi` 之后再取 $?，
-  # 拿到的是 if 语句自己的返回值（没有 else 分支时 if 恒返回 0），
-  # 于是「失败」会被打印成「rc=0」——这行的第一个版本就是这么错的
+  # 先保存实际退出码，避免 if 语句的状态覆盖被测命令状态。
   "$@"
   rc=$?
   if [ "$rc" -eq 0 ]; then
@@ -55,31 +79,38 @@ step() {                            # step <名字> <必须成功 1/0> <命令..
     return 0
   fi
   echo "[$(date '+%F %T')] ✘ $name 失败（rc=$rc），用时 $(( $(date +%s) - t0 ))s"
-  if [ "$must" = "1" ]; then
-    echo "关键步骤失败，中止。上一轮数据保持不动。"
-    exit "$rc"
-  fi
-  echo "非关键步骤，继续（本轮对应数据沿用上一轮）。"
-  return 0
+  echo "关键步骤失败，中止；退出时恢复运行前产物。"
+  exit "$rc"
 }
 
-# 安全层先自测：这层挂了，采集会在不知不觉中读到不该读的东西。
-# 和 CI 里那一步是同一件事，顺序也一样。
-step "安全边界自测"    1 python3 netsafe.py
-step "采集+解析+去重"  1 python3 collector.py
-step "真实握手检测"    0 python3 nodecheck.py --speed
-step "评分与分类"      0 python3 nodescore.py
-step "来源治理"        0 python3 governance.py
-step "生成优选榜单"    0 python3 picks.py
-step "生成订阅"        0 python3 export_subs.py
-step "重渲染页面"      0 python3 collector.py --render
-step "一致性检查"      1 python3 check_consistency.py
+# 安全层先自测：这一层失败时，不允许采集或写入新产物。
+step "安全边界自测" python3 netsafe.py
+step "初始化同轮台账" python3 run_ledger.py start
+step "采集+解析+去重" python3 collector.py
+step "标记 collect" python3 run_ledger.py mark collect
+step "真实握手检测" python3 nodecheck.py --speed
+step "标记 detect" python3 run_ledger.py mark detect
+step "评分与分类" python3 nodescore.py
+step "标记 score" python3 run_ledger.py mark score
+step "来源治理" python3 governance.py
+step "标记 governance" python3 run_ledger.py mark governance
+step "生成优选榜单" python3 picks.py
+step "标记 picks" python3 run_ledger.py mark picks
+step "生成订阅" python3 export_subs.py
+step "标记 subs" python3 run_ledger.py mark subs
+step "重渲染页面" python3 collector.py --render
+step "标记 render" python3 run_ledger.py mark render
+step "同轮构建校验" python3 run_ledger.py check
+step "生成构建清单" python3 build_manifest.py --write
+step "公开产物脱敏审计" python3 audit_privacy.py
+step "一致性检查" python3 check_consistency.py
 
 # 一行结论，方便从 cron 日志里直接看出这轮值不值得看
 python3 - <<'PY'
-import json, os
+import json
 try:
-    d = json.load(open("data/nodes.json", encoding="utf-8"))
+    with open("data/nodes.json", encoding="utf-8") as f:
+        d = json.load(f)
     s = d.get("stats") or {}
     q = (s.get("quarantine") or {}).get("total")
     print(f"入库 {s.get('dedup')} 条，真实可用 {s.get('real_ok')}/{s.get('real_tested')}"

@@ -42,6 +42,6 @@ PATH=/workspace/p24-baseline/venv/bin:$PATH bash verify.sh
 
 两项失败是 `check_consistency` 的 `index.html` manifest 哈希不一致，以及依赖该基线门禁的发布回滚演练。它们在本批开始前的基线验证中已经存在；本批模板修复按项目入口更新了 `index.html`，而没有伪造同轮 ledger 或手工重写 manifest，因此当前门禁仍会拦下发布。未绕过这些失败。
 
-## 下一批
+## 后续计划（记录当时的顺序）
 
-先为 `docker/run.sh` 建立隔离的阶段失败/停止顺序回归，再评估容器入口与正式 workflow 的失败语义和旧数据保护；之后按审计证据继续处理高风险项。任何门禁失败都在原因修复并通过完整验收前保留，不创建 PR、不发布、不合并 `main`。
+原计划先为 `docker/run.sh` 建立隔离的阶段失败/停止顺序回归，再评估容器入口与正式 workflow 的失败语义和旧数据保护；该项随后记录于 `docs/P24-3-container-failure-safety.md`。之后仍按审计证据继续处理高风险项。任何门禁失败都在原因修复并通过完整验收前保留，不创建 PR、不发布、不合并 `main`。
