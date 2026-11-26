@@ -59,6 +59,17 @@ def load(path, default):
         return default
 
 
+def _recent_success(h, today, days):
+    """迁移记录须先有真实检测，且 last_ok 必须处于含边界的近期窗口。"""
+    if h.get("migrated") and not h.get("observed_since_migration"):
+        return False
+    try:
+        last_ok = int(h.get("last_ok"))
+    except (TypeError, ValueError, OverflowError):
+        return False
+    return today - days <= last_ok <= today
+
+
 def _cands(check, hist, today):
     """→ {fp: {"rec": 本轮结果 or None, "h": 历史记录}}"""
     out = {}
@@ -71,7 +82,7 @@ def _cands(check, hist, today):
         # 本轮不通但历史很好：保留在候选里，但后面排序会落后于本轮通过的。
         # 不直接删掉的理由是它可能只是这轮线路抖动，一次失败不该抹掉五次成功。
         if h and history.rate(h) is not None and history.rate(h) >= 0.5 \
-                and int(h.get("last_ok") or 0) >= today - 1:
+                and _recent_success(h, today, 1):
             out[fp] = {"rec": r, "h": h}
     # 补上本轮完全没抽到的历史好节点。用集合查，别拿每个指纹去扫一遍候选
     seen = {fp[:16] for fp in out}
@@ -83,7 +94,7 @@ def _cands(check, hist, today):
         r = history.rate(h)
         if r is None or r < 0.9:
             continue
-        if int(h.get("last_ok") or 0) < today - HIST_KEEP_DAYS:
+        if not _recent_success(h, today, HIST_KEEP_DAYS):
             continue
         # 用历史记录里的 fp 全名找不到，只有 16 位；下游按前 16 位匹配
         out[k] = {"rec": None, "h": h}
