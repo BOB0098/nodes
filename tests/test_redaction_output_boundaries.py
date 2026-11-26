@@ -56,7 +56,7 @@ class RedactionOutputBoundariesTest(unittest.TestCase):
     def test_screen_markdown_masks_urls_reasons_and_notes(self):
         url_token = "AbCdEfGhIjKlMnOpQrStUvWxYz"
         reason_token = "ghp_abcdefghijklmnopqrstuvwxyz012345"
-        note_token = "xox" + "p-" + "not-a-real-test-fixture"
+        note_token = "xoxb-" + "not-a-real-test-fixture"
         record = {
             "repo": "owner/repo",
             "verdict": "unverified",
