@@ -179,7 +179,8 @@ def net_one(n):
     return {"n": len(picked), "sec": round(dt, 1),
             "ok": s["ok"], "ok_pct": s["ok_pct"],
             "timeout_pct": round(sum(1 for r in results.values()
-                                     if r.get("err") == "超时") / max(1, len(results)) * 100, 1),
+                                     if (r.get("err") or "").split(":", 1)[0] == "timeout")
+                                / max(1, len(results)) * 100, 1),
             "fail_pct": round(sum(1 for r in results.values()
                                   if not r.get("ok")) / max(1, len(results)) * 100, 1),
             "net_mb": None if b0 is None or b1 is None else round((b1 - b0) / 1048576, 2),

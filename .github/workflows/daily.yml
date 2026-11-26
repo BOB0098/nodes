@@ -91,14 +91,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 collector.py && python3 run_ledger.py mark collect
 
-      # mihomo 二进制 21MB，每轮重下要 20-40 秒。版本号进 key，
-      # 升级时自动失效，不会拿着旧内核测新协议
+      # 缓存官方压缩资产与派生二进制；运行前会重新校验官方 SHA-256。
+      # 将版本和精确资产摘要绑定到 key，避免复用旧版本缓存。
       - name: 缓存 mihomo
         if: steps.gate.outputs.skip != 'true'
         uses: actions/cache@v4
         with:
-          path: ../.nodes-cache/mihomo
-          key: mihomo-v1.19.34
+          path: |
+            ../.nodes-cache/mihomo
+            ../.nodes-cache/mihomo.gz
+          key: mihomo-v1.19.34-2763f5b414527f7baf6dc57e3f82f3ab561eedf34bfd7c2f2cde1f7e592efe06
 
       # 真实代理检测：TCP 端口能连不等于代理可用。抽样后交给 mihomo 真握手，
       # 能不能出网、延迟多少、出口在哪个国家，都从这条真实链路里量。
