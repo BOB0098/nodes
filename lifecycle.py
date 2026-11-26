@@ -80,6 +80,12 @@ def update(nodes, doc=None, today=None):
     book = doc.setdefault("nodes", {})
     today = day_of() if today is None else today
 
+    # 满 45 天未出现即过期；先裁剪再刷新本轮节点，避免久别重现的指纹
+    # 先更新 last 而绕过清理，从而被误认成旧生命周期。
+    cutoff = today - KEEP_DAYS
+    for fp in [fp for fp, r in book.items() if r[1] <= cutoff]:
+        book.pop(fp, None)
+
     new = back = seen = 0
     for n in nodes:
         fp = _key(n.get("fp"))
@@ -99,13 +105,11 @@ def update(nodes, doc=None, today=None):
             rec[1] = today
             rec[0] = min(rec[0], today)
 
-    cutoff = today - KEEP_DAYS
-    gone = [fp for fp, r in book.items() if r[1] < today]
-    for fp in [fp for fp, r in book.items() if r[1] < cutoff]:
-        book.pop(fp, None)
+    # 已到期的记录已在本轮刷新前移除；此处只计仍在 45 天窗口中的缺席节点。
+    gone = sum(1 for r in book.values() if r[1] < today)
 
     doc["kept_days"] = KEEP_DAYS
-    return doc, {"new": new, "back": back, "seen": seen, "gone": len(gone),
+    return doc, {"new": new, "back": back, "seen": seen, "gone": gone,
                  "total": len(book)}
 
 
