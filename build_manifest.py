@@ -30,6 +30,7 @@ import os
 import re
 import sys
 from datetime import datetime, timedelta, timezone
+import netsafe
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, "data")
@@ -375,8 +376,7 @@ def main():
         print(f"build_id={m['build_id']}  产物 {len(m['artifacts'])} 个  "
               f"节点 {m['counts']['nodes_total']}  真实可用 {m['counts']['real_ok']}")
         return 0
-    with open(MANIFEST, "w", encoding="utf-8") as f:
-        json.dump(m, f, ensure_ascii=False, indent=2)
+    netsafe.write_atomic(MANIFEST, json.dumps(m, ensure_ascii=False, indent=2))
     print(f"写入 {os.path.relpath(MANIFEST, BASE)}：build_id={m['build_id']}")
     print(f"  {len(m['artifacts'])} 个产物  节点 {m['counts']['nodes_total']}  "
           f"实测 {m['counts']['tested']}  真实可用 {m['counts']['real_ok']}"

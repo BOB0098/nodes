@@ -57,6 +57,67 @@ class DrillActionsIsolationTest(unittest.TestCase):
 
 
 class DrillPublishIsolationTest(unittest.TestCase):
+    def test_copy_workspace_contains_dependencies_of_manifest_script(self):
+        with tempfile.TemporaryDirectory(prefix="p24-drill-support-") as td:
+            with (
+                patch.object(drill_publish, "BASE", str(ROOT)),
+                patch.object(drill_publish, "ARTIFACTS", [], create=True),
+            ):
+                drill_publish.copy_workspace(td)
+
+            env = os.environ.copy()
+            env.pop("PYTHONPATH", None)
+            result = subprocess.run(
+                [sys.executable, "-c", "import build_manifest"],
+                cwd=td, env=env, capture_output=True, text=True, check=False,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_publish_drill_exercises_count_drop_gate(self):
+        with tempfile.TemporaryDirectory(prefix="p24-drill-count-drop-") as td:
+            base = Path(td) / "app"
+            (base / "data").mkdir(parents=True)
+            artifacts = [
+                ("index_html", "index.html", "page"),
+                ("nodes", "data/nodes.json", "nodes"),
+                ("nodecheck", "data/nodecheck.json", "check"),
+                ("scores", "data/scores.json", "scores"),
+                ("picks", "data/picks.json", "picks"),
+            ]
+            nodes = [{"id": f"node-{number}"} for number in range(10)]
+            (base / "data/nodes.json").write_text(
+                json.dumps({"nodes": nodes, "stats": {"dedup": 10}, "schema": 2}),
+                encoding="utf-8",
+            )
+            embedded = json.dumps({"stats": {"dedup": 10}})
+            (base / "index.html").write_text(
+                f"<script>const DATA = {embedded};\n</script>", encoding="utf-8")
+            for rel in ("data/nodecheck.json", "data/scores.json", "data/picks.json"):
+                (base / rel).write_text("{}", encoding="utf-8")
+            manifest = {
+                "schema_version": 1,
+                "artifacts": {key: {"path": rel} for key, rel, _ in artifacts},
+            }
+            (base / "data/build_manifest.json").write_text(
+                json.dumps(manifest), encoding="utf-8")
+            for name in ("check_consistency.py", "build_manifest.py", "run_ledger.py", "netsafe.py"):
+                shutil.copy2(ROOT / name, base / name)
+
+            output = StringIO()
+            with (
+                patch.object(drill_publish, "BASE", str(base)),
+                patch.object(drill_publish, "MANIFEST", str(base / "data/build_manifest.json")),
+                patch.object(drill_publish, "CHECK", str(base / "check_consistency.py")),
+                patch.object(drill_publish, "ARTIFACTS", artifacts, create=True),
+                patch.object(sys, "argv", ["drill_publish.py", "--quiet"]),
+                redirect_stdout(output),
+            ):
+                result = drill_publish.main()
+
+        self.assertEqual(result, 0, output.getvalue())
+        self.assertIn("节点数量下降门禁已触发", output.getvalue())
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="p24-drill-publish-")
         self.addCleanup(self.temp.cleanup)
@@ -75,14 +136,18 @@ class DrillPublishIsolationTest(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             if rel == "data/nodes.json":
                 path.write_text(
-                    json.dumps({"stats": {"dedup": 1}}), encoding="utf-8")
+                    json.dumps({
+                        "nodes": [{"id": f"node-{number}"} for number in range(10)],
+                        "stats": {"dedup": 10},
+                        "schema": 2,
+                    }), encoding="utf-8")
             else:
                 path.write_text(content, encoding="utf-8")
         (self.base / "data/build_manifest.json").write_text(
             json.dumps({"artifacts": {
                 key: {"path": rel} for key, rel, _ in self.artifacts
             }}), encoding="utf-8")
-        for rel in ("check_consistency.py", "build_manifest.py", "run_ledger.py"):
+        for rel in ("check_consistency.py", "build_manifest.py", "run_ledger.py", "netsafe.py"):
             (self.base / rel).write_text(
                 "# isolated test fixture\n", encoding="utf-8")
 
@@ -106,13 +171,13 @@ class DrillPublishIsolationTest(unittest.TestCase):
         roots = []
         source_nodes = (self.base / "data/nodes.json").read_bytes()
 
-        def inspect_isolated(root=None):
+        def inspect_isolated(root=None, previous_count=None):
             candidate = Path(root) if root is not None else self.base
             roots.append(candidate)
             doc = json.loads(
                 (candidate / "data/nodes.json").read_text(encoding="utf-8"))
-            if doc["stats"]["dedup"] != 1:
-                return 1, "data/nodes.json 与 manifest 哈希不一致"
+            if len(doc["nodes"]) / previous_count < 0.6:
+                return 1, "节点数量异常下降：测试替身检测到骤降"
             return 0, ""
 
         output = StringIO()
@@ -130,7 +195,7 @@ class DrillPublishIsolationTest(unittest.TestCase):
         calls = 0
         roots = []
 
-        def interrupt_after_fault(root=None):
+        def interrupt_after_fault(root=None, previous_count=None):
             nonlocal calls
             calls += 1
             candidate = Path(root) if root is not None else self.base
@@ -168,7 +233,7 @@ class DrillPublishIsolationTest(unittest.TestCase):
                 ("picks", "data/picks.json", "picks"),
             ]
             calls = 0
-            def kill_after_injection(root=None):
+            def kill_after_injection(root=None, previous_count=None):
                 global calls
                 calls += 1
                 if calls == 2:
@@ -198,7 +263,8 @@ class DrillPublishIsolationTest(unittest.TestCase):
         self.assertEqual(len(interrupted), 1, interrupted)
         changed_copy = json.loads(
             (interrupted[0] / "data/nodes.json").read_text(encoding="utf-8"))
-        self.assertEqual(changed_copy["stats"]["dedup"], 0)
+        self.assertEqual(changed_copy["stats"]["dedup"], 5)
+        self.assertEqual(len(changed_copy["nodes"]), 5)
 
 
 if __name__ == "__main__":
