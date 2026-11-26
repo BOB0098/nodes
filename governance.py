@@ -170,10 +170,13 @@ def node_keys(nodes):
     这里只能近似（screen.py 也用同一口径）；真实全参数指纹只会更不重合。"""
     out = {}
     for n in nodes or []:
-        src = n.get("src")
         key = f'{str(n.get("proto") or "").lower()}|{n.get("addr")}'
-        if src and n.get("addr"):
-            out.setdefault(src, set()).add(key)
+        source_ids = n.get("src_ids")
+        sources = source_ids if isinstance(source_ids, list) and source_ids else [n.get("src")]
+        if n.get("addr"):
+            for source in dict.fromkeys(sources):
+                if source:
+                    out.setdefault(source, set()).add(key)
     return out
 
 
@@ -345,15 +348,18 @@ def per_source(sources, stats, scores, prev=None, run_id=None):
         # 之后新增的源才走 3 轮观察。这个决定写进文档，不悄悄改口径。
         baseline = {s["name"] for s in sources if s.get("enabled")}
     by_name = {r.get("name"): r for r in stats.get("sources") or []}
-    tested = scores.get("by_source") or {}
+    by_id = {r.get("id"): r for r in stats.get("sources") or [] if r.get("id")}
+    tested_by_id = scores.get("by_source_id") or {}
+    tested_by_name = scores.get("by_source") or {}
     now = _stamp()
     out = {}
     for s in sources:
         name = s.get("name")
+        source_id = s.get("id")
         if not s.get("enabled"):
             continue
-        r = by_name.get(name) or {}
-        prev_r = prev_src.get(name) or {}
+        r = by_id.get(source_id) or by_name.get(name) or {}
+        prev_r = prev_src.get(source_id) or prev_src.get(name) or {}
         rounds = list(prev_r.get("rounds") or [])
         stored_ids = prev_r.get("round_ids")
         round_ids = list(dict.fromkeys(
@@ -391,7 +397,8 @@ def per_source(sources, stats, scores, prev=None, run_id=None):
             # 无显式 run 身份的本地调用保持原有“每次调用一轮”行为。
             rounds.append(observation)
         rounds = rounds[-WINDOW:]
-        t = tested.get(name) or {}
+        t = (tested_by_id.get(source_id) or tested_by_name.get(name)
+             or tested_by_name.get(source_id) or {})
         ntest, nok = int(t.get("tested") or 0), int(t.get("ok") or 0)
         state = r.get("state") or "ok"
         old_state = prev_r.get("state")
@@ -435,6 +442,7 @@ def build(prev=None):
     nodes = _load(NODES_PATH, {"nodes": []}).get("nodes") or []
     screening = _load(SCREEN_PATH, {"results": []})
     enabled_names = {s["name"] for s in sources if s.get("enabled")}
+    enabled_ids = {s["id"] for s in sources if s.get("enabled") and s.get("id")}
     # source_keys.json 是 collector 在**去重前**写的地址哈希；nodes.json 是
     # 去重后的结果，拿后者算源间重合永远是 0。旧数据没有前者时退回后者，
     # 但它只能当「暂无重合数据」，不能当「源不重合」。
@@ -445,7 +453,22 @@ def build(prev=None):
     else:
         keys = node_keys(nodes)
         key_src = "nodes.json（去重后，仅兜底）"
+    id_by_name = {s["name"]: s["id"] for s in sources if s.get("name") and s.get("id")}
+    stable_keys = {}
+    for source_key, values in keys.items():
+        stable_key = id_by_name.get(source_key, source_key)
+        stable_keys.setdefault(stable_key, set()).update(values)
+    keys = stable_keys
+    overlaps = overlap_pairs(keys, enabled_ids or enabled_names)
+    name_by_id = {s["id"]: s["name"] for s in sources if s.get("id") and s.get("name")}
+    for row in overlaps:
+        row["a_id"], row["b_id"] = row["a"], row["b"]
+        row["a"] = name_by_id.get(row["a"], row["a"])
+        row["b"] = name_by_id.get(row["b"], row["b"])
     m = per_source(sources, stats, scores, prev)
+    by_source_id = {s["id"]: m["sources"][s["name"]]
+                    for s in sources if s.get("enabled") and s.get("id")
+                    and s.get("name") in m["sources"]}
     d = {
         "schema": SCHEMA, "updated": _stamp(),
         "window": WINDOW, "obs_rounds": OBS_ROUNDS,
@@ -456,12 +479,13 @@ def build(prev=None):
         },
         "discovery": discovery(sources, screening),
         "duplicates": link_dups(sources),
-        "overlap": overlap_pairs(keys, enabled_names),
+        "overlap": overlaps,
         "overlap_source": key_src,
         "overlap_note": "地址以 sha256 前 16 位存储（明文不落盘）。"
                         "旧轮次无 source_keys.json 时用去重后的 nodes.json 兜底，"
                         "那种口径下重合恒为 0，不能当成「没有重合」。样本 <20 条不判。",
-        "sources": m["sources"], "baseline": m["baseline"],
+        "sources": m["sources"], "by_source_id": by_source_id,
+        "baseline": m["baseline"],
     }
     return d
 

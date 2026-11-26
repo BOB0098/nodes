@@ -785,7 +785,10 @@ def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None, tries=None,
     rnd = random.Random(daily_seed() if seed is None else seed)
     by_src = {}
     for n in nodes:
-        by_src.setdefault(n.get("src") or "?", []).append(n)
+        source_ids = n.get("src_ids")
+        sources = source_ids if isinstance(source_ids, list) and source_ids else [n.get("src") or "?"]
+        for src in dict.fromkeys(sources):
+            by_src.setdefault(src, []).append(n)
 
     def rec_of(n):
         fp16 = (n.get("fp") or "")[:16]
@@ -833,6 +836,12 @@ def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None, tries=None,
         for cat in ("new", "retry", "stable"):
             src_pick.extend(take[cat])
         picked.extend(src_pick[:per_src])
+    unique = {}
+    for n in picked:
+        fp = n.get("fp")
+        key = ("fp", fp) if fp else ("object", id(n))
+        unique.setdefault(key, n)
+    picked = list(unique.values())
     rnd.shuffle(picked)
     return picked[:total]
 

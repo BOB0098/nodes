@@ -55,6 +55,8 @@ run "URL/日志脱敏回归 (P24)" "$PY" tests/test_netsafe_redaction.py
 run "URL 输出边界脱敏回归 (P24)" "$PY" tests/test_redaction_output_boundaries.py
 run "候选 URL 审核边界回归 (P24)" "$PY" tests/test_discover_candidate_url.py
 run "来源配置错误传播回归 (P24)" "$PY" tests/test_discover_known_repos.py
+run "来源登记 URL/结构边界回归 (P24)" "$PY" tests/test_source_registration.py
+run "候选队列/产物安全回归 (P24)" "$PY" tests/test_candidate_artifact_safety.py
 run "来源统计历史保真回归 (P24)" "$PY" tests/test_sources_io_stats.py
 run "验证脚本失败码回归 (P24)" "$PY" tests/test_verify_exit_code.py
 run "节点解析边界回归 (P24)" "$PY" tests/test_nodes_parse_boundaries.py

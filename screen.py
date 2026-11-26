@@ -28,6 +28,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
+import candidate_io  # noqa: E402
 import netsafe  # noqa: E402
 import governance  # noqa: E402  P19 内容类型校验（含 HTML 假订阅嗅探）
 import nodes_parse  # noqa: E402
@@ -337,10 +338,7 @@ def enabled_index():
     """已在册且启用的源：URL（含镜像）与仓库名。审核要跳过它们，
     否则「新增」会把自己已入库的节点算成本次新增，数字自相矛盾。"""
     urls, repos = set(), set()
-    try:
-        _, srcs, _ = sources_io.load()
-    except Exception:
-        return urls, repos
+    _, srcs, _ = sources_io.load()
     for s in srcs:
         if not s.get("enabled"):
             continue
@@ -368,12 +366,9 @@ def main():
     known, lib_size = lib_keys()
     cands = list(CANDIDATES)
     if os.path.exists(CAND_PATH):
-        try:
-            extra = json.load(open(CAND_PATH, encoding="utf-8")).get("candidates") or []
-            have = {c["url"] for c in cands if c.get("url")}
-            cands += [c for c in extra if c.get("url") and c["url"] not in have]
-        except Exception:
-            pass
+        extra = candidate_io.load_candidates(CAND_PATH)
+        have = {c["url"] for c in cands if c.get("url")}
+        cands += [c for c in extra if c.get("url") and c["url"] not in have]
     if len(sys.argv) > 1:
         cands = [dict(repo="(手动)", kind="source", url=u, note="命令行指定") for u in sys.argv[1:]]
 
@@ -410,8 +405,8 @@ def main():
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     report = _sanitize_output(
         {"library_size": lib_size, "checked": len(recs), "results": recs})
-    with open(OUT_PATH, "w", encoding="utf-8") as out:
-        json.dump(report, out, ensure_ascii=False, indent=1)
+    netsafe.write_atomic(
+        OUT_PATH, json.dumps(report, ensure_ascii=False, indent=1))
     write_md(recs, lib_size)
     print(f"\n已写 {OUT_PATH}")
     print(f"已写 {MD_PATH}")
@@ -458,8 +453,7 @@ def write_md(recs, lib_size):
         if r.get("note"):
             L.append(f"- 备注：{netsafe.mask_text(r['note'])}")
         L.append("")
-    with open(MD_PATH, "w", encoding="utf-8") as out:
-        out.write("\n".join(L))
+    netsafe.write_atomic(MD_PATH, "\n".join(L))
 
 
 if __name__ == "__main__":

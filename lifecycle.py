@@ -142,15 +142,26 @@ def freshness(nodes, doc=None, today=None):
     out = {}
     ages = {}
     for n in nodes:
-        src = n.get("src")
-        if not src:
+        source_ids = n.get("src_ids")
+        source_names = n.get("src_names")
+        owners = []
+        if isinstance(source_ids, list):
+            owners.extend(source_ids)
+        if isinstance(source_names, list):
+            owners.extend(source_names)
+        if not owners and n.get("src"):
+            owners.append(n["src"])
+        owners = list(dict.fromkeys(owner for owner in owners if owner))
+        if not owners:
             continue
         rec = ((doc or {}).get("nodes") or {}).get(_key(n.get("fp")))
         if not rec:
             continue
-        if today - rec[0] < 7:
-            out.setdefault(src, {"new7": 0})["new7"] = out.get(src, {}).get("new7", 0) + 1
-        ages.setdefault(src, []).append(max(today, rec[1]) - rec[0] + 1)
+        for owner in owners:
+            if today - rec[0] < 7:
+                out.setdefault(owner, {"new7": 0})["new7"] = (
+                    out.get(owner, {}).get("new7", 0) + 1)
+            ages.setdefault(owner, []).append(max(today, rec[1]) - rec[0] + 1)
 
     for src, arr in ages.items():
         arr.sort()

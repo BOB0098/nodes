@@ -5,8 +5,11 @@
 collector.py 和 screen.py 共用这一层，保证「页面展示的源」与「实际采集的源」
 是同一份清单 —— 旧代码里这是两张表，直接导致 7 张卡片没有统计数据。
 """
+import ipaddress
 import json
 import os
+import re
+import urllib.parse
 
 import yaml
 
@@ -19,6 +22,7 @@ STATS_PATH = os.path.join(BASE, "data", "sources_stats.json")
 REQUIRED = ("id", "name", "group", "url", "type", "format", "enabled")
 TYPES = {"original", "aggregator"}
 FORMATS = {"clash", "v2ray-base64", "v2ray-plain", "singbox-json", "sing-box", "mixed", "unknown"}
+_DNS_LABEL = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$")
 
 
 class SourceError(ValueError):
@@ -33,36 +37,138 @@ def load_doc(path=DEFAULT_PATH):
     return doc
 
 
+def _url_issue(value):
+    """Return a syntax-only URL error; registration must never perform DNS."""
+    if not isinstance(value, str) or not value.strip():
+        return "必须是非空 URL 字符串"
+    if any(char.isspace() or ord(char) < 32 for char in value):
+        return "包含空白或控制字符"
+    try:
+        parsed = urllib.parse.urlsplit(value)
+    except ValueError:
+        return "URL 结构非法"
+    if parsed.scheme.lower() not in ("http", "https"):
+        return "协议必须是 HTTP 或 HTTPS"
+    if not parsed.netloc or not parsed.hostname:
+        return "缺少主机名"
+    if parsed.username is not None or parsed.password is not None:
+        return "不允许 URL 内嵌用户名或密码"
+    try:
+        port = parsed.port
+    except ValueError:
+        return "端口格式非法"
+    if port is not None and port not in netsafe.ALLOW_PORTS:
+        return f"端口不在允许范围 {sorted(netsafe.ALLOW_PORTS)}"
+
+    host = parsed.hostname
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        if "%" in host:
+            return "主机名格式非法"
+        try:
+            ascii_host = host.rstrip(".").encode("idna").decode("ascii")
+        except UnicodeError:
+            return "主机名格式非法"
+        labels = ascii_host.split(".")
+        if (not ascii_host or len(ascii_host) > 253
+                or any(not _DNS_LABEL.fullmatch(label) for label in labels)):
+            return "主机名格式非法"
+    return None
+
+
 def validate(doc):
-    """结构校验。宁可启动就报错，也不要带着坏清单跑一轮采集。"""
-    gids = [g["id"] for g in doc["groups"]]
-    if len(gids) != len(set(gids)):
-        raise SourceError("groups 存在重复 id")
+    """校验来源登记表的结构和 URL 语法；不做联网或 DNS 检查。"""
+    if not isinstance(doc, dict):
+        raise SourceError("sources.yaml 顶层必须是对象")
+    for field in ("groups", "sources"):
+        if field not in doc:
+            raise SourceError(f"sources.yaml 缺少顶层键 {field}")
+        if not isinstance(doc[field], list):
+            raise SourceError(f"sources.yaml schema 错误: {field} 必须是列表")
+
+    problems = []
+    gids = set()
+    for index, group in enumerate(doc["groups"], start=1):
+        prefix = f"groups[{index}]"
+        if not isinstance(group, dict):
+            problems.append(f"{prefix} 必须是对象")
+            continue
+        for field in ("id", "title", "kern", "clients"):
+            value = group.get(field)
+            if not isinstance(value, str) or not value.strip():
+                problems.append(f"{prefix}.{field} 必须是非空字符串")
+        group_id = group.get("id")
+        if isinstance(group_id, str) and group_id:
+            if group_id in gids:
+                problems.append(f"groups 存在重复 id: {group_id}")
+            gids.add(group_id)
+
     seen = set()
     names = set()
-    problems = []
-    for i, s in enumerate(doc["sources"]):
-        for k in REQUIRED:
-            if k not in s:
-                problems.append(f"第 {i+1} 条缺少字段 {k}")
-        sid = s.get("id")
-        if sid in seen:
-            problems.append(f"id 重复: {sid}")
-        seen.add(sid)
-        # name 是节点库里的 src 归属键，重名会让两个源的去重统计混在一起
-        if s.get("name") in names:
-            problems.append(f"name 重复: {s.get('name')}")
-        names.add(s.get("name"))
-        if s.get("group") not in gids:
-            problems.append(f"{sid}: group={s.get('group')!r} 不在 groups 里")
-        if s.get("type") not in TYPES:
-            problems.append(f"{sid}: type={s.get('type')!r} 非法")
-        if s.get("format") not in FORMATS:
-            problems.append(f"{sid}: format={s.get('format')!r} 非法")
-        if s.get("enabled") and not (s.get("card") or {}).get("tag"):
-            problems.append(f"{sid}: enabled 但没有 card.tag，页面会出空白卡片")
-        if not str(s.get("url", "")).startswith("http"):
-            problems.append(f"{sid}: url 非法")
+    for index, source in enumerate(doc["sources"], start=1):
+        prefix = f"sources[{index}]"
+        if not isinstance(source, dict):
+            problems.append(f"{prefix} 必须是对象")
+            continue
+        for field in REQUIRED:
+            if field not in source:
+                problems.append(f"{prefix} 缺少字段 {field}")
+
+        source_id = source.get("id")
+        label = source_id if isinstance(source_id, str) and source_id else prefix
+        for field in ("id", "name", "group", "type", "format"):
+            value = source.get(field)
+            if not isinstance(value, str) or not value.strip():
+                problems.append(f"{label}: {field} 必须是非空字符串")
+
+        if isinstance(source_id, str) and source_id:
+            if source_id in seen:
+                problems.append(f"id 重复: {source_id}")
+            seen.add(source_id)
+
+        name = source.get("name")
+        if isinstance(name, str) and name:
+            # name 是节点库里的 src 归属键，重名会让两个源的去重统计混在一起
+            if name in names:
+                problems.append(f"name 重复: {name}")
+            names.add(name)
+
+        group_id = source.get("group")
+        if isinstance(group_id, str) and group_id not in gids:
+            problems.append(f"{label}: group={group_id!r} 不在 groups 里")
+        source_type = source.get("type")
+        if isinstance(source_type, str) and source_type not in TYPES:
+            problems.append(f"{label}: type={source_type!r} 非法")
+        source_format = source.get("format")
+        if isinstance(source_format, str) and source_format not in FORMATS:
+            problems.append(f"{label}: format={source_format!r} 非法")
+
+        enabled = source.get("enabled")
+        if not isinstance(enabled, bool):
+            problems.append(f"{label}: enabled 必须是布尔值")
+
+        url_problem = _url_issue(source.get("url"))
+        if url_problem:
+            problems.append(f"{label}: url {url_problem}")
+
+        mirrors = source.get("mirrors")
+        if mirrors is not None:
+            if not isinstance(mirrors, list):
+                problems.append(f"{label}: mirrors 必须是列表")
+            else:
+                for mirror_index, mirror in enumerate(mirrors, start=1):
+                    mirror_problem = _url_issue(mirror)
+                    if mirror_problem:
+                        problems.append(
+                            f"{label}: mirrors[{mirror_index}] {mirror_problem}")
+
+        card = source.get("card")
+        if card is not None and not isinstance(card, dict):
+            problems.append(f"{label}: card 必须是对象")
+        elif enabled is True and not (card or {}).get("tag"):
+            problems.append(f"{label}: enabled 但没有 card.tag，页面会出空白卡片")
+
     if problems:
         raise SourceError("sources.yaml 校验失败:\n  " + "\n  ".join(problems))
     return True
@@ -109,6 +215,30 @@ def collect_targets(sources):
     return out
 
 
+def collect_groups(sources):
+    """按相同主 URL 合并启用来源，保留每个来源并合并镜像顺序。
+
+    一个主 URL 只产生一个采集组；`ids` / `names` 保存该结果的全部归属。
+    备用地址按 sources.yaml 登记顺序拼接，并按首次出现去重。
+    """
+    groups, by_url = [], {}
+    for source in sources:
+        if not source.get("enabled"):
+            continue
+        url = source["url"]
+        group = by_url.get(url)
+        if group is None:
+            group = {"url": url, "ids": [], "names": [], "urls": [url]}
+            by_url[url] = group
+            groups.append(group)
+        group["ids"].append(source["id"])
+        group["names"].append(source["name"])
+        for mirror in source.get("mirrors") or []:
+            if mirror and mirror not in group["urls"]:
+                group["urls"].append(mirror)
+    return groups
+
+
 def id_by_url(sources):
     return {s["url"]: s["id"] for s in sources if s.get("url")}
 
@@ -119,7 +249,7 @@ def load(path=DEFAULT_PATH):
     return groups, sources, doc.get("groups") or []
 
 
-# ── 动态统计（每轮采集写一次，不进 sources.yaml，避免 diff 噪声）──────
+# ── 动态统计（每轮采集写一次，不进 sources.yaml，避免 diff 噪声）────
 
 def load_stats():
     """读取动态统计；仅首次缺失时兼容为空状态。

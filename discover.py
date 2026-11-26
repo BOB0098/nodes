@@ -25,6 +25,7 @@ from datetime import date, datetime, timedelta, timezone
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import sources_io  # noqa: E402
+import candidate_io  # noqa: E402
 import netsafe  # noqa: E402
 
 OUT = os.path.join(BASE, "data", "candidates.json")
@@ -112,13 +113,8 @@ def known_repos():
     except FileNotFoundError:
         # 首次运行尚未建立 sources.yaml 时，按空登记表兼容启动。
         pass
-    try:
-        with open(OUT, encoding="utf-8") as f:
-            q = json.load(f)
-        for c in q.get("candidates") or []:
-            out.add(c["repo"].lower())
-    except Exception:
-        pass
+    for candidate in candidate_io.load_candidates(OUT):
+        out.add(candidate["repo"].lower())
     return out
 
 
@@ -258,20 +254,17 @@ def main():
     if dry:
         return
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    old = []
-    try:
-        old = json.load(open(OUT, encoding="utf-8")).get("candidates") or []
-    except Exception:
-        pass
+    old = candidate_io.load_candidates(OUT)
     # 保留已在队列里的（含已审核结论），只追加新的
     have2 = {c["repo"].lower() for c in old}
     merged = old + [c for c in found if c["repo"].lower() not in have2]
-    json.dump({
+    output = {
         "generated_at": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
         "queries": QUERIES, "min_stars": MIN_STARS, "max_age_days": MAX_AGE_DAYS,
         "note": "候选队列。仅经 screen.py 审核 + 人工置 enabled 后才会上线。",
         "candidates": merged,
-    }, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    }
+    netsafe.write_atomic(OUT, json.dumps(output, ensure_ascii=False, indent=1))
     print(f"\n已写 {OUT}（队列共 {len(merged)} 条）", file=sys.stderr)
 
 
