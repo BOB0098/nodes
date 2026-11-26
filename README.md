@@ -245,7 +245,7 @@ python3 drill_publish.py            # 发布失败回滚演练：注入坏产物
 
 ```bash
 python3 -m pip install -r requirements.txt   # 首次需装 PyYAML
-bash verify.sh                                # 8 项：安全/清单/订阅/脱敏/门禁/演练/YAML/JS
+bash verify.sh                                # 核心 selftest、发布门禁、演练、YAML 与 JS 检查
 bash verify.sh --quick                        # 只跑秒级自测，跳过演练
 ```
 
@@ -315,7 +315,7 @@ python3 dockerprobe/probe.py run --platform 你的平台名 --json probe/x.json
 
 ```bash
 python3 collector.py            # 采集并重建 index.html（读 sources.yaml）
-python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
+python3 collector.py --render   # 不联网；汇总现有数据并更新最终 nodes.json 快照与页面
 python3 nodecheck.py --speed    # mihomo 真握手 + 测速（需 curl，会自己下 mihomo）
 python3 nodescore.py            # 评分、地区、标签；同时累积节点历史与日趋势
 python3 governance.py           # 来源治理：重复源/重合度/逐源指标/观察期

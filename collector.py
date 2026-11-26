@@ -211,7 +211,7 @@ def load_template():
 
 
 def render_page(page):
-    """把数据填进模板。__DATA__ 是整页 JSON。
+    r"""把数据填进模板。__DATA__ 是整页 JSON。
 
     JSON 里的 </ 转义成 <\/，否则数据中出现 </script> 会截断脚本块。
     模板里已经没有 __N__ 占位符（源条数由页面自己数），原先那步替换是空转，去掉。
@@ -778,9 +778,14 @@ def build_html(nodes, stats, raw_total, errors, counts, probes=None, delta=None,
 
 
 def rerender():
-    """只按 data/nodes.json 重渲染 index.html：不联网、不改节点数据。
-    改模板后本地预览用，避免为了看一眼样式又跑一遍采集。"""
-    old = json.load(open(os.path.join(OUT_DATA, "nodes.json"), encoding="utf-8"))
+    """不联网地重建最终页面快照与 index.html。
+
+    读取采集阶段的 nodes.json，并叠加本轮已经生成的评分、订阅统计；写回的
+    nodes.json 是供脚本读取的最终快照，不是仅渲染 HTML。阶段台账明确授权
+    render 对 collect 初稿的这一次覆写，并记录最终文件哈希。
+    """
+    with open(os.path.join(OUT_DATA, "nodes.json"), encoding="utf-8") as f:
+        old = json.load(f)
     counts, probes, health, srcstat, meta, grades, fresh = {}, {}, {}, {}, {}, {}, {}
     for g in old.get("groups", []):
         for it in g.get("items", []):
@@ -828,8 +833,8 @@ def rerender():
     page = {k: v for k, v in data.items() if k != "nodes"}
     out = os.path.join(BASE, "index.html")
     netsafe.write_atomic(out, render_page(page))
-    # 同步写回 nodes.json：真实检测汇总（rok/rtest）是渲染时才读进来的，
-    # 只改 index.html 会让两份数据对不上
+    # 同步保存最终快照：真实检测汇总和本轮订阅统计在前序阶段才可用。
+    # run_ledger 明确记录 collect 初稿与 render 最终版，不放宽最终哈希校验。
     wjson(os.path.join(OUT_DATA, "nodes.json"), data, 1)
     print(f"已重渲染 {out}（数据保持 {data['updated']}，未联网）")
 
@@ -875,12 +880,13 @@ def main():
     delta = None
     if os.path.exists(old_json):
         try:
-            old = json.load(open(old_json, encoding="utf-8"))
+            with open(old_json, encoding="utf-8") as f:
+                old = json.load(f)
             old_nodes = old.get("nodes", [])
             old_n = len(old_nodes)
             if old_n >= 50 and len(nodes) < old_n * 0.6:
                 print(f"\n⚠ 本次仅 {len(nodes)} 条，低于上次 {old_n} 条的 60%，判定采集不完整，保留旧数据")
-                return
+                raise SystemExit(2)
             old_set = {n["addr"] for n in old_nodes if n.get("addr") not in (None, "", "—")}
             new_set = {n["addr"] for n in nodes if n.get("addr") not in (None, "", "—")}
             if old_set and new_set:

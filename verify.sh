@@ -59,6 +59,10 @@ run "门槛观测回归 (threshold_watch)" "$PY" threshold_watch.py --selftest
 
 # 2a. 同轮构建台账自测：run_id、阶段成功标记、跨轮与篡改拦截
 run "同轮台账自测 (run_ledger)" "$PY" run_ledger.py --selftest
+run "台账/渲染产物归属回归 (P24)" "$PY" tests/test_p24_ledger_render.py
+run "低计数旧数据保护回归 (collector)" "$PY" tests/test_collector_low_count.py
+run "本地 cron 失败码传播回归 (run_daily)" "$PY" tests/test_run_daily_exit.py
+run "模板/生成页一致性回归 (template)" "$PY" tests/test_template_build_output.py
 
 # 2b. 统一构建清单自测：时间规范化、sha256、计数、pipeline 证明
 run "构建清单自测 (build_manifest)" "$PY" build_manifest.py --selftest

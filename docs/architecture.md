@@ -15,7 +15,7 @@ sources.yaml（15 个源）
       ├──► data/quarantine.json（隔离区，按原因计数，不含凭据）
       ├──► data/source_keys.json（去重前逐源地址哈希，供 P19 重合度分析）
       ▼
-③  去重 + 生命周期 ────────────► data/nodes.json（脱敏，页面数据）
+③  去重 + 生命周期 ────────────► data/nodes.json（脱敏初稿，页面数据）
       │   全参数指纹 16 位 hex；lifecycle 记 [首次, 最近]
       │   export/nodes_full.json（完整参数 + 凭据，gitignore）
       ▼
@@ -34,7 +34,7 @@ sources.yaml（15 个源）
 ⑦  榜单 picks.py ──────────────► data/picks.json（稳定/低延迟/高速/综合）
       ▼
 ⑧  输出 export_subs.py ────────► export/subs/<组>.<4 种格式>
-          collector.py --render ─► index.html（单文件，数据内嵌）
+          collector.py --render ─► data/nodes.json（最终快照）+ index.html（单文件）
 ```
 
 ## 为什么是这个顺序
@@ -43,7 +43,7 @@ sources.yaml（15 个源）
 
 **检测必须在评分之前**：评分的最大一项（30 分）是真实可用性。顺序反了，页面上的等级全是 null。
 
-**渲染必须在最后**：`collector.py --render` 会把 `node_scores.json` 读回来补进卡片。采集那一步也渲染一次，但那时的卡片还没有真实检测结果——这一步是覆盖，不是重复。
+**渲染必须在最后**：`collector.py --render` 会读取本轮评分和订阅阶段产物，补齐卡片上的真实检测汇总、评分及订阅统计，并把最终快照写入 `data/nodes.json` 与 `index.html`。采集时写入的是初稿；render 覆写初稿是明确的数据所有权设计，不是页面单独重渲染。run ledger 同时记录 collect 初稿哈希与 render 最终哈希，只授权 `collect → render` 对 `data/nodes.json` 的这一次变更，并继续核对最终哈希和 run_id。
 
 **榜单必须在订阅之前**：订阅的 best / stable / lowlat / fast 四组直接读 `picks.json` 的成员与顺序，不再自己筛一遍。顺序反了会发出上一轮的榜单——「页面第一」与「订阅第一行」就不是同一个节点。
 

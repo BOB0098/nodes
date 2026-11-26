@@ -863,7 +863,7 @@ const DATA = {"schema": 2, "updated": "11-25 14:02", "ts": 1795586539, "life_spa
     stEl.innerHTML='<i></i>'+(stt?stt.txt:'');
     const gname = cls==='clash'?'Clash 系':cls==='v2ray'?'V2Ray 系':'sing-box 系';
     dmSub.textContent='聚合订阅源 · '+gname+(d.sub?' · '+d.sub:'');
-    dmBody.innerHTML='';
+    dmBody.replaceChildren();
     // 核心指标：可用节点 / 真实可用率 / 质量等级 优先突出
     const pct=realPct(it);
     const key=document.createElement('div'); key.className='dm-key num';
@@ -968,7 +968,7 @@ const DATA = {"schema": 2, "updated": "11-25 14:02", "ts": 1795586539, "life_spa
   }
   const RANK_LABEL={stable:'稳定',lowlat:'低延迟',fast:'高速',best:'综合优选'};
   function rankRows(el, lists, counts, basis){
-    el.innerHTML='';
+    el.replaceChildren();
     const keys=Object.keys(lists||{});
     if(!keys.length){ el.innerHTML='<p class="data-note">榜单数据暂不可用</p>'; return; }
     keys.forEach(k=>{
@@ -1003,12 +1003,12 @@ const DATA = {"schema": 2, "updated": "11-25 14:02", "ts": 1795586539, "life_spa
     score.appendChild(statBox(st.sources??'—','来源数'));
     score.appendChild(statBox(st.dedup??'—','去重入库节点'));
     // 质量分布
-    const dist=document.getElementById('dcDist'); dist.innerHTML='';
+    const dist=document.getElementById('dcDist'); dist.replaceChildren();
     const tags=st.tags||{};
     Object.keys(tags).slice(0,8).forEach(k=>{ const c=document.createElement('span');c.className='chip';c.textContent=k+' '+tags[k];dist.appendChild(c); });
     if(!dist.childNodes.length) dist.innerHTML='<p class="data-note">质量分布数据暂不可用</p>';
     // 来源治理
-    const gov=document.getElementById('dcGov'); gov.innerHTML='';
+    const gov=document.getElementById('dcGov'); gov.replaceChildren();
     const g=await getJson('data/source_governance.json');
     if(g){
       const dup=Array.isArray(g.duplicates)?g.duplicates.length:(g.duplicates?'—':'0');
