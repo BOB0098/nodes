@@ -25,6 +25,7 @@ from datetime import date, datetime, timedelta, timezone
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import sources_io  # noqa: E402
+import candidate_io  # noqa: E402
 import netsafe  # noqa: E402
 
 OUT = os.path.join(BASE, "data", "candidates.json")
@@ -50,6 +51,31 @@ FORMAT_HINT = [
 ]
 
 
+def build_candidate_url(repo, branch, path):
+    """Build a reviewable GitHub raw URL without letting path text add URL parts."""
+    if not isinstance(repo, str) or not re.fullmatch(
+            r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        raise ValueError("invalid GitHub repository name")
+    if not isinstance(branch, str) or not isinstance(path, str):
+        raise ValueError("branch and path must be strings")
+
+    branch_parts = branch.split("/")
+    path_parts = path.split("/")
+    if (not branch or not path
+            or any(part in ("", ".", "..") for part in branch_parts + path_parts)):
+        raise ValueError("invalid GitHub branch or file path")
+
+    branch_path = "/".join(urllib.parse.quote(part, safe="") for part in branch_parts)
+    file_path = "/".join(urllib.parse.quote(part, safe="") for part in path_parts)
+    url = f"https://raw.githubusercontent.com/{repo}/{branch_path}/{file_path}"
+    parsed = urllib.parse.urlsplit(url)
+    if (parsed.scheme != "https" or parsed.netloc != "raw.githubusercontent.com"
+            or parsed.username is not None or parsed.password is not None
+            or parsed.query or parsed.fragment):
+        raise ValueError("candidate URL is not a credential-free GitHub raw URL")
+    return url
+
+
 def api(path):
     url = path if path.startswith("http") else "https://api.github.com" + path
     hdr = {"User-Agent": "nodes-discover", "Accept": "application/vnd.github+json"}
@@ -60,11 +86,10 @@ def api(path):
             # 搜索接口的 URL 由本模块拼装（词表在代码里），正常不会越界；
             # 但 GitHub 返回的 next 链接是外部内容，万一被拿来当 path 传进来，
             # 没有 check_url 就等于把出网目标交给响应体决定。
-            netsafe.check_url(url)
-            req = urllib.request.Request(url, headers=hdr)
-            with netsafe.opener().open(req, timeout=25) as r:
-                body = netsafe.read_capped(r, dict(r.headers), max_bytes=8 << 20)
-                return json.loads(body), dict(r.headers)
+            body, response_headers = netsafe.open_url(
+                url, timeout=25, max_bytes=8 << 20, headers=hdr,
+                with_headers=True)
+            return json.loads(body), response_headers
         except urllib.error.HTTPError as e:
             if e.code in (403, 429):
                 time.sleep(15)          # 触发搜索限流，等一档
@@ -85,14 +110,11 @@ def known_repos():
             m = re.search(r"https?://(?:raw\.githubusercontent\.com|cdn\.jsdelivr\.net/gh)/([^/]+/[^/]+)", u)
             if m:
                 out.add(m.group(1).lower())
-    except Exception:
+    except FileNotFoundError:
+        # 首次运行尚未建立 sources.yaml 时，按空登记表兼容启动。
         pass
-    try:
-        q = json.load(open(OUT, encoding="utf-8"))
-        for c in q.get("candidates") or []:
-            out.add(c["repo"].lower())
-    except Exception:
-        pass
+    for candidate in candidate_io.load_candidates(OUT):
+        out.add(candidate["repo"].lower())
     return out
 
 
@@ -113,9 +135,8 @@ def looks_like_subscription(url, limit=120_000):
         try:
             # 候选仓库里的文件属于不可信内容。截断式读取（read(limit)）
             # 本身不会吃满内存，但协议与地址仍然要卡。
-            netsafe.check_url(u)
-            req = urllib.request.Request(u, headers={"User-Agent": "nodes-discover"})
-            with netsafe.opener().open(req, timeout=10) as resp:
+            with netsafe.open_response(
+                    u, timeout=10, headers={"User-Agent": "nodes-discover"}) as resp:
                 data = resp.read(limit)
             break
         except Exception:
@@ -202,8 +223,11 @@ def main():
             f = pick_file(full, it.get("default_branch") or "main")
             if not f:
                 continue
-            raw_url = (f"https://raw.githubusercontent.com/{full}/"
-                       f"{it.get('default_branch') or 'main'}/{f['path']}")
+            try:
+                raw_url = build_candidate_url(
+                    full, it.get("default_branch") or "main", f["path"])
+            except (KeyError, TypeError, ValueError):
+                continue
             if looks_like_subscription(raw_url) is not True:
                 continue
             found.append({
@@ -224,25 +248,23 @@ def main():
     found.sort(key=lambda x: -(x["stars"] or 0))
     print(f"\n新候选 {len(found)} 个（已排除在册与重复）：", file=sys.stderr)
     for c in found[:15]:
-        print(f"  ⭐{c['stars']:<6} {c['repo']:<40} {c['format_guess']:<12} {c['url'][:70]}",
+        print(f"  ⭐{c['stars']:<6} {c['repo']:<40} {c['format_guess']:<12} "
+              f"{netsafe.mask_url(c['url'])[:70]}",
               file=sys.stderr)
     if dry:
         return
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    old = []
-    try:
-        old = json.load(open(OUT, encoding="utf-8")).get("candidates") or []
-    except Exception:
-        pass
+    old = candidate_io.load_candidates(OUT)
     # 保留已在队列里的（含已审核结论），只追加新的
     have2 = {c["repo"].lower() for c in old}
     merged = old + [c for c in found if c["repo"].lower() not in have2]
-    json.dump({
+    output = {
         "generated_at": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
         "queries": QUERIES, "min_stars": MIN_STARS, "max_age_days": MAX_AGE_DAYS,
         "note": "候选队列。仅经 screen.py 审核 + 人工置 enabled 后才会上线。",
         "candidates": merged,
-    }, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    }
+    netsafe.write_atomic(OUT, json.dumps(output, ensure_ascii=False, indent=1))
     print(f"\n已写 {OUT}（队列共 {len(merged)} 条）", file=sys.stderr)
 
 

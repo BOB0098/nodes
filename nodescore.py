@@ -171,7 +171,7 @@ def main():
     print(f"  历史：本轮见 {stat['seen']}，新增 {stat['new']}，"
           f"回归 {stat['revived']}，跟踪中 {stat['total']}")
 
-    scores, regions, per_src, stabs = {}, Counter(), {}, Counter()
+    scores, regions, per_src, per_src_id, stabs = {}, Counter(), {}, {}, Counter()
     for fp, rec in results.items():
         h = hist["nodes"].get(fp[:16])
         s, tags = score_one(rec, h)
@@ -189,8 +189,18 @@ def main():
                       "hits": int((h or {}).get("hits") or 0)}
         if rec.get("ok"):
             regions[region] += 1
-        src = (by_fp.get(fp) or {}).get("src")
-        if src:
+        node = by_fp.get(fp) or {}
+        source_ids = node.get("src_ids")
+        source_names = node.get("src_names")
+        if not isinstance(source_ids, list) or not source_ids:
+            source_ids = []
+        if not isinstance(source_names, list) or not source_names:
+            source_names = [node.get("src")] if node.get("src") else []
+        for source_id in dict.fromkeys(source_ids):
+            d = per_src_id.setdefault(source_id, {"tested": 0, "ok": 0})
+            d["tested"] += 1
+            d["ok"] += 1 if rec.get("ok") else 0
+        for src in dict.fromkeys(source_names):
             d = per_src.setdefault(src, {"tested": 0, "ok": 0})
             d["tested"] += 1
             d["ok"] += 1 if rec.get("ok") else 0
@@ -208,7 +218,7 @@ def main():
                        "stability": dict(stabs.most_common()),
                        "avg_score": round(sum(v["s"] for v in scores.values())
                                           / max(1, len(scores)), 1)},
-           "by_source": per_src, "nodes": scores}
+           "by_source": per_src, "by_source_id": per_src_id, "nodes": scores}
 
     force = (os.environ.get("GITHUB_ACTIONS") == "true"
              or os.environ.get("NODES_FORCE_WRITE") == "1")

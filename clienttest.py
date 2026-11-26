@@ -202,8 +202,22 @@ def check_mihomo(path):
     binp = BINS["mihomo"]
     if not os.access(binp, os.X_OK):
         return "skip", "找不到 mihomo 二进制", 0
+    import nodecheck
+    if not nodecheck.verified_cached_mihomo(binp):
+        return "fail", "mihomo 缓存完整性校验失败，拒绝执行", 0
     with tempfile.TemporaryDirectory() as td:
-        rc, out, dt = run([binp, "-t", "-f", path, "-d", td])
+        t0 = time.time()
+        try:
+            result = nodecheck.run_mihomo(
+                ["-t", "-f", path, "-d", td], binary_path=binp,
+                capture_output=True, text=True, timeout=180)
+        except nodecheck.MihomoIntegrityError:
+            return "fail", "mihomo 缓存完整性校验失败，拒绝执行", 0
+        except subprocess.TimeoutExpired:
+            return "fail", "超时（180s）", 180
+        out = ((result.stdout or "") + (result.stderr or "")).strip()
+        rc = result.returncode
+        dt = round(time.time() - t0, 1)
     tail = [l for l in out.splitlines() if l.strip()][-1:]
     okk = rc == 0 and "successful" in out.lower()
     return ("pass" if okk else "fail"), (tail[0] if tail else out[-160:]), dt

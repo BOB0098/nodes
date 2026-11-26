@@ -9,7 +9,8 @@ picks.py 当前并没有 65 分硬门槛——best 是「有评分 + 非 poor + 
 攒够 7 天再定论，绝不把一天的快照当结论。
 
 每轮写一行到 data/threshold_watch.json：
-  - ts            本轮时间（取自 node_scores.json 的 updated，不另造时间）
+  - ts            本轮时间（取自 node_scores.json 的 updated；仅作时间字段，不作身份）
+  - snapshot_id   node_scores.json 与 picks.json 原始内容的 SHA-256 输入指纹
   - total         本轮有评分的节点数
   - quantiles     p25/p50/p75/p90 分数
   - at_least      各门槛(50/55/60/65/70/75)的真实条数与占比
@@ -21,6 +22,7 @@ picks.py 当前并没有 65 分硬门槛——best 是「有评分 + 非 poor + 
     python3 threshold_watch.py --report   # 打印观测汇总与是否满 7 天
     python3 threshold_watch.py --selftest # 自测
 """
+import hashlib
 import json
 import os
 import sys
@@ -45,6 +47,33 @@ def load(path, default=None):
         return default if default is not None else {}
 
 
+def _read_input(path):
+    """Read an observation input once, retaining its exact bytes for identity."""
+    try:
+        with open(path, "rb") as f:
+            raw = f.read()
+    except Exception:
+        return None, {}
+    try:
+        return raw, json.loads(raw.decode("utf-8"))
+    except Exception:
+        return raw, {}
+
+
+def _snapshot_id(scores_raw, picks_raw):
+    """Fingerprint exact source bytes; legacy rows intentionally have no match."""
+    digest = hashlib.sha256()
+    for name, raw in ((b"scores", scores_raw), (b"picks", picks_raw)):
+        digest.update(name + b"\0")
+        if raw is None:
+            digest.update(b"MISSING\0")
+        else:
+            digest.update(b"PRESENT\0")
+            digest.update(len(raw).to_bytes(8, "big"))
+            digest.update(raw)
+    return digest.hexdigest()
+
+
 def percentile(vals, q):
     """线性插值分位数。空列表返回 None，绝不返回 0（缺失不是 0 分）。"""
     if not vals:
@@ -60,8 +89,10 @@ def percentile(vals, q):
 
 def observe():
     """从真实评分/榜单数据算一行观测。不写盘。"""
-    sc = load(SCORES, {}) or {}
-    pk = load(PICKS, {}) or {}
+    scores_raw, sc = _read_input(SCORES)
+    picks_raw, pk = _read_input(PICKS)
+    sc = sc or {}
+    pk = pk or {}
     nodes = sc.get("nodes") or {}
     vals = [float(r["s"]) for r in (nodes.values() if isinstance(nodes, dict) else nodes)
             if isinstance(r, dict) and isinstance(r.get("s"), (int, float))]
@@ -74,6 +105,7 @@ def observe():
             best_scores.append(float(rec["s"]))
     return {
         "ts": sc.get("updated"),
+        "snapshot_id": _snapshot_id(scores_raw, picks_raw),
         "total": len(vals),
         "quantiles": {f"p{q}": percentile(vals, q / 100) for q in (25, 50, 75, 90)},
         "at_least": {str(t): {"n": sum(1 for v in vals if v >= t),
@@ -91,8 +123,11 @@ def append_observation(force=False):
     if not isinstance(doc, dict) or doc.get("schema_version") != SCHEMA_VERSION:
         doc = {"schema_version": SCHEMA_VERSION, "days_needed": NEEDED_DAYS, "rows": []}
     rows = doc.setdefault("rows", [])
-    # 同一时间戳不重复记（同一轮多次重跑不污染观测）
-    if rows and rows[-1].get("ts") == row.get("ts"):
+    # ts 只有分钟精度，不作为身份。相同输入快照即使非相邻重跑也只记一次；
+    # 不同输入指纹可有相同 ts。旧行无指纹，不推断其身份，也不改写历史。
+    if any(isinstance(existing, dict)
+           and existing.get("snapshot_id") == row["snapshot_id"]
+           for existing in rows):
         return doc, False
     rows.append(row)
     if force or os.environ.get("GITHUB_ACTIONS") == "true":
@@ -159,7 +194,7 @@ def main():
         return 0
     force = "--force" in sys.argv or os.environ.get("NODES_FORCE_WRITE") == "1"
     doc, added = append_observation(force=force)
-    row = doc["rows"][-1]
+    row = doc["rows"][-1] if added else observe()
     print(f"门槛观测：{'已追加' if added else '同轮不重复'} "
           f"{row.get('ts')}，有评分 {row['total']} 条，"
           f"≥65 {row['at_least']['65']['n']} 条")

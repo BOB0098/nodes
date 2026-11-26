@@ -32,25 +32,79 @@ P27 增强：
     python3 audit_privacy.py --selftest # 自测
 """
 import json
+import math
 import os
 import re
+import stat
 import sys
+from collections import Counter
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
 # 完整节点 URI：scheme 后跟 base64/hex 片段，长度足够才判，避免误伤文档示例
 URI_RE = re.compile(r"\b(vmess|vless|ssr|ss|trojan|hysteria2?|tuic|anytls)://[A-Za-z0-9+/=_\-.]{20,}")
 # 凭据字段名（作为 JSON key 或赋值出现）
-CRED_KEY_RE = re.compile(r'["\']?(cred|password|passwd|uuid|private[_-]?key|auth)["\']?\s*[:=]\s*["\'][^"\']{6,}')
+CRED_KEY_RE = re.compile(
+    r'["\']?(?:cred|password|passwd|uuid|private[_-]?key|auth|api[_-]?key|access[_-]?key|client[_-]?secret)'
+    r'["\']?\s*[:=]\s*["\']?(?P<value>[^"\'\n,;}\]]{6,})',
+    re.I,
+)
+PLACEHOLDER_VALUE_RE = re.compile(
+    r'^(?:none|null|empty|unset|not[\s_-]+(?:set|configured|provided|available)|'
+    r'replace[\s_-]+me|your[\s_-]+(?:api[\s_-]?key|access[\s_-]?key|client[\s_-]?secret)|'
+    r'example|sample|dummy|placeholder|redacted|change[\s_-]?me|<[^>]+>)$',
+    re.I,
+)
 # 真 token：36+ 位。测试假值用固定前缀豁免
 TOKEN_RE = re.compile(r"\b(ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk-[A-Za-z0-9]{30,})")
 TEST_TOKEN_PREFIX = ("ghp_1234", "ghp_abcdef", "ghp_B1qkHAL8TEST")
+# 明确 Bearer 上下文中的较短高熵令牌，以及匿名 URL-safe 高熵令牌
+BEARER_RE = re.compile(r"\bBearer\s+([A-Za-z0-9._~+/\-]{20,}={0,2})", re.I)
+HIGH_ENTROPY_RE = re.compile(r"(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{32,}={0,2}(?![A-Za-z0-9_-])")
 # URL 内嵌凭据
 URL_CRED_RE = re.compile(r"https?://[^/\s:@]+:[^/\s@]+@")
 # URL query 里放 token / 凭据的参数（P27：订阅地址常把 token 塞在 query）
-QUERY_SECRET_RE = re.compile(r"[?&](token|access_token|key|secret|passwd|password|auth|sub)=([^&#\s]{8,})", re.I)
+QUERY_SECRET_RE = re.compile(
+    r"[?&](token|access_token|api[_-]?key|access[_-]?key|client[_-]?secret|key|secret|passwd|password|auth|sub)=([^&#\s]{8,})",
+    re.I,
+)
 # 长 base64 片段：解码后可能藏着节点 URI（P27）
-B64_BLOB_RE = re.compile(r"\b[A-Za-z0-9+/]{40,}={0,2}\b")
+B64_BLOB_RE = re.compile(r"(?<![A-Za-z0-9_+/\-])[A-Za-z0-9_+/\-]{40,}={0,2}(?![A-Za-z0-9_+/\-])")
+REDACTED = "[已隐藏]"
+
+
+def _entropy(value):
+    """返回字符串的 Shannon 熵，用于过滤低复杂度普通标识符。"""
+    value = value.rstrip("=")
+    if not value:
+        return 0.0
+    counts = Counter(value)
+    length = len(value)
+    return -sum((count / length) * math.log2(count / length) for count in counts.values())
+
+
+def _is_placeholder(value):
+    return bool(PLACEHOLDER_VALUE_RE.fullmatch(value.strip()))
+
+
+def _is_obvious_sequence(value):
+    normalized = re.sub(r"[^a-z0-9]", "", value.lower())
+    examples = (
+        "abcdefghijklmnopqrstuvwxyz" * 3,
+        "0123456789" * 8,
+        "abcdefghijklmnopqrstuvwxyz0123456789",
+        "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789",
+    )
+    return any(normalized in example for example in examples)
+
+
+def _is_high_entropy(value, minimum_length=32, minimum_entropy=4.6):
+    value = value.rstrip("=")
+    return (
+        len(value) >= minimum_length
+        and not _is_obvious_sequence(value)
+        and _entropy(value) >= minimum_entropy
+    )
 
 
 def public_files():
@@ -64,11 +118,11 @@ def public_files():
 
 
 def _decode_b64(s):
-    """尝试 base64 解码长片段；只看可打印文本，失败返回空。"""
+    """尝试标准或 URL-safe base64 解码；只看可打印文本，失败返回空。"""
     import base64
     try:
         pad = s + "=" * (-len(s) % 4)
-        raw = base64.b64decode(pad, validate=True)
+        raw = base64.b64decode(pad, altchars=b"-_", validate=True)
         text = raw.decode("utf-8")
         # 只接受可打印占比高的结果，避免二进制噪声
         if sum(1 for c in text if c.isprintable()) / max(1, len(text)) < 0.9:
@@ -79,35 +133,44 @@ def _decode_b64(s):
 
 
 def audit_text(text, rel):
-    """返回命中项列表 [(类型, 片段)]。P27 增加 Base64 解码与 query 值扫描。"""
+    """返回命中项列表 [(类型, 已隐藏)]，绝不把秘密片段带出扫描器。"""
     hits = []
     for m in URI_RE.finditer(text):
-        hits.append(("节点URI", m.group(0)[:28]))
+        hits.append(("节点URI", REDACTED))
     for m in CRED_KEY_RE.finditer(text):
-        hits.append(("凭据字段", m.group(0)[:40]))
+        if not _is_placeholder(m.group("value")):
+            hits.append(("凭据字段", REDACTED))
     for m in TOKEN_RE.finditer(text):
         v = m.group(0)
         if not v.startswith(TEST_TOKEN_PREFIX):
-            hits.append(("令牌", v[:16] + "..."))
+            hits.append(("令牌", REDACTED))
+    for m in BEARER_RE.finditer(text):
+        if _is_high_entropy(m.group(1), minimum_length=20, minimum_entropy=4.0):
+            hits.append(("高熵Bearer令牌", REDACTED))
+    for m in HIGH_ENTROPY_RE.finditer(text):
+        if _is_high_entropy(m.group(0)):
+            hits.append(("高熵URL-safe令牌", REDACTED))
     for m in URL_CRED_RE.finditer(text):
-        hits.append(("URL内嵌凭据", m.group(0)[:40]))
+        hits.append(("URL内嵌凭据", REDACTED))
     # P27：URL query 里的 token 类参数值
     for m in QUERY_SECRET_RE.finditer(text):
         val = m.group(2)
-        if not val.startswith(TEST_TOKEN_PREFIX):
-            hits.append(("URL参数凭据", f"{m.group(1)}={val[:20]}"))
-    # P27：长 base64 片段解码后再扫一次（避免把凭据编码后塞进产物）
+        if not val.startswith(TEST_TOKEN_PREFIX) and not _is_placeholder(val):
+            hits.append(("URL参数凭据", REDACTED))
+    # 长标准或 URL-safe base64 片段解码后再扫一次。
     for m in B64_BLOB_RE.finditer(text):
         decoded = _decode_b64(m.group(0))
         if not decoded:
             continue
         if URI_RE.search(decoded):
-            hits.append(("Base64内节点URI", decoded[:28]))
-        if CRED_KEY_RE.search(decoded):
-            hits.append(("Base64内凭据", decoded[:40]))
+            hits.append(("Base64内节点URI", REDACTED))
+        if any(not _is_placeholder(cm.group("value")) for cm in CRED_KEY_RE.finditer(decoded)):
+            hits.append(("Base64内凭据", REDACTED))
         for tm in TOKEN_RE.finditer(decoded):
             if not tm.group(0).startswith(TEST_TOKEN_PREFIX):
-                hits.append(("Base64内令牌", tm.group(0)[:16] + "..."))
+                hits.append(("Base64内令牌", REDACTED))
+        if any(_is_high_entropy(hm.group(0)) for hm in HIGH_ENTROPY_RE.finditer(decoded)):
+            hits.append(("Base64内高熵令牌", REDACTED))
     return hits
 
 
@@ -126,7 +189,7 @@ def audit_git_history():
     hits = []
     for m in TOKEN_RE.finditer(out):
         if not m.group(0).startswith(TEST_TOKEN_PREFIX):
-            hits.append(("git历史令牌", m.group(0)[:16] + "..."))
+            hits.append(("git历史令牌", REDACTED))
     return hits, True
 
 
@@ -156,46 +219,80 @@ def selftest():
 
 
 def main():
-    if "--selftest" in sys.argv:
+    args = sys.argv[1:]
+    log_paths = []
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg == "--log":
+            if i + 1 >= len(args) or args[i + 1].startswith("--"):
+                print("日志扫描失败：--log 缺少路径，拒绝通过")
+                return 2
+            log_paths.append(args[i + 1])
+            i += 2
+            continue
+        if arg.startswith("--log="):
+            path = arg.partition("=")[2]
+            if not path:
+                print("日志扫描失败：--log 缺少路径，拒绝通过")
+                return 2
+            log_paths.append(path)
+        i += 1
+    if "--selftest" in args:
         return 0 if selftest() else 1
     all_hits = []
+    log_scan_failed = False
+    public_scan_failed = 0
     scanned = 0
-    for rel in public_files():
+    try:
+        files = public_files()
+    except Exception:
+        print("公开产物清单检查失败，拒绝通过")
+        return 2
+    for rel in files:
         path = os.path.join(BASE, rel)
         try:
+            if not stat.S_ISREG(os.stat(path).st_mode):
+                raise OSError
             with open(path, encoding="utf-8") as f:
                 text = f.read()
         except Exception:
+            public_scan_failed += 1
             continue
         scanned += 1
         for typ, frag in audit_text(text, rel):
             all_hits.append((rel, typ, frag))
     print(f"脱敏审计：扫描 {scanned} 个公开产物（含 Base64 解码 / URL 参数）")
-    if "--git" in sys.argv:
+    if "--git" in args:
         ghits, can_check = audit_git_history()
         if can_check:
             print("  git 全历史令牌检查：" + ("干净" if not ghits else f"命中 {len(ghits)} 处"))
             all_hits += [("git历史", typ, frag) for typ, frag in ghits]
         else:
             print("  git 全历史令牌检查：无 .git 或超时，跳过")
-    # P27：可选扫描指定日志文件（CI 可把 Actions 日志落盘后传入），
-    # 日志不在仓库里，无法默认扫描——不冒充「已扫日志」。
-    if "--log" in sys.argv:
-        i = sys.argv.index("--log")
-        if i + 1 < len(sys.argv):
-            lp = sys.argv[i + 1]
-            try:
-                text = open(lp, encoding="utf-8", errors="ignore").read()
-                for typ, frag in audit_text(text, lp):
-                    all_hits.append(("Actions日志", typ, frag))
-                print(f"  日志扫描：{lp}")
-            except Exception as e:
-                print(f"  日志扫描失败（{type(e).__name__}），不冒充已扫")
+    # 指定日志必须全部成功扫描；任何读取失败都不能被误报成通过。
+    for lp in log_paths:
+        try:
+            with open(lp, encoding="utf-8", errors="ignore") as f:
+                text = f.read()
+            for typ, frag in audit_text(text, lp):
+                all_hits.append(("Actions日志", typ, frag))
+            print("  日志扫描：完成")
+        except Exception as e:
+            print(f"  日志扫描失败（{type(e).__name__}），拒绝通过")
+            log_scan_failed = True
     if all_hits:
         for rel, typ, frag in all_hits[:20]:
-            print(f"  ✘ {rel}: {typ} → {frag}")
+            print(f"  ✘ {rel}: {typ} → 内容已隐藏")
         print(f"结论：命中 {len(all_hits)} 处疑似凭据 → 拦下发布")
         return 1
+    if public_scan_failed:
+        print(f"  公开产物检查失败：{public_scan_failed} 个目标无法检查（错误详情已隐藏）")
+        print("结论：公开产物扫描不完整 → 拒绝通过")
+        return 2
+    if log_scan_failed:
+        print("结论：日志扫描不完整 → 拒绝通过")
+        return 2
     print("结论：未发现凭据/令牌泄漏 → 允许发布")
     return 0
 

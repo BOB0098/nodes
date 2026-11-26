@@ -1,33 +1,33 @@
 {
   "schema_version": 2,
-  "build_id": "20261125T1415-b5105b50d0",
-  "generated_at": "2026-11-25T15:58:08+08:00",
+  "build_id": "20261126T2028-952fdc38e6",
+  "generated_at": "2026-11-26T20:28:51+08:00",
   "timezone": "Asia/Shanghai (+08:00)",
-  "data_basis_ts": 1795587300,
+  "data_basis_ts": 1795696080,
   "counts": {
-    "nodes_total": 10059,
-    "dedup": 10059,
-    "tested": 952,
-    "real_ok": 315,
-    "real_ok_pct": 33.1,
+    "nodes_total": 10101,
+    "dedup": 10101,
+    "tested": 959,
+    "real_ok": 245,
+    "real_ok_pct": 25.5,
     "groups": {
-      "all": 10059,
+      "all": 10101,
       "best": 200,
-      "stable": 62,
-      "lowlat": 27,
-      "fast": 17,
-      "hk": 11,
-      "tw": 12,
-      "jp": 7,
-      "sg": 6,
-      "us": 78,
-      "kr": 6,
-      "eu": 157
+      "stable": 22,
+      "lowlat": 11,
+      "fast": 12,
+      "hk": 9,
+      "tw": 1,
+      "jp": 39,
+      "sg": 5,
+      "us": 50,
+      "kr": 11,
+      "eu": 80
     },
     "picks": {
-      "stable": 62,
-      "lowlat": 27,
-      "fast": 17,
+      "stable": 22,
+      "lowlat": 11,
+      "fast": 12,
       "best": 200
     }
   },
@@ -35,79 +35,79 @@
     "index_html": {
       "path": "index.html",
       "desc": "内嵌 DATA 的页面",
-      "sha256": "b3cb0688b7a0d10a307ee1cf54f3db71736ad7551c31a433eedd9057c181da48",
-      "bytes": 82826,
-      "updated_raw": "11-25 14:02",
-      "updated_ts": 1795586520
+      "sha256": "2952a1c07a8f55d7ce5ed6ae5c612a23790d353aaa1f2907608cba05ed89445d",
+      "bytes": 194510,
+      "updated_raw": "11-26 20:11",
+      "updated_ts": 1795695060
     },
     "nodes": {
       "path": "data/nodes.json",
       "desc": "节点库",
-      "sha256": "7f79ae9f6139d1efcf9d9dbde11787af3dfee8f403f73b313fa6e0a2d4c4bb89",
-      "bytes": 1574975,
-      "updated_raw": "11-25 14:02",
-      "updated_ts": 1795586520
+      "sha256": "57f33f7db22072c0f3ef7f2b11d6f6b9dc2b633d20b326dbfaeac57659b90d1f",
+      "bytes": 2366049,
+      "updated_raw": "11-26 20:11",
+      "updated_ts": 1795695060
     },
     "nodecheck": {
       "path": "data/nodecheck.json",
       "desc": "真握手检测",
-      "sha256": "2cd122dc06c7e594f1fb43593b1646e791baa0d1aec1b60cd9258d8bccb181e1",
-      "bytes": 135635,
-      "updated_raw": "2026-11-25 14:15",
-      "updated_ts": 1795587300
+      "sha256": "be847706013abef4e24b66741e108447e8cf7ea9adf9d65b607604f043bd84e5",
+      "bytes": 125997,
+      "updated_raw": "2026-11-26 20:28",
+      "updated_ts": 1795696080
     },
     "scores": {
       "path": "data/node_scores.json",
       "desc": "源评分与标签",
-      "sha256": "1d42e8ddc671db76d8c69c9db507805c05a1a158555a6e6375080c572db18829",
-      "bytes": 207808,
-      "updated_raw": "2026-11-25 14:15",
-      "updated_ts": 1795587300
+      "sha256": "dcdbe6e525876e4eeb6b1113908c8d1f39aae258c2101bd5311c98abc388d61a",
+      "bytes": 210661,
+      "updated_raw": "2026-11-26 20:28",
+      "updated_ts": 1795696080
     },
     "picks": {
       "path": "data/picks.json",
       "desc": "四类优选榜单",
-      "sha256": "5c740d0f7eb51efbdfcf846d8a2e5579ba8cfa2cd6f2e6e00d002b95445d150b",
-      "bytes": 90730,
-      "updated_raw": "2026-11-25 14:15",
-      "updated_ts": 1795587300
+      "sha256": "3b503ab5fd6ef3a4dab9ef96375a4d616a7a557558cae97339d732b21dfb4a2c",
+      "bytes": 74481,
+      "updated_raw": "2026-11-26 20:28",
+      "updated_ts": 1795696080
     },
     "subscriptions": {
       "path": "data/subscriptions.json",
       "desc": "多格式订阅清单",
-      "sha256": "48ee9773b8c816779218adaefdfb1f225d8f339861c71d9a1fd6424f169fc69a",
-      "bytes": 4580,
-      "updated_raw": "2026-11-25 14:15",
-      "updated_ts": 1795587300
+      "sha256": "68ec5bb6fd3324157104c9d9d70ced5484cfd0ded2047d7b4260d7e955bcfdb9",
+      "bytes": 4575,
+      "updated_raw": "2026-11-26 20:28",
+      "updated_ts": 1795696080
     },
     "status": {
       "path": "data/status.json",
       "desc": "源抓取状态",
-      "sha256": "c85adfcc4c4cebf8ece4b4deb68b15e5368ab6e2af2b6bc03977eb4f744e8aff",
-      "bytes": 1769,
-      "updated_raw": "11-25 14:02",
-      "updated_ts": 1795586520
+      "sha256": "74823462c5d66931c013728489a23a4deda7b390453c75686dc45ee31ccbdffc",
+      "bytes": 1772,
+      "updated_raw": "11-26 20:11",
+      "updated_ts": 1795695060
     },
     "governance": {
       "path": "data/source_governance.json",
       "desc": "来源治理",
-      "sha256": "e0c22e199786a9a277d208ab0a02ef39330d0966d0cf3aeb0d40e51a814c0289",
-      "bytes": 31399,
-      "updated_raw": "2026-11-25 14:15",
-      "updated_ts": 1795587300
+      "sha256": "fcccfb7665499ec2761f491ba160c2d5a23e31fe1e0aa4907959b6fcbd7f4f75",
+      "bytes": 53114,
+      "updated_raw": "2026-11-26 20:28",
+      "updated_ts": 1795696080
     },
     "trend": {
       "path": "data/trend.json",
       "desc": "日趋势",
-      "sha256": "325e853bf877dbf0543c76fc75d823ee765879d6065125214e382289095aaf1d",
-      "bytes": 368,
-      "updated_raw": "2026-11-25 14:15",
-      "updated_ts": 1795587300
+      "sha256": "bbe8206208c8dc45c141fba5aed73b1a5f13fc402b45a16c1e69c8aad541141d",
+      "bytes": 2592,
+      "updated_raw": "2026-11-26 20:28",
+      "updated_ts": 1795696080
     }
   },
   "pipeline": {
-    "run_id": "p23-final",
-    "started_at": "2026-11-25T15:54:34+08:00",
+    "run_id": "p24-approved-1795695070-197232",
+    "started_at": "2026-11-26T20:11:11+08:00",
     "stages_ok": [
       "collect",
       "detect",

@@ -41,6 +41,8 @@ SCHEMA_VERSION = 1
 TZ = timezone(timedelta(hours=8))
 
 # 必需阶段 → 该阶段负责的产物（相对 BASE）。顺序即 CI 执行顺序。
+# nodes.json 先由 collect 生成初稿，再由 render 汇总本轮评分/订阅信息成为最终
+# 页面快照；两次哈希都留在台账中，只有下方显式声明的 collect→render 覆写获准。
 STAGES = [
     ("collect", "采集与去重", ["data/nodes.json", "data/status.json"]),
     ("detect", "真实代理检测", ["data/nodecheck.json"]),
@@ -48,10 +50,11 @@ STAGES = [
     ("governance", "来源治理", ["data/source_governance.json"]),
     ("picks", "优选榜单", ["data/picks.json"]),
     ("subs", "订阅生成", ["data/subscriptions.json"]),
-    ("render", "页面重渲染", ["index.html"]),
+    ("render", "页面重渲染", ["data/nodes.json", "index.html"]),
 ]
 STAGE_KEYS = [s[0] for s in STAGES]
 STAGE_FILES = {s[0]: s[2] for s in STAGES}
+AUTHORIZED_REWRITES = {("collect", "render", "data/nodes.json")}
 
 
 def now_iso():
@@ -124,8 +127,24 @@ def mark(stage):
     return doc
 
 
+def _authorized_rewrite(stage, rel, stages, run_id, current_hash):
+    """仅允许显式登记的后续阶段覆写，并要求当前哈希等于后续阶段记录。"""
+    if stage not in STAGE_KEYS:
+        return False
+    later_keys = STAGE_KEYS[STAGE_KEYS.index(stage) + 1:]
+    for later in later_keys:
+        if (stage, later, rel) not in AUTHORIZED_REWRITES:
+            continue
+        rec = stages.get(later) or {}
+        if rec.get("status") != "ok" or rec.get("run_id") != run_id:
+            continue
+        if (rec.get("artifacts") or {}).get(rel) == current_hash:
+            return True
+    return False
+
+
 def check():
-    """返回 (ok, 失败说明列表)。校验阶段齐全、run_id 一致、产物哈希吻合。"""
+    """校验阶段齐全、run_id 一致和最终哈希；仅接受明示的阶段间覆写。"""
     doc = load()
     errs = []
     if doc.get("schema_version") != SCHEMA_VERSION:
@@ -141,12 +160,34 @@ def check():
             continue
         if rec.get("run_id") != rid:
             errs.append(f"阶段 {key} 的 run_id 与本轮不一致（跨轮产物）")
-        for rel, h in (rec.get("artifacts") or {}).items():
+        artifacts = rec.get("artifacts")
+        if not isinstance(artifacts, dict):
+            errs.append(f"阶段 {key} 的 artifacts 不是对象")
+            artifacts = {}
+        expected = set(STAGE_FILES[key])
+        actual = set(artifacts)
+        missing = expected - actual
+        extra = actual - expected
+        if missing:
+            errs.append(f"阶段 {key} 缺少必需产物：" + ", ".join(sorted(missing)))
+        if extra:
+            errs.append(f"阶段 {key} 含未知产物键：" + ", ".join(sorted(extra)))
+        for rel in STAGE_FILES[key]:
+            if rel not in artifacts:
+                continue
+            h = artifacts[rel]
+            if (not isinstance(h, str) or len(h) != 64
+                    or any(ch not in "0123456789abcdef" for ch in h)):
+                errs.append(f"阶段 {key} 的产物 SHA256 无效：{rel}")
+                continue
             path = os.path.join(BASE, rel)
             if not os.path.isfile(path):
                 errs.append(f"阶段 {key} 的产物缺失：{rel}")
-            elif sha256_file(path) != h:
-                errs.append(f"阶段 {key} 的产物被改动：{rel}（标记后又被覆盖）")
+            else:
+                current_hash = sha256_file(path)
+                if current_hash != h and not _authorized_rewrite(
+                        key, rel, stages, rid, current_hash):
+                    errs.append(f"阶段 {key} 的产物被改动：{rel}（标记后又被覆盖）")
     return (not errs), errs
 
 

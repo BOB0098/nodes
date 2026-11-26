@@ -22,6 +22,8 @@ services:
       NODES_FORCE_WRITE: "1"
       # 上一级目录在容器里是 /，不可写；mihomo 放到数据盘旁边
       NODES_CACHE: /app/.cache
+      # 一次性 `run --rm` 退出后仍保留失败恢复快照，供人工重试
+      NODES_BACKUP_DIR: /var/backups/nodes
       PERSIST_DIR: /app/data
       # 设成 1 跳过「2 小时内刚更新过就不跑」的闸门
       SKIP_GATE: "${SKIP_GATE:-0}"
@@ -29,6 +31,7 @@ services:
       - ./data:/app/data
       - ./index.html:/app/index.html
       - mihomo:/app/.cache
+      - transaction-backups:/var/backups/nodes
     # 一轮 15–25 分钟。超过 50 分钟基本是卡在某个源的超时上，让它失败重来
     stop_grace_period: 10s
     deploy:
@@ -40,3 +43,4 @@ services:
 
 volumes:
   mihomo:
+  transaction-backups:

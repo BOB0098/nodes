@@ -18,17 +18,24 @@ ASN 都从这条真实链路里量出来。
 大量启发式，误差大且结果会过期，「不得伪造结果」的前提下宁可不做。
 """
 
+import fcntl
+import gzip
+import hashlib
+import ipaddress
 import json
 import os
 import random
 import re
 import shutil
 import socket
+import stat
 import subprocess
 import sys
 import tempfile
 import time
+import zlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -58,6 +65,10 @@ CACHE = os.environ.get("NODES_CACHE") or os.path.join(os.path.dirname(BASE), ".n
 MIHOMO = os.path.join(CACHE, "mihomo")
 
 MIHOMO_VER = "v1.19.34"
+# GitHub Release API digest for the exact linux-amd64-compatible .gz asset.
+# Update only after verifying the digest from trusted release metadata:
+# https://api.github.com/repos/MetaCubeX/mihomo/releases/tags/v1.19.34
+MIHOMO_SHA256 = "2763f5b414527f7baf6dc57e3f82f3ab561eedf34bfd7c2f2cde1f7e592efe06"
 # 官方 release 在沙箱/部分机房直连不通，走镜像；多个镜像按顺序试
 MIHOMO_URLS = [
     f"https://gh-proxy.com/https://github.com/MetaCubeX/mihomo/releases/download/{MIHOMO_VER}/mihomo-linux-amd64-compatible-{MIHOMO_VER}.gz",
@@ -116,34 +127,191 @@ def daily_seed(now=None):
     return SEED + days
 
 
-def ensure_mihomo():
-    if os.path.exists(MIHOMO) and os.access(MIHOMO, os.X_OK):
-        return MIHOMO
-    os.makedirs(CACHE, exist_ok=True)
-    last = None
-    for u in MIHOMO_URLS:
+def _sha256_file(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _verified_mihomo_archive(path):
+    try:
+        size = os.path.getsize(path)
+        return ((4 << 20) <= size <= (64 << 20)
+                and _sha256_file(path) == MIHOMO_SHA256)
+    except OSError:
+        return False
+
+
+def verified_cached_mihomo(binary_path=None):
+    """Only trust an executable that matches the pinned, verified release archive."""
+    try:
+        with verified_mihomo_executable(binary_path):
+            return True
+    except (OSError, RuntimeError, EOFError, zlib.error):
+        return False
+
+
+class MihomoIntegrityError(RuntimeError):
+    """A cached executable cannot be proven to match the pinned release bytes."""
+
+
+def _sha256_stream(source):
+    source.seek(0)
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: source.read(1024 * 1024), b""):
+        digest.update(chunk)
+    source.seek(0)
+    return digest.hexdigest()
+
+
+def _verified_archive_contents_digest(archive_path):
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(archive_path, flags)
+    with os.fdopen(fd, "rb") as archive:
+        size = os.fstat(archive.fileno()).st_size
+        if not ((4 << 20) <= size <= (64 << 20)):
+            raise MihomoIntegrityError("mihomo 压缩资产体积不符合预期")
+        if _sha256_stream(archive) != MIHOMO_SHA256:
+            raise MihomoIntegrityError("mihomo 压缩资产 SHA-256 校验失败")
+        archive.seek(0)
+        digest = hashlib.sha256()
+        with gzip.GzipFile(fileobj=archive, mode="rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+
+@contextmanager
+def verified_mihomo_executable(binary_path=None):
+    """Yield a /proc fd path whose already-open inode matches the pinned archive.
+
+    The child inherits the descriptor with pass_fds, so replacing the cache path
+    after verification cannot change which bytes are executed.
+    """
+    binary_path = os.fspath(binary_path or MIHOMO)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        fd = os.open(binary_path, flags)
+    except OSError as e:
+        raise MihomoIntegrityError("mihomo 可执行文件无法安全打开") from e
+    with os.fdopen(fd, "rb") as executable:
+        info = os.fstat(executable.fileno())
+        if not stat.S_ISREG(info.st_mode) or not (info.st_mode & 0o111):
+            raise MihomoIntegrityError("mihomo 缓存不是可执行普通文件")
+        archive_path = binary_path + ".gz"
+        archive_digest = _verified_archive_contents_digest(archive_path)
+        if _sha256_stream(executable) != archive_digest:
+            raise MihomoIntegrityError("mihomo 可执行文件与已校验压缩资产不匹配")
+        if not os.path.isdir("/proc/self/fd"):
+            raise MihomoIntegrityError("系统不支持通过已校验文件描述符执行 mihomo")
+        yield f"/proc/self/fd/{executable.fileno()}", executable.fileno()
+
+
+def run_mihomo(arguments, binary_path=None, **kwargs):
+    """Run mihomo through a verified inherited file descriptor, not a mutable path."""
+    with verified_mihomo_executable(binary_path) as (executable, fd):
+        kwargs["pass_fds"] = tuple(sorted(set(kwargs.pop("pass_fds", ())) | {fd}))
+        return subprocess.run([executable, *arguments], **kwargs)
+
+
+def popen_mihomo(arguments, binary_path=None, **kwargs):
+    """Popen counterpart to run_mihomo; child inherits the verified executable fd."""
+    with verified_mihomo_executable(binary_path) as (executable, fd):
+        kwargs["pass_fds"] = tuple(sorted(set(kwargs.pop("pass_fds", ())) | {fd}))
+        return subprocess.Popen([executable, *arguments], **kwargs)
+
+
+@contextmanager
+def mihomo_cache_lock(binary_path=None):
+    """Serialize cache validation/download/install across processes and threads."""
+    lock_path = os.fspath(binary_path or MIHOMO) + ".lock"
+    flags = os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(lock_path, flags, 0o600)
+    with os.fdopen(fd, "r+b") as lock_file:
+        os.fchmod(lock_file.fileno(), 0o600)
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
         try:
-            print(f"  下载 mihomo… {u.split('/')[2]}")
-            # 三道限制缺一不可：--proto 只留 http(s)，--max-redirs 防重定向环，
-            # --max-filesize 防一个坏镜像返回超大响应把磁盘写满。
-            # 少了 --max-filesize 时，curl 会老老实实把能读到的东西全写下来。
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
+def _download_mihomo_archive(archive_path):
+    directory = os.path.dirname(os.path.abspath(archive_path))
+    os.makedirs(directory, exist_ok=True)
+    last = None
+    for url in MIHOMO_URLS:
+        fd, temporary = tempfile.mkstemp(
+            prefix=".mihomo-download-", suffix=".part", dir=directory)
+        os.close(fd)
+        try:
+            print(f"  下载 mihomo… {url.split('/')[2]}")
             subprocess.run(["curl", "-sL", "--max-time", "180", "--max-redirs", "3",
-                            "--proto", "=https,http", "--max-filesize", "67108864",
-                            "-o", MIHOMO + ".gz", u],
+                            "--proto", "=https", "--max-filesize", "67108864",
+                            "-o", temporary, url],
                            check=True, timeout=200)
-            # 22MB 左右是正常体积。几百 KB 的多半是错误页/重定向页，
-            # 解压出来是个坏二进制，要到第一批节点全挂才会发现。
-            size = os.path.getsize(MIHOMO + ".gz")
-            if not (4 << 20) <= size <= (64 << 20):
-                raise RuntimeError(f"下载体积异常：{size} 字节")
-            subprocess.run(["gunzip", "-f", MIHOMO + ".gz"], check=True, timeout=60)
-            os.chmod(MIHOMO, 0o755)
-            v = subprocess.run([MIHOMO, "-v"], capture_output=True, text=True, timeout=30)
-            print("  " + (v.stdout or v.stderr).strip().splitlines()[0])
-            return MIHOMO
+            if not _verified_mihomo_archive(temporary):
+                raise RuntimeError("mihomo 压缩资产体积或 SHA-256 校验失败")
+            os.replace(temporary, archive_path)
+            return
         except Exception as e:
             last = e
+        finally:
+            try:
+                os.unlink(temporary)
+            except FileNotFoundError:
+                pass
+            except OSError:
+                pass
     raise RuntimeError(f"mihomo 下载失败：{last}")
+
+
+def _install_mihomo_archive(archive_path):
+    directory = os.path.dirname(os.path.abspath(MIHOMO))
+    os.makedirs(directory, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(
+        prefix=".mihomo-install-", suffix=".part", dir=directory)
+    try:
+        with os.fdopen(fd, "wb") as output:
+            subprocess.run(["gunzip", "-c", archive_path], check=True,
+                           timeout=60, stdout=output)
+            output.flush()
+            os.fsync(output.fileno())
+        if _sha256_file(temporary) != _sha256_gzip_contents(archive_path):
+            raise RuntimeError("解压后的 mihomo 与已校验压缩资产不匹配")
+        os.chmod(temporary, 0o755)
+        os.replace(temporary, MIHOMO)
+    finally:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+
+
+def _sha256_gzip_contents(path):
+    digest = hashlib.sha256()
+    with gzip.open(path, "rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def ensure_mihomo():
+    os.makedirs(CACHE, exist_ok=True)
+    with mihomo_cache_lock():
+        archive_path = MIHOMO + ".gz"
+        if not _verified_mihomo_archive(archive_path):
+            _download_mihomo_archive(archive_path)
+        if not verified_cached_mihomo():
+            _install_mihomo_archive(archive_path)
+        if not verified_cached_mihomo():
+            raise RuntimeError("mihomo 安装后完整性校验失败")
+        v = run_mihomo(["-v"], capture_output=True, text=True, timeout=30)
+        version = (v.stdout or v.stderr).strip().splitlines()
+        print("  " + (version[0] if version else "mihomo 启动成功但未输出版本"))
+        return MIHOMO
 
 
 # ── 统一模型 → mihomo proxy ────────────────────────────────────────────────
@@ -272,6 +440,73 @@ def to_proxy(n, name):
     return None
 
 
+class ProxyEndpointError(ValueError):
+    """拒绝无法安全固定到公网 IP 的代理端点。"""
+
+
+def _is_public_endpoint(address):
+    mapped = getattr(address, "ipv4_mapped", None)
+    if mapped is not None:
+        address = mapped
+    return address.is_global and not netsafe._banned(address)
+
+
+def pin_proxy_endpoint(proxy, node):
+    """Resolve once, reject every non-global answer, and pin mihomo to a literal IP."""
+    raw_host = str(node.get("server") or "").strip()
+    host = (raw_host[1:-1] if raw_host.startswith("[") and raw_host.endswith("]")
+            else raw_host)
+    if not host:
+        raise ProxyEndpointError("代理主机为空")
+
+    try:
+        endpoint = ipaddress.ip_address(host)
+        is_hostname = False
+    except ValueError:
+        resolver_type = (socket.SOCK_DGRAM
+                         if proxy.get("type") in ("hysteria2", "tuic")
+                         else socket.SOCK_STREAM)
+        try:
+            answers = socket.getaddrinfo(host, proxy["port"], type=resolver_type)
+        except (OSError, TypeError, UnicodeError, OverflowError) as e:
+            raise ProxyEndpointError("代理主机 DNS 解析失败") from e
+        if not answers:
+            raise ProxyEndpointError("代理主机 DNS 无可用地址")
+        addresses = []
+        for answer in answers:
+            try:
+                address = ipaddress.ip_address(answer[4][0])
+            except (IndexError, TypeError, ValueError) as e:
+                raise ProxyEndpointError("代理主机 DNS 返回无效地址") from e
+            if not _is_public_endpoint(address):
+                raise ProxyEndpointError("代理主机 DNS 返回非公网地址")
+            mapped = getattr(address, "ipv4_mapped", None)
+            addresses.append(mapped or address)
+        endpoint = addresses[0]
+        is_hostname = True
+
+    if not _is_public_endpoint(endpoint):
+        raise ProxyEndpointError("代理端点不是公网地址")
+    mapped = getattr(endpoint, "ipv4_mapped", None)
+    if mapped is not None:
+        endpoint = mapped
+    proxy["server"] = endpoint.compressed
+
+    # Keep the protocol name separate from the pinned transport address.
+    # Explicit SNI always wins; only fill the server-name default for DNS hosts.
+    if is_hostname:
+        proto = proxy.get("type")
+        if proto in ("vmess", "vless") and proxy.get("tls"):
+            proxy.setdefault("servername", host)
+        elif proto == "trojan":
+            proxy.setdefault("sni", host)
+            if proxy.get("network"):
+                proxy.setdefault("servername", host)
+        elif proto in ("hysteria2", "tuic", "anytls"):
+            proxy.setdefault("sni", host)
+    return endpoint.compressed
+
+
 # ── 单批执行 ────────────────────────────────────────────────────────────────
 
 def _port_free(port):
@@ -353,7 +588,7 @@ def probe(port, timeout=TIMEOUT):
             capture_output=True, text=True, timeout=timeout + 3)
         ms = int((time.time() - t0) * 1000)
         code = (r.stdout or "").strip()
-        if code in ("204", "200"):
+        if code == "204":
             return True, ms, None
         if code and code != "000":
             # 连上了，但目标站给的不是 204：可能是被劫持、被限流，或目标站自己挂了。
@@ -416,9 +651,10 @@ def selfcheck():
            "proxies": []}
     with tempfile.TemporaryDirectory() as td:
         path = os.path.join(td, "c.yaml")
-        open(path, "w", encoding="utf-8").write(_to_yaml(cfg))
-        proc = subprocess.Popen([MIHOMO, "-f", path, "-d", td],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        with open(path, "w", encoding="utf-8") as output:
+            output.write(_to_yaml(cfg))
+        proc = popen_mihomo(["-f", path, "-d", td],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             deadline = time.time() + 6
             while time.time() < deadline and _port_free(BASE_PORT + 190):
@@ -435,24 +671,33 @@ def selfcheck():
 
 
 def run_batch(items, base_port, do_speed=False):
-    pairs, meta = [], {}
+    pairs, meta, rejected = [], {}, {}
     for i, n in enumerate(items):
         name = f"n{i}"
         p = to_proxy(n, name)
         if not p:
             meta[name] = n
             continue
+        try:
+            pin_proxy_endpoint(p, n)
+        except ProxyEndpointError as e:
+            fp = n.get("fp")
+            if fp:
+                rejected[fp] = {"ok": False, "ms": None,
+                                "err": f"proxy:{e}", "proto": n.get("type")}
+            continue
         pairs.append((name, p))
         meta[name] = n
     if not pairs:
-        return {}
+        return rejected
 
     cfg, ports = build_config(pairs, base_port)
     with tempfile.TemporaryDirectory() as td:
         path = os.path.join(td, "config.yaml")
-        open(path, "w", encoding="utf-8").write(cfg)
-        proc = subprocess.Popen([MIHOMO, "-f", path, "-d", td],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(cfg)
+        proc = popen_mihomo(["-f", path, "-d", td],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             # 等端口起来。mihomo 通常 100ms 内就绪，给 6 秒余量足够
             deadline = time.time() + 6
@@ -462,7 +707,7 @@ def run_batch(items, base_port, do_speed=False):
                 time.sleep(0.1)
             time.sleep(0.2)
 
-            out = {}
+            out = dict(rejected)
             with ThreadPoolExecutor(max_workers=CONC) as ex:
                 futs = {ex.submit(probe, port): name for name, port in ports.items()}
                 for fu in as_completed(futs):
@@ -540,7 +785,10 @@ def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None, tries=None,
     rnd = random.Random(daily_seed() if seed is None else seed)
     by_src = {}
     for n in nodes:
-        by_src.setdefault(n.get("src") or "?", []).append(n)
+        source_ids = n.get("src_ids")
+        sources = source_ids if isinstance(source_ids, list) and source_ids else [n.get("src") or "?"]
+        for src in dict.fromkeys(sources):
+            by_src.setdefault(src, []).append(n)
 
     def rec_of(n):
         fp16 = (n.get("fp") or "")[:16]
@@ -588,6 +836,12 @@ def sample(nodes, per_src=PER_SRC, total=MAX_TOTAL, seed=None, tries=None,
         for cat in ("new", "retry", "stable"):
             src_pick.extend(take[cat])
         picked.extend(src_pick[:per_src])
+    unique = {}
+    for n in picked:
+        fp = n.get("fp")
+        key = ("fp", fp) if fp else ("object", id(n))
+        unique.setdefault(key, n)
+    picked = list(unique.values())
     rnd.shuffle(picked)
     return picked[:total]
 

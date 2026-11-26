@@ -80,6 +80,12 @@ def update(nodes, doc=None, today=None):
     book = doc.setdefault("nodes", {})
     today = day_of() if today is None else today
 
+    # 满 45 天未出现即过期；先裁剪再刷新本轮节点，避免久别重现的指纹
+    # 先更新 last 而绕过清理，从而被误认成旧生命周期。
+    cutoff = today - KEEP_DAYS
+    for fp in [fp for fp, r in book.items() if r[1] <= cutoff]:
+        book.pop(fp, None)
+
     new = back = seen = 0
     for n in nodes:
         fp = _key(n.get("fp"))
@@ -99,13 +105,11 @@ def update(nodes, doc=None, today=None):
             rec[1] = today
             rec[0] = min(rec[0], today)
 
-    cutoff = today - KEEP_DAYS
-    gone = [fp for fp, r in book.items() if r[1] < today]
-    for fp in [fp for fp, r in book.items() if r[1] < cutoff]:
-        book.pop(fp, None)
+    # 已到期的记录已在本轮刷新前移除；此处只计仍在 45 天窗口中的缺席节点。
+    gone = sum(1 for r in book.values() if r[1] < today)
 
     doc["kept_days"] = KEEP_DAYS
-    return doc, {"new": new, "back": back, "seen": seen, "gone": len(gone),
+    return doc, {"new": new, "back": back, "seen": seen, "gone": gone,
                  "total": len(book)}
 
 
@@ -138,15 +142,26 @@ def freshness(nodes, doc=None, today=None):
     out = {}
     ages = {}
     for n in nodes:
-        src = n.get("src")
-        if not src:
+        source_ids = n.get("src_ids")
+        source_names = n.get("src_names")
+        owners = []
+        if isinstance(source_ids, list):
+            owners.extend(source_ids)
+        if isinstance(source_names, list):
+            owners.extend(source_names)
+        if not owners and n.get("src"):
+            owners.append(n["src"])
+        owners = list(dict.fromkeys(owner for owner in owners if owner))
+        if not owners:
             continue
         rec = ((doc or {}).get("nodes") or {}).get(_key(n.get("fp")))
         if not rec:
             continue
-        if today - rec[0] < 7:
-            out.setdefault(src, {"new7": 0})["new7"] = out.get(src, {}).get("new7", 0) + 1
-        ages.setdefault(src, []).append(max(today, rec[1]) - rec[0] + 1)
+        for owner in owners:
+            if today - rec[0] < 7:
+                out.setdefault(owner, {"new7": 0})["new7"] = (
+                    out.get(owner, {}).get("new7", 0) + 1)
+            ages.setdefault(owner, []).append(max(today, rec[1]) - rec[0] + 1)
 
     for src, arr in ages.items():
         arr.sort()

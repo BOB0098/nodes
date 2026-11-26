@@ -113,7 +113,7 @@ raw / 三种 jsdelivr 通道归一，识别重复仓库、镜像和同仓库不�
 | 独立率 | 6 | 独立新增 ÷ 原始解析 |
 | 新鲜度 | 10 | 源内容多久没变 |
 | 稳定性 | 14 | 连续失败 + 近 6 轮真实可用率波动 |
-| TCP 可连率 | 8 | 只作辅助；没有真实数据时才临时提权 |
+| TCP 可连率 | 8 | 只作辅助；无真实握手样本时维度上限 27.2，TCP 抽样缺失记 13.6 |
 | 合规/类型 | 6 | 有 SPDX 许可证 + 来源类型 |
 
 两条硬上限：**没有真实握手数据 → 最高 B；样本 < 20 条 → 最高 A**。
@@ -245,8 +245,8 @@ python3 drill_publish.py            # 发布失败回滚演练：注入坏产物
 
 ```bash
 python3 -m pip install -r requirements.txt   # 首次需装 PyYAML
-bash verify.sh                                # 8 项：安全/清单/订阅/脱敏/门禁/演练/YAML/JS
-bash verify.sh --quick                        # 只跑秒级自测，跳过演练
+bash verify.sh                                # 核心 selftest、P24 回归、隐私/一致性门禁、发布演练、全部 workflow YAML 与页面 JS
+bash verify.sh --quick                        # 跳过发布演练及扩展检查
 ```
 
 数据回滚不用记 git 命令：
@@ -295,11 +295,12 @@ docker compose run --rm collect
 
 几个刻意的设计：
 
-* **采集失败就停，检测失败继续**。采不到数据还往下走，后面的步骤会拿旧数据算出一份
-  看起来正常的结果——那比直接失败危险得多
+* **核心阶段失败就停并尝试恢复旧产物**。检测、评分、治理、榜单、订阅、渲染或发布门禁任一步失败，容器都会停止，并尝试把本轮前的 `data/`、页面、报告和订阅导出恢复；不会拿旧检测结果混算新采集数据
 * `data/` 是宿主机挂进去的，容器只是干活的。换机器只要把目录搬走
 * mihomo 放在命名卷里，第二次跑不用再下载
 * 不假设多台机器共享磁盘。想并行就在各自机器上跑，再去合并 `data/nodes.json`
+
+快照只支持 Compose 当前的两个输出挂载（`./data:/app/data`、`./index.html:/app/index.html`）和 mihomo 的 `/app/.cache` 命名卷；`/app` 内其他或嵌套挂载会在快照开始前拒绝。恢复是逐项 best-effort：普通文件先在同目录暂存再替换，已挂载的 `index.html` 只能原位写入；不保证整个 bind-mount 树全局原子回滚。恢复失败时快照保存在 `transaction-backups` 命名卷中，即使 `docker compose run --rm` 删除容器也仍可读取，脚本会打印人工重试命令；完成人工恢复前不要删除该卷。共享卷父目录使用 sticky 权限以兼容 `NODES_UID` 覆盖；每轮 `mktemp -d` 创建 0700 私有快照目录，export 内容隔离在该目录中。
 
 评估一台云服务器能不能用，先在那台机器上跑体检：
 
@@ -315,7 +316,7 @@ python3 dockerprobe/probe.py run --platform 你的平台名 --json probe/x.json
 
 ```bash
 python3 collector.py            # 采集并重建 index.html（读 sources.yaml）
-python3 collector.py --render   # 只按 data/nodes.json 重渲染页面，不联网
+python3 collector.py --render   # 不联网；汇总现有数据并更新最终 nodes.json 快照与页面
 python3 nodecheck.py --speed    # mihomo 真握手 + 测速（需 curl，会自己下 mihomo）
 python3 nodescore.py            # 评分、地区、标签；同时累积节点历史与日趋势
 python3 governance.py           # 来源治理：重复源/重合度/逐源指标/观察期
@@ -323,7 +324,7 @@ python3 governance.py --selftest # 重复源、恶意 URL、超大响应、故�
 python3 picks.py                # 四类优选榜单（稳定/低延迟/高速/综合）
 python3 export_subs.py          # 生成各格式订阅并逐个反解校验
 python3 build_manifest.py --selftest  # 统一清单自测（时间规范化/哈希/可复现）
-bash verify.sh                        # P22 一键验证：全部自测+门禁+演练，干净 clone 可复现
+bash verify.sh                        # P24 一键验证：核心回归、自测、门禁、演练、workflow YAML 与页面 JS
 python3 audit_privacy.py              # 公开产物脱敏审计（data/*.json 与页面不许有凭据）
 python3 build_manifest.py --write     # 生成统一构建清单
 python3 check_consistency.py          # 发布门禁（同轮/哈希/数量异常下降）

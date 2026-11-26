@@ -15,7 +15,7 @@ sources.yaml（15 个源）
       ├──► data/quarantine.json（隔离区，按原因计数，不含凭据）
       ├──► data/source_keys.json（去重前逐源地址哈希，供 P19 重合度分析）
       ▼
-③  去重 + 生命周期 ────────────► data/nodes.json（脱敏，页面数据）
+③  去重 + 生命周期 ────────────► data/nodes.json（脱敏初稿，页面数据）
       │   全参数指纹 16 位 hex；lifecycle 记 [首次, 最近]
       │   export/nodes_full.json（完整参数 + 凭据，gitignore）
       ▼
@@ -34,7 +34,7 @@ sources.yaml（15 个源）
 ⑦  榜单 picks.py ──────────────► data/picks.json（稳定/低延迟/高速/综合）
       ▼
 ⑧  输出 export_subs.py ────────► export/subs/<组>.<4 种格式>
-          collector.py --render ─► index.html（单文件，数据内嵌）
+          collector.py --render ─► data/nodes.json（最终快照）+ index.html（单文件）
 ```
 
 ## 为什么是这个顺序
@@ -43,7 +43,7 @@ sources.yaml（15 个源）
 
 **检测必须在评分之前**：评分的最大一项（30 分）是真实可用性。顺序反了，页面上的等级全是 null。
 
-**渲染必须在最后**：`collector.py --render` 会把 `node_scores.json` 读回来补进卡片。采集那一步也渲染一次，但那时的卡片还没有真实检测结果——这一步是覆盖，不是重复。
+**渲染必须在最后**：`collector.py --render` 会读取本轮评分和订阅阶段产物，补齐卡片上的真实检测汇总、评分及订阅统计，并把最终快照写入 `data/nodes.json` 与 `index.html`。采集时写入的是初稿；render 覆写初稿是明确的数据所有权设计，不是页面单独重渲染。run ledger 同时记录 collect 初稿哈希与 render 最终哈希，只授权 `collect → render` 对 `data/nodes.json` 的这一次变更，并继续核对最终哈希和 run_id。
 
 **榜单必须在订阅之前**：订阅的 best / stable / lowlat / fast 四组直接读 `picks.json` 的成员与顺序，不再自己筛一遍。顺序反了会发出上一轮的榜单——「页面第一」与「订阅第一行」就不是同一个节点。
 
@@ -83,17 +83,15 @@ clienttest.py ─ nodes_parse.py + 三个客户端二进制
 | 哪一步失败 | 后果 | 上一轮数据 |
 |---|---|---|
 | 某个源采集失败 | 该源本轮无数据，卡片显示上次的值 + HTTP 码 | 保留 |
-| 所有源都失败 | 采集步骤非零退出，后续全不跑 | 保留 |
+| 所有源都失败 | 采集步骤非零退出；workflow 不提交，容器停止并恢复运行前快照 | 保留 |
 | 解析异常 | 坏条目进隔离区，其余正常入库 | 保留 |
-| 真实检测失败 | `continue-on-error`，页面用上一轮的可用率 | 保留 |
+| 真实检测失败 | 不 mark；workflow 不发布，容器停止并恢复运行前快照 | 保留 |
 | 检测结果异常下滑 | 回归闸门拦下，不写 `nodecheck.json`，退出码 3 | **保留** |
-| 评分失败 | 卡片等级为 null，订阅退回「只按可用性挑」 | 保留 |
-| 订阅生成失败 | `subscriptions.json` 的 `failed` 里逐条记原因 | 保留上一份订阅文件 |
-| 治理生成失败 | 观察期封顶与重合度暂缺；`score.py` 读不到治理文件时不设限 | 保留（不会误压存量源） |
-| 榜单生成失败 | `picks.json` 保持上一轮，订阅四组也停在上一轮 | 保留（页面与订阅仍然自洽） |
-| 历史写盘失败 | 本轮结果没进历史，稳定性判定原地不动 | 保留（不丢已有累积） |
-| 渲染失败 | 页面不更新，数据文件已写 | 数据是新的、页面是旧的（可 `--render` 补） |
-| 写盘中途被中断 | 原子写：要么旧文件，要么新文件 | 保留（`restore.py undo` 可回） |
+| 评分、治理、榜单或订阅阶段失败 | 后续阶段不执行；workflow 不发布，容器回滚本轮可变产物 | 保留 |
+| 单条订阅生成失败 | 按订阅导出器的逐条错误处理记录；若阶段最终非零则整轮中止/回滚 | 保留 |
+| 历史写盘失败 | 所属阶段非零退出，阻断发布并触发容器恢复；不继续以旧历史生成新结果 | 保留 |
+| 渲染失败 | 不 mark render、不生成有效本轮 manifest；容器恢复数据与页面快照 | 保留 |
+| 写盘中途被中断 | 单文件写入仍用原子替换；脚本捕获的失败会逐项 best-effort 恢复运行前产物 | 保留；强制杀进程/断电或恢复失败仍需人工核查 |
 
 ## 数据文件的三种性质
 
@@ -115,10 +113,11 @@ clienttest.py ─ nodes_parse.py + 三个客户端二进制
 
 ## CI 与自建的差异
 
-`docker/run.sh` 与 `.github/workflows/daily.yml` 的步骤顺序、失败处理一一对应，唯一不同的是：
+核心处理阶段、run ledger 与 manifest/一致性硬门禁保持同一顺序。容器入口额外在运行前快照可变产物，并在可捕获的失败退出时恢复；GitHub runner 则不推送失败轮的工作树。两者仍有这些执行环境差异：
 
 * CI 有 `GITHUB_TOKEN`（查源最后更新时间，60 次/小时 → 5000 次/小时）；
 * CI 缓存 mihomo 到 `actions/cache`，容器用 named volume；
-* 容器里没有 `GITHUB_ACTIONS` 变量，所以 `NODES_FORCE_WRITE=1` 显式打开写盘。
+* 容器里没有 `GITHUB_ACTIONS` 变量，所以 `NODES_FORCE_WRITE=1` 显式打开写盘；
+* `threshold_watch.py` 在 CI 中是可选观测步骤，容器完整链路不运行该步骤；CI 的全历史 Git 凭据扫描及最终提交/推送也仅在 GitHub runner 上执行。
 
-这两条路径跑出来的数据口径一致——`docs/P11-docker-platforms.md` 里有容器内完整跑一轮的记录（6m37s）。
+容器入口会把快照写入 `transaction-backups` 命名卷，因此 `docker compose run --rm` 后恢复失败的快照仍可用；快照前只接受当前 Compose 的 `/app/data`、`/app/index.html` 两个输出挂载和 `/app/.cache` mihomo 缓存卷，`/app` 内其他或嵌套挂载一律拒绝。恢复按单项暂存和替换，已挂载的 `index.html` 只能尽力原位写入；这不是 bind-mount 树的全局原子回滚。失败日志会给出备份位置和人工重试命令，强制终止或断电仍需人工核查。`docs/P11-docker-platforms.md` 记录了既有容器完整跑一轮的情况（6m37s）。

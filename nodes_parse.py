@@ -43,6 +43,7 @@ DROP_TYPES = {"http": "明文代理（流量与凭据均可被链路上任何人
 # 隔离区原因码 → 人话。键会被写进 data/quarantine.json，方便统计。
 REASON = {
     "no_addr": "缺少地址或端口",
+    "bad_port": "端口不在 1–65535 有效范围内",
     "nonpublic": "非公网地址（回环/私有/保留网段）",
     "plaintext": DROP_TYPES["http"],
     "unknown_type": "不支持的协议类型",
@@ -77,6 +78,17 @@ def norm_host(h):
     if h.startswith("[") and h.endswith("]"):
         h = h[1:-1]
     return h
+
+
+def _port_number(value):
+    """只接受整数或十进制整数字符串，避免 int() 对 bool/小数的宽松转换。"""
+    if type(value) is int:
+        return value
+    if isinstance(value, str):
+        value = value.strip()
+        if re.fullmatch(r"[0-9]+", value):
+            return int(value)
+    return None
 
 
 def make_fp(node):
@@ -202,6 +214,11 @@ def to_uri(n):
 
 # ── URI 解析 ────────────────────────────────────────────────────────────────
 
+URI_HOST_SCHEMES = frozenset({
+    "vmess", "ss", "vless", "trojan", "hysteria2", "hy2", "tuic",
+    "socks5", "anytls", "http", "https",
+})
+
 def parse_uri(line):
     line = line.strip()
     if "://" not in line:
@@ -224,7 +241,7 @@ def _parse_uri_body(scheme, body, name):
         if scheme == "vmess":
             j = json.loads(_b64d(body[8:]))
             return {"type": "vmess", "name": name or j.get("ps", ""),
-                    "server": norm_host(str(j.get("add", ""))), "port": int(j.get("port") or 0),
+                    "server": norm_host(str(j.get("add", ""))), "port": _port_number(j.get("port")),
                     "cred": j.get("id", ""), "alter_id": j.get("aid") or 0,
                     "cipher": j.get("scy") or "auto", "network": j.get("net") or "tcp",
                     "tls": j.get("tls") or "", "sni": j.get("sni") or j.get("host") or "",
@@ -247,13 +264,16 @@ def _parse_uri_body(scheme, body, name):
                 hostport = dec.split("@")[-1]
             host, _, port = hostport.rpartition(":")
             host = host.split("?")[0]
+            port = port.split("?", 1)[0].split("/", 1)[0]
             return {"type": "ss", "name": name, "server": norm_host(host),
-                    "port": int(re.sub(r"\D", "", port) or 0), "cred": pwd, "method": method}
+                    "port": _port_number(port), "cred": pwd, "method": method}
 
         if scheme in ("vless", "trojan", "hysteria2", "hy2", "tuic", "socks5",
                       "anytls", "http", "https"):
             t = {"hy2": "hysteria2", "https": "http"}.get(scheme, scheme)
             u = up.urlsplit(body)
+            if not u.hostname or u.port is None:
+                return None
             q = {k: v[0] for k, v in up.parse_qs(u.query).items()}
             node = {"type": t, "name": name, "server": norm_host(u.hostname or ""),
                     "port": u.port or 0,
@@ -293,7 +313,8 @@ def _parse_uri_body(scheme, body, name):
 def _ws_params(p):
     """Clash 的 ws-opts / grpc-opts / reality-opts 提取成扁平参数。"""
     out = {}
-    net = p.get("network") or "tcp"
+    net = (p["network"] if "network" in p and not isinstance(p["network"], str)
+           else p.get("network") or "tcp")
     out["network"] = net
     ws = p.get("ws-opts") or {}
     if isinstance(ws, dict):
@@ -336,9 +357,8 @@ def _clash_one(p):
         return None
     t = str(p.get("type", "")).lower()
     server = norm_host(str(p.get("server", "")))
-    try:
-        port = int(p.get("port") or 0)
-    except Exception:
+    port = _port_number(p.get("port"))
+    if port is None:
         return None
     if not server or not port:
         return None
@@ -447,9 +467,8 @@ def _sb_one(o):
     if t in SKIP_SINGBOX:
         return None
     server = norm_host(str(o.get("server", "")))
-    try:
-        port = int(o.get("server_port") or 0)
-    except Exception:
+    port = _port_number(o.get("server_port"))
+    if port is None:
         return None
     if not server or not port:
         return None
@@ -458,7 +477,9 @@ def _sb_one(o):
 
     tls = o.get("tls") if isinstance(o.get("tls"), dict) else {}
     tr = o.get("transport") if isinstance(o.get("transport"), dict) else {}
-    common = {"network": tr.get("type") or ("ws" if tr else "tcp")}
+    network = (tr["type"] if "type" in tr and not isinstance(tr["type"], str)
+               else tr.get("type") or ("ws" if tr else "tcp"))
+    common = {"network": network}
     if tr.get("path"):
         common["path"] = tr["path"]
     hdr = tr.get("headers") or {}
@@ -624,7 +645,14 @@ def parse_any(data, rejects=None):
 
 def _host_of_uri(line):
     try:
-        return (up.urlsplit(line.split("#")[0]).hostname or "")[:60]
+        scheme = line.split("://", 1)[0].lower()
+        if scheme not in URI_HOST_SCHEMES:
+            return ""
+        parsed = up.urlsplit(line.split("#", 1)[0])
+        host = parsed.hostname or ""
+        if not host or parsed.port is None:
+            return ""
+        return host[:60]
     except Exception:
         return ""
 
@@ -633,6 +661,9 @@ def _why_drop(n):
     """一条已解析的节点为什么不该入库。空串表示可以留。"""
     if not n.get("server") or not n.get("port"):
         return REASON["no_addr"]
+    port = n.get("port")
+    if type(port) is not int or not 1 <= port <= 65535:
+        return REASON["bad_port"]
     if n.get("type") in DROP_TYPES:
         return REASON["plaintext"]
     if not is_public_host(n["server"]):
@@ -662,6 +693,8 @@ def _norm_net(v):
     因为一个「未知传输协议」被拒绝。这里只认白名单里的名字，
     被污染的值取第一个能匹配的前缀。
     """
+    if not isinstance(v, str):
+        return "tcp"
     v = (v or "").strip().lower()
     if v in NET_OK:
         if v == "none":
@@ -678,6 +711,14 @@ def _finalize(nodes, rejects=None):
     """补齐 uri / fp / addr；丢弃回环、私有地址与无地址条目。"""
     out = []
     for n in nodes:
+        if "network" in n and not isinstance(n["network"], str):
+            if rejects is not None:
+                rejects.append({"kind": "node", "type": n.get("type") or "",
+                                "name": (n.get("name") or "")[:40],
+                                "server": (n.get("server") or "")[:60],
+                                "port": n.get("port") or 0,
+                                "reason": REASON["bad_record"]})
+            continue
         # 必须在 make_fp 之前做：network 进了指纹，规范化后再算才不会
         # 让「同一个节点的脏写法和干净写法」算成两条
         n["network"] = _norm_net(n.get("network"))

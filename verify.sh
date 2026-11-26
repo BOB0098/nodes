@@ -32,8 +32,9 @@ run() {
     PASS=$((PASS + 1))
     echo "  [PASS] $label"
   else
+    local rc=$?
     FAIL=$((FAIL + 1))
-    echo "  [FAIL] $label (退出码 $?)"
+    echo "  [FAIL] $label (退出码 $rc)"
   fi
 }
 
@@ -49,16 +50,43 @@ run "安全边界自测 (netsafe)" "$PY" netsafe.py
 
 # 1b. P24：核心模块回归——这些 selftest 此前存在但 verify.sh 没调用，
 #     改动核心逻辑时不会被一键验证发现。全部离线、不写数据、不联网。
+run "网络请求总时限回归 (P24)" "$PY" tests/test_netsafe_deadline.py
+run "URL/日志脱敏回归 (P24)" "$PY" tests/test_netsafe_redaction.py
+run "URL 输出边界脱敏回归 (P24)" "$PY" tests/test_redaction_output_boundaries.py
+run "候选 URL 审核边界回归 (P24)" "$PY" tests/test_discover_candidate_url.py
+run "来源配置错误传播回归 (P24)" "$PY" tests/test_discover_known_repos.py
+run "来源登记 URL/结构边界回归 (P24)" "$PY" tests/test_source_registration.py
+run "候选队列/产物安全回归 (P24)" "$PY" tests/test_candidate_artifact_safety.py
+run "来源统计历史保真回归 (P24)" "$PY" tests/test_sources_io_stats.py
+run "验证脚本失败码回归 (P24)" "$PY" tests/test_verify_exit_code.py
+run "节点解析边界回归 (P24)" "$PY" tests/test_nodes_parse_boundaries.py
 run "真检测逻辑回归 (nodecheck)" "$PY" nodecheck.py --selftest
+run "检测状态码/bench 超时统计回归 (P24)" "$PY" tests/test_nodecheck_bench_contract.py
+run "mihomo 缓存/下载完整性回归 (P24)" "$PY" tests/test_mihomo_integrity.py
+run "mihomo 端点 DNS/私网防护回归 (P24)" "$PY" tests/test_nodecheck_endpoint_safety.py
 run "评分逻辑回归 (nodescore)" "$PY" nodescore.py --selftest
 run "历史压缩回归 (history)" "$PY" history.py --selftest
+run "迁移日期未知/近期候选回归 (P24)" "$PY" tests/test_history_unknown_dates.py
+run "日趋势 P50 累计回归 (P24)" "$PY" tests/test_history_daily_p50.py
+run "生命周期跨日/45 天/freshness 回归 (P24)" "$PY" tests/test_lifecycle_regression.py
 run "来源治理回归 (governance)" "$PY" governance.py --selftest
+run "来源治理 run 身份幂等回归 (P24)" "$PY" tests/test_governance_idempotency.py
 run "优选榜单回归 (picks)" "$PY" picks.py --selftest
 run "源评分回归 (score)" "$PY" score.py --selftest
+run "源评分数值契约回归 (P24)" "$PY" tests/test_score_contract.py
 run "门槛观测回归 (threshold_watch)" "$PY" threshold_watch.py --selftest
+run "门槛观测输入指纹幂等回归 (P24)" "$PY" tests/test_threshold_watch_idempotency.py
 
 # 2a. 同轮构建台账自测：run_id、阶段成功标记、跨轮与篡改拦截
 run "同轮台账自测 (run_ledger)" "$PY" run_ledger.py --selftest
+run "台账/渲染产物归属回归 (P24)" "$PY" tests/test_p24_ledger_render.py
+run "容器事务快照恢复回归 (docker)" "$PY" tests/test_docker_transaction.py
+run "容器输出路径符号链接安全回归 (P24)" "$PY" tests/test_docker_transaction_symlink.py
+run "故障演练隔离/中断安全回归 (P24)" "$PY" tests/test_drill_safety.py
+run "容器入口失败回滚回归 (docker)" "$PY" tests/test_docker_run.py
+run "低计数旧数据保护回归 (collector)" "$PY" tests/test_collector_low_count.py
+run "本地 cron 失败码传播回归 (run_daily)" "$PY" tests/test_run_daily_exit.py
+run "模板/生成页一致性回归 (template)" "$PY" tests/test_template_build_output.py
 
 # 2b. 统一构建清单自测：时间规范化、sha256、计数、pipeline 证明
 run "构建清单自测 (build_manifest)" "$PY" build_manifest.py --selftest
@@ -68,6 +96,8 @@ run "订阅反解自测 (export_subs)" "$PY" export_subs.py --selftest
 
 # 4. 公开产物脱敏审计：data/*.json 与页面里不许有 URI/凭据/令牌；带 --git 扫历史
 run "脱敏审计 (audit_privacy)" "$PY" audit_privacy.py --git
+run "隐私审计规则自测 (audit_privacy)" "$PY" audit_privacy.py --selftest
+run "隐私审计日志/凭据边界回归 (P24)" "$PY" tests/test_audit_privacy.py
 
 # 5. 一致性 + 数量异常下降 + manifest 哈希硬校验（无 manifest 会降级警告）
 run "一致性/数量门禁 (check_consistency)" "$PY" check_consistency.py
@@ -76,9 +106,9 @@ if [ "$QUICK" -eq 0 ]; then
   # 5. 发布失败回滚演练：篡改产物→拦下→恢复→放行，证明上一版不被覆盖
   run "发布回滚演练 (drill_publish)" "$PY" drill_publish.py
 
-  # 6. 工作流 YAML 语法
-  run "工作流语法 (daily.yml)" "$PY" -c \
-    "import yaml; yaml.safe_load(open('.github/workflows/daily.yml'))"
+  # 6. 工作流 YAML 语法（覆盖所有入口，包含每周候选发现工作流）
+  run "工作流语法 (all workflows)" "$PY" -c \
+    "from pathlib import Path; import yaml; [yaml.safe_load(p.read_text(encoding='utf-8')) for p in Path('.github/workflows').glob('*.yml')]"
 
   # 7. 页面 JS 语法（node 可用时；没有不判失败，CI 不依赖 node）
   if command -v node >/dev/null 2>&1; then

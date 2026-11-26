@@ -84,6 +84,10 @@ def slot_of(ts=None):
     return min(SLOTS - 1, dt.hour // (24 // SLOTS))
 
 
+def _known_day(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 def _blank(today):
     return {
         "first": today, "last": today, "last_ok": None,
@@ -158,11 +162,21 @@ def observe(doc, results, today=None, slot=None):
             rec = book[k] = _blank(today)
             new += 1
         else:
-            # last < today-1 才算断档：昨天也在、今天还在是正常连续，
-            # 用 last < today 会把每一条连续节点都记成「回归」
-            if rec.get("last", today) < today - 1:
-                revived += 1
-            rec["first"] = min(rec.get("first", today), today)
+            # 迁移日期只是未知；第一次真实检测时，从已知观察重新起算，
+            # 同时保留迁移来的累计计数和稳定性估算标记。
+            if rec.get("migrated") and not rec.get("observed_since_migration"):
+                rec["first"] = today
+                rec["last"] = today
+                rec["last_ok"] = None
+                rec["observed_since_migration"] = True
+            else:
+                # last < today-1 才算断档：昨天也在、今天还在是正常连续，
+                # 用 last < today 会把每一条连续节点都记成「回归」。
+                last = rec.get("last")
+                if _known_day(last) and last < today - 1:
+                    revived += 1
+                first = rec.get("first")
+                rec["first"] = min(first, today) if _known_day(first) else today
         rec["last"] = today
         rec["tries"] = int(rec.get("tries") or 0) + 1
 
@@ -192,7 +206,8 @@ def observe(doc, results, today=None, slot=None):
         slots = slots[:slot] + _slot_merge(slots[slot], ok) + slots[slot + 1:]
         rec["slots"] = slots
 
-    gone = sum(1 for r in book.values() if r.get("last", today) < today)
+    gone = sum(1 for r in book.values()
+               if _known_day(r.get("last")) and r["last"] < today)
     return {"new": new, "gone": gone, "seen": seen, "total": len(book),
             "revived": revived}
 
@@ -202,7 +217,8 @@ def prune(doc, today=None):
     today = day_of() if today is None else today
     cutoff = today - WINDOW_DAYS
     book = doc.get("nodes") or {}
-    dead = [k for k, r in book.items() if r.get("last", today) < cutoff]
+    dead = [k for k, r in book.items()
+            if _known_day(r.get("last")) and r["last"] < cutoff]
     for k in dead:
         book.pop(k, None)
     doc["window_days"] = WINDOW_DAYS
@@ -273,6 +289,32 @@ def stability(rec):
 
 # ── 日级趋势 ──────────────────────────────────────────────────────────────────
 
+def _trend_p50_add(row, ms_list):
+    """把本轮成功延迟并入当前日的频次表，并重算合并样本的偏小中位数。"""
+    counts = {}
+    for pair in row.get("ms_hist") or []:
+        try:
+            value, count = pair
+        except (TypeError, ValueError):
+            continue
+        if (isinstance(value, (int, float))
+                and isinstance(count, int) and not isinstance(count, bool)
+                and count > 0):
+            counts[value] = counts.get(value, 0) + count
+    for value in ms_list:
+        if isinstance(value, (int, float)):
+            counts[value] = counts.get(value, 0) + 1
+    if not counts:
+        return
+    row["ms_hist"] = [[value, counts[value]] for value in sorted(counts)]
+    middle = (sum(counts.values()) - 1) // 2
+    for value in sorted(counts):
+        middle -= counts[value]
+        if middle < 0:
+            row["p50"] = value
+            break
+
+
 def trend_add(tdoc, tested, ok, ms_list=None, new=0, gone=0, by_proto=None,
               today=None):
     """把本轮结果并入当天的行。
@@ -280,14 +322,20 @@ def trend_add(tdoc, tested, ok, ms_list=None, new=0, gone=0, by_proto=None,
     一天可能跑 8 轮，每轮抽不同的 1,200 条。日级取**累计**而不是最后一轮：
     最后一轮只是 1,200 条的截面，拿它当「今天的可用率」会把 8 倍的样本扔掉。
     累计口径下，日可用率 = 当天所有轮次样本的加权平均，对抽样是无偏的。
+    日 P50 同样是当天所有成功延迟样本合并后的中位数，而不是最后一轮或各轮 P50 的中位数。
+    频次表只保留当前日；旧版只有 P50、没有原始样本的行无法精确合并，因此保持原值。
     """
     today = day_of() if today is None else today
     d = (datetime(1970, 1, 1) + timedelta(days=today)).strftime("%Y-%m-%d")
     days = tdoc.setdefault("days", [])
+    # 日切后保留最终 P50，释放已结束日期的中间样本摘要。
+    for old_row in days:
+        if old_row.get("d") != d:
+            old_row.pop("ms_hist", None)
     row = next((r for r in days if r.get("d") == d), None)
     if row is None:
         row = {"d": d, "rounds": 0, "tested": 0, "ok": 0, "new": 0, "gone": 0,
-               "p50": None, "by_proto": {}}
+               "p50": None, "ms_hist": [], "by_proto": {}}
         days.append(row)
     row["rounds"] = int(row.get("rounds") or 0) + 1
     row["tested"] = int(row.get("tested") or 0) + int(tested or 0)
@@ -295,8 +343,10 @@ def trend_add(tdoc, tested, ok, ms_list=None, new=0, gone=0, by_proto=None,
     row["new"] = int(row.get("new") or 0) + int(new or 0)
     # gone 是「当天已消失」的截面数，不是累加量：8 轮累加会把同一个节点算 8 次
     row["gone"] = max(int(row.get("gone") or 0), int(gone or 0))
-    if ms_list:
-        row["p50"] = _median(ms_list)
+    if ms_list and ("ms_hist" in row or row.get("p50") is None):
+        # 有 P50 但无频次表的是旧版正式历史，无法从一个中位数还原样本分布。
+        row.setdefault("ms_hist", [])
+        _trend_p50_add(row, ms_list)
     for p, (t, o) in (by_proto or {}).items():
         cur = row.setdefault("by_proto", {}).setdefault(p, {"tested": 0, "ok": 0})
         cur["tested"] += int(t)
@@ -334,12 +384,12 @@ def migrate_legacy(doc=None):
     """
     doc = doc if doc is not None else load()
     try:
-        old = json.load(open(LEGACY, encoding="utf-8"))
+        with open(LEGACY, encoding="utf-8") as f:
+            old = json.load(f)
     except Exception:
         return doc, 0
     src = old.get("nodes") or {}
     book = doc.setdefault("nodes", {})
-    today = day_of()
     n = 0
     for fp, rec in src.items():
         k = _key(fp)
@@ -349,14 +399,15 @@ def migrate_legacy(doc=None):
         ok_run = int(rec.get("ok_streak") or 0)
         fail_run = int(rec.get("fail_streak") or 0)
         last_ok = bool(rec.get("last_ok")) or ok_run > 0
-        # 旧记录没有日期。用「今天」占位并标 migrated，避免被当成 30 天内的新鲜数据。
-        # 这样它会在窗口期满后被正常裁掉，而不是永远留在文件里。
-        row = _blank(today)
+        # 旧记录没有日期；保持 unknown，不制造近期成功或检测日期。
+        # 累计计数保留，真实首次观测时再建立可验证的日期边界。
+        row = _blank(None)
         row.update({
             "tries": checked, "hits": max(ok_run, 1 if last_ok else 0),
             "ok_run": ok_run, "fail_run": fail_run,
-            "last_ok": today if last_ok else None,
+            "last_ok": None,
             "migrated": True,
+            "observed_since_migration": False,
         })
         book[k] = row
         n += 1
@@ -390,6 +441,8 @@ def _compact(rec):
         out["bps"] = list(rec["bps"])
     if rec.get("migrated"):
         out["migrated"] = True
+        out["observed_since_migration"] = bool(
+            rec.get("observed_since_migration"))
     return out
 
 def _force():

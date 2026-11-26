@@ -30,6 +30,7 @@ import os
 import re
 import sys
 from datetime import datetime, timedelta, timezone
+import netsafe
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, "data")
@@ -108,7 +109,8 @@ def norm_ts(value, year_hint=None):
 def embedded_updated():
     """页面内嵌 DATA 里声明的 updated。"""
     try:
-        html = open(os.path.join(BASE, "index.html"), encoding="utf-8").read()
+        with open(os.path.join(BASE, "index.html"), encoding="utf-8") as f:
+            html = f.read()
     except OSError:
         return None
     m = re.search(r"const DATA = (\{.*?\});\s*\n", html, re.S)
@@ -227,17 +229,42 @@ def verify(m, expect_missing=False):
     errs = []
     if m.get("schema_version") != SCHEMA_VERSION:
         errs.append(f"schema_version={m.get('schema_version')}，应为 {SCHEMA_VERSION}")
+    artifacts = m.get("artifacts")
+    if not isinstance(artifacts, dict):
+        errs.append("manifest.artifacts 必须是对象")
+        artifacts = {}
+    expected_paths = {key: rel for key, rel, _ in ARTIFACTS}
+    missing_keys = set(expected_paths) - set(artifacts)
+    extra_keys = set(artifacts) - set(expected_paths)
+    if missing_keys:
+        errs.append("manifest 缺少必需 artifact：" + ", ".join(sorted(missing_keys)))
+    if extra_keys:
+        errs.append("manifest 含未知 artifact 键：" + ", ".join(sorted(extra_keys)))
     cur = build()
     # 只比 sha256 与计数，generated_at 每次都变，不参与比对。
-    for key, meta in (m.get("artifacts") or {}).items():
+    for key, rel, _ in ARTIFACTS:
+        meta = artifacts.get(key)
+        if not isinstance(meta, dict):
+            if key in artifacts:
+                errs.append(f"manifest artifact {key} 元数据必须是对象")
+            continue
+        if meta.get("path") != rel:
+            errs.append(f"manifest artifact {key} 的 path 应为 {rel}")
         now = (cur.get("artifacts") or {}).get(key) or {}
-        if meta.get("sha256") != now.get("sha256"):
-            errs.append(f"{meta.get('path', key)} 的 sha256 与磁盘不一致（产物被改过或未重新生成 manifest）")
+        if meta.get("missing") is True:
+            if not expect_missing:
+                errs.append(f"manifest 记录了缺失产物：{key}")
+            elif not now.get("missing"):
+                errs.append(f"manifest 将现存产物标记为缺失：{key}")
+            continue
+        digest = meta.get("sha256")
+        if (not isinstance(digest, str)
+                or re.fullmatch(r"[0-9a-f]{64}", digest) is None):
+            errs.append(f"manifest artifact {key} 的 sha256 缺失或格式无效")
+        elif digest != now.get("sha256"):
+            errs.append(f"{rel} 的 sha256 与磁盘不一致（产物被改过或未重新生成 manifest）")
     if (m.get("counts") or {}) != (cur.get("counts") or {}):
         errs.append("counts 与磁盘产物不一致")
-    missing = [k for k, v in (m.get("artifacts") or {}).items() if v.get("missing")]
-    if missing and not expect_missing:
-        errs.append("manifest 记录了缺失产物：" + ", ".join(missing))
     # P23：manifest 必须带同轮构建证明。缺 pipeline、阶段不全、或当前台账
     # 校验失败，都说明这轮产物不是「所有阶段都成功执行」得来的。
     pipe = m.get("pipeline") or {}
@@ -349,8 +376,7 @@ def main():
         print(f"build_id={m['build_id']}  产物 {len(m['artifacts'])} 个  "
               f"节点 {m['counts']['nodes_total']}  真实可用 {m['counts']['real_ok']}")
         return 0
-    with open(MANIFEST, "w", encoding="utf-8") as f:
-        json.dump(m, f, ensure_ascii=False, indent=2)
+    netsafe.write_atomic(MANIFEST, json.dumps(m, ensure_ascii=False, indent=2))
     print(f"写入 {os.path.relpath(MANIFEST, BASE)}：build_id={m['build_id']}")
     print(f"  {len(m['artifacts'])} 个产物  节点 {m['counts']['nodes_total']}  "
           f"实测 {m['counts']['tested']}  真实可用 {m['counts']['real_ok']}"
