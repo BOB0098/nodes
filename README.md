@@ -245,8 +245,8 @@ python3 drill_publish.py            # 发布失败回滚演练：注入坏产物
 
 ```bash
 python3 -m pip install -r requirements.txt   # 首次需装 PyYAML
-bash verify.sh                                # 核心 selftest、发布门禁、演练、YAML 与 JS 检查
-bash verify.sh --quick                        # 只跑秒级自测，跳过演练
+bash verify.sh                                # 核心 selftest、P24 回归、隐私/一致性门禁、发布演练、全部 workflow YAML 与页面 JS
+bash verify.sh --quick                        # 跳过发布演练及扩展检查
 ```
 
 数据回滚不用记 git 命令：
@@ -322,7 +322,7 @@ python3 governance.py --selftest # 重复源、恶意 URL、超大响应、故�
 python3 picks.py                # 四类优选榜单（稳定/低延迟/高速/综合）
 python3 export_subs.py          # 生成各格式订阅并逐个反解校验
 python3 build_manifest.py --selftest  # 统一清单自测（时间规范化/哈希/可复现）
-bash verify.sh                        # P22 一键验证：全部自测+门禁+演练，干净 clone 可复现
+bash verify.sh                        # P24 一键验证：核心回归、自测、门禁、演练、workflow YAML 与页面 JS
 python3 audit_privacy.py              # 公开产物脱敏审计（data/*.json 与页面不许有凭据）
 python3 build_manifest.py --write     # 生成统一构建清单
 python3 check_consistency.py          # 发布门禁（同轮/哈希/数量异常下降）
