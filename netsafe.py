@@ -38,6 +38,7 @@ str 就是 URL），而订阅 URL 的 query 里常放 token。`mask_url` / `mask
 
 import contextlib
 import errno
+import http.client
 import ipaddress
 import os
 import re
@@ -93,22 +94,22 @@ def _remaining_seconds(deadline, total_timeout=TOTAL_TIMEOUT):
 def _banned(ip):
     """这个地址是否禁止访问。
 
-    `is_private` 在 Python 3.11 里已经覆盖 10/8、172.16/12、192.168/16、
-    100.64/10（CGNAT）和 IPv6 的 fc00::/7，但没覆盖 169.254/16 的
-    全部语义（link_local 单独判）和 0.0.0.0，所以逐项列出来。
+    必须显式要求 is_global：共享地址段 100.64/10 在 Python 中既不是
+    private 也不是 global。其余条件继续保留，明确拒绝特殊用途地址。
     """
     a = ipaddress.ip_address(ip)
     if isinstance(a, ipaddress.IPv6Address) and a.ipv4_mapped:
         a = a.ipv4_mapped          # ::ffff:127.0.0.1 就是 127.0.0.1
-    return (a.is_private or a.is_loopback or a.is_link_local
+    return (not a.is_global or a.is_private or a.is_loopback or a.is_link_local
             or a.is_multicast or a.is_reserved or a.is_unspecified)
 
 
 def check_url(url, allow_ports=ALLOW_PORTS, deadline=None,
               total_timeout=TOTAL_TIMEOUT):
-    """校验一个 URL 是否可以访问。不满足就抛 Blocked / Unresolvable。
+    """校验 URL 并返回本次请求可连接的公网 IP；不满足则抛拒绝/解析异常。
 
-    只做检查，不发请求。重定向处理器会对每一跳再调一次。
+    解析结果随后直接交给连接层，避免传输层再次解析原域名。重定向处理器
+    会对每一跳重新校验并把该跳的结果附到新请求上。
     """
     _remaining_seconds(deadline, total_timeout)
     if not isinstance(url, str) or not url:
@@ -135,7 +136,8 @@ def check_url(url, allow_ports=ALLOW_PORTS, deadline=None,
         port = p.port
     except ValueError:
         raise Blocked("端口不是数字")
-    port = port or (443 if p.scheme == "https" else 80)
+    if port is None:
+        port = 443 if p.scheme == "https" else 80
     if port not in allow_ports:
         raise Blocked(f"端口 {port} 不在允许范围 {sorted(allow_ports)}")
 
@@ -148,7 +150,7 @@ def check_url(url, allow_ports=ALLOW_PORTS, deadline=None,
         if _banned(host):
             raise Blocked(f"目标是非公网地址：{host}")
         _remaining_seconds(deadline, total_timeout)
-        return
+        return (host,)
 
     # 域名：解析后逐个比对。全部必须公网。
     # getaddrinfo 会把 hosts 文件、DNS、甚至 systemd-resolved 的结果都算进来，
@@ -160,12 +162,149 @@ def check_url(url, allow_ports=ALLOW_PORTS, deadline=None,
         _remaining_seconds(deadline, total_timeout)
         raise Unresolvable(f"解析不了 {host}：{e}")
     _remaining_seconds(deadline, total_timeout)
-    addrs = {i[4][0] for i in infos}
+    addrs = tuple(dict.fromkeys(i[4][0] for i in infos))
     if not addrs:
         raise Unresolvable(f"{host} 没有解析结果")
     for a in addrs:
         if _banned(a):
             raise Blocked(f"{host} 解析到非公网地址 {a}")
+    return addrs
+
+
+def _require_direct_route(url):
+    """拒绝不能证明目标 IP 固定的代理路径。代理 bypass 后才允许直连。"""
+    try:
+        parts = urllib.parse.urlsplit(url)
+        host = parts.hostname
+        proxies = urllib.request.getproxies()
+        proxy = (proxies.get(parts.scheme.lower()) or proxies.get("all")
+                 if isinstance(proxies, dict) else None)
+        if proxy and not urllib.request.proxy_bypass(host or ""):
+            raise Blocked("配置的代理无法保证连接到已校验 IP，已拒绝请求")
+    except Blocked:
+        raise
+    except Exception as exc:
+        raise Blocked("无法确认请求是否会经过代理，已拒绝请求") from exc
+
+
+def _request_ips(req):
+    ips = tuple(getattr(req, "_netsafe_ips", ()) or ())
+    if not ips:
+        raise Blocked("请求缺少已校验的固定 IP")
+    return ips
+
+
+class _PinnedHTTPConnection(http.client.HTTPConnection):
+    """HTTP 连接只尝试已校验 IP，同时保留原始 host 供 Host 头使用。"""
+
+    def __init__(self, host, *args, pinned_ips=(), deadline=None,
+                 total_timeout=TOTAL_TIMEOUT, **kwargs):
+        super().__init__(host, *args, **kwargs)
+        self._pinned_ips = tuple(pinned_ips)
+        self._deadline = deadline
+        self._total_timeout = total_timeout
+        if not self._pinned_ips:
+            raise Blocked("HTTP 连接缺少已校验的固定 IP")
+
+    def connect(self):
+        if self._tunnel_host:
+            raise Blocked("代理隧道无法保证固定目标 IP，已拒绝请求")
+        last_error = None
+        for ip in self._pinned_ips:
+            remaining = _remaining_seconds(self._deadline, self._total_timeout)
+            timeout = self.timeout if remaining is None else (
+                remaining if self.timeout is None else min(self.timeout, remaining))
+            try:
+                sock = socket.create_connection((ip, self.port), timeout,
+                                                self.source_address)
+            except (OSError, socket.timeout) as exc:
+                last_error = exc
+                continue
+            try:
+                _remaining_seconds(self._deadline, self._total_timeout)
+            except BaseException:
+                with contextlib.suppress(OSError):
+                    sock.close()
+                raise
+            self.sock = sock
+            return
+        if last_error is not None:
+            raise last_error
+        raise OSError("没有可连接的已校验 IP")
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """连接到已校验 IP，但以原始域名执行 TLS SNI 与证书主机名校验。"""
+
+    def __init__(self, host, *args, pinned_ips=(), deadline=None,
+                 total_timeout=TOTAL_TIMEOUT, **kwargs):
+        super().__init__(host, *args, **kwargs)
+        self._pinned_ips = tuple(pinned_ips)
+        self._deadline = deadline
+        self._total_timeout = total_timeout
+        if not self._pinned_ips:
+            raise Blocked("HTTPS 连接缺少已校验的固定 IP")
+
+    def connect(self):
+        if self._tunnel_host:
+            raise Blocked("代理隧道无法保证固定目标 IP，已拒绝请求")
+        last_error = None
+        for ip in self._pinned_ips:
+            remaining = _remaining_seconds(self._deadline, self._total_timeout)
+            timeout = self.timeout if remaining is None else (
+                remaining if self.timeout is None else min(self.timeout, remaining))
+            try:
+                raw = socket.create_connection((ip, self.port), timeout,
+                                               self.source_address)
+            except (OSError, socket.timeout) as exc:
+                last_error = exc
+                continue
+            wrapped = None
+            try:
+                wrapped = self._context.wrap_socket(raw, server_hostname=self.host)
+                self.sock = wrapped
+                _remaining_seconds(self._deadline, self._total_timeout)
+                return
+            except (OSError, socket.timeout) as exc:
+                if wrapped is not None:
+                    with contextlib.suppress(OSError):
+                        wrapped.close()
+                with contextlib.suppress(OSError):
+                    raw.close()
+                self.sock = None
+                last_error = exc
+                continue
+            except BaseException:
+                if wrapped is not None:
+                    with contextlib.suppress(OSError):
+                        wrapped.close()
+                with contextlib.suppress(OSError):
+                    raw.close()
+                self.sock = None
+                raise
+        if last_error is not None:
+            raise last_error
+        raise OSError("没有可连接的已校验 IP")
+
+
+class _PinnedHTTPHandler(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        ips = _request_ips(req)
+        factory = lambda host, **kwargs: _PinnedHTTPConnection(
+            host, pinned_ips=ips, deadline=getattr(req, "_netsafe_deadline", None),
+            total_timeout=getattr(req, "_netsafe_total_timeout", TOTAL_TIMEOUT),
+            **kwargs)
+        return self.do_open(factory, req)
+
+
+class _PinnedHTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        ips = _request_ips(req)
+        factory = lambda host, **kwargs: _PinnedHTTPSConnection(
+            host, pinned_ips=ips, deadline=getattr(req, "_netsafe_deadline", None),
+            total_timeout=getattr(req, "_netsafe_total_timeout", TOTAL_TIMEOUT),
+            **kwargs)
+        return self.do_open(factory, req, context=self._context)
 
 
 class _SafeRedirect(urllib.request.HTTPRedirectHandler):
@@ -180,19 +319,22 @@ class _SafeRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         deadline = getattr(req, "_netsafe_deadline", None) if req is not None else None
         total_timeout = getattr(req, "_netsafe_total_timeout", TOTAL_TIMEOUT)
+        _require_direct_route(newurl)
         if deadline is None:
-            check_url(newurl)
+            ips = check_url(newurl)
         else:
             _remaining_seconds(deadline, total_timeout)
-            check_url(newurl, deadline=deadline, total_timeout=total_timeout)
+            ips = check_url(newurl, deadline=deadline, total_timeout=total_timeout)
         new = super().redirect_request(req, fp, code, msg, headers, newurl)
-        if new is not None and deadline is not None:
-            remaining = _remaining_seconds(deadline, total_timeout)
-            connect_timeout = getattr(req, "_netsafe_connect_timeout", CONNECT_TIMEOUT)
-            req.timeout = min(connect_timeout, remaining)
-            new._netsafe_deadline = deadline
-            new._netsafe_total_timeout = total_timeout
-            new._netsafe_connect_timeout = connect_timeout
+        if new is not None:
+            new._netsafe_ips = ips
+            if deadline is not None:
+                remaining = _remaining_seconds(deadline, total_timeout)
+                connect_timeout = getattr(req, "_netsafe_connect_timeout", CONNECT_TIMEOUT)
+                req.timeout = min(connect_timeout, remaining)
+                new._netsafe_deadline = deadline
+                new._netsafe_total_timeout = total_timeout
+                new._netsafe_connect_timeout = connect_timeout
         return new
 
     def http_error_302(self, req, fp, code, msg, headers):
@@ -246,22 +388,18 @@ class _SafeRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def _opener():
-    """只含 HTTP/HTTPS 的 opener。
+    """只含直连的固定 IP HTTP/HTTPS handler。
 
     不能用 `build_opener()` 然后指望它别带 FileHandler——默认 opener 里
-    FileHandler 和 FTPHandler 是存在的。手工组装能明确表达「就这两个协议」。
+    FileHandler、FTPHandler 和代理处理器都可能改变请求路径。手工组装并在
+    请求前检查代理环境，明确表达「只对已校验 IP 直连」。
     """
-    ctx = None
-    try:
-        import ssl
-        ctx = ssl.create_default_context()
-    except Exception:
-        pass
+    import ssl
+    ctx = ssl.create_default_context()
     o = urllib.request.OpenerDirector()
-    for h in (urllib.request.ProxyHandler(),        # 沿用环境变量里的代理设置
-              urllib.request.UnknownHandler(),
-              urllib.request.HTTPHandler(),
-              urllib.request.HTTPSHandler(context=ctx),
+    for h in (urllib.request.UnknownHandler(),
+              _PinnedHTTPHandler(),
+              _PinnedHTTPSHandler(context=ctx),
               urllib.request.HTTPDefaultErrorHandler(),
               _SafeRedirect(),
               urllib.request.HTTPErrorProcessor()):
@@ -394,11 +532,13 @@ def open_response(url, method="GET", timeout=CONNECT_TIMEOUT,
     """打开受同一 deadline 约束的 HTTP 响应；调用方负责在 with 中读取。"""
     deadline = time.monotonic() + total_timeout
     remaining = _remaining_seconds(deadline, total_timeout)
-    check_url(url, deadline=deadline, total_timeout=total_timeout)
+    _require_direct_route(url)
+    ips = check_url(url, deadline=deadline, total_timeout=total_timeout)
     remaining = _remaining_seconds(deadline, total_timeout)
     hdr = {"User-Agent": "Mozilla/5.0 v2rayN/6.0"}
     hdr.update(headers or {})
     req = urllib.request.Request(url, headers=hdr, method=method)
+    req._netsafe_ips = ips
     req._netsafe_deadline = deadline
     req._netsafe_total_timeout = total_timeout
     req._netsafe_connect_timeout = timeout
