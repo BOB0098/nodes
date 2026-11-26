@@ -160,7 +160,26 @@ def check():
             continue
         if rec.get("run_id") != rid:
             errs.append(f"阶段 {key} 的 run_id 与本轮不一致（跨轮产物）")
-        for rel, h in (rec.get("artifacts") or {}).items():
+        artifacts = rec.get("artifacts")
+        if not isinstance(artifacts, dict):
+            errs.append(f"阶段 {key} 的 artifacts 不是对象")
+            artifacts = {}
+        expected = set(STAGE_FILES[key])
+        actual = set(artifacts)
+        missing = expected - actual
+        extra = actual - expected
+        if missing:
+            errs.append(f"阶段 {key} 缺少必需产物：" + ", ".join(sorted(missing)))
+        if extra:
+            errs.append(f"阶段 {key} 含未知产物键：" + ", ".join(sorted(extra)))
+        for rel in STAGE_FILES[key]:
+            if rel not in artifacts:
+                continue
+            h = artifacts[rel]
+            if (not isinstance(h, str) or len(h) != 64
+                    or any(ch not in "0123456789abcdef" for ch in h)):
+                errs.append(f"阶段 {key} 的产物 SHA256 无效：{rel}")
+                continue
             path = os.path.join(BASE, rel)
             if not os.path.isfile(path):
                 errs.append(f"阶段 {key} 的产物缺失：{rel}")

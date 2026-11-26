@@ -124,13 +124,25 @@ def main():
     subs = load(os.path.join(DATA, "subscriptions.json"))
     page = embedded(os.path.join(BASE, "index.html"))
     mf = load(MANIFEST)
-    has_manifest = "__error__" not in mf and mf.get("schema_version") == SCHEMA_VERSION
+    manifest_exists = os.path.exists(MANIFEST)
+    manifest_loaded = isinstance(mf, dict) and "__error__" not in mf
+    manifest_schema = mf.get("schema_version") if manifest_loaded else None
+    has_manifest = manifest_loaded and manifest_schema == SCHEMA_VERSION
+    legacy_manifest = (not manifest_exists or
+                       (manifest_loaded and manifest_schema == 1))
+    if manifest_exists and not has_manifest and not legacy_manifest:
+        detail = (mf.get("__error__") if isinstance(mf, dict) else None)
+        if not detail:
+            detail = f"不支持 schema_version={manifest_schema!r} 或 manifest 根节点无效"
+        bad("build_manifest.json 无效：" + str(detail))
 
     if "__error__" in nodes:
         bad("data/nodes.json 读不出来：" + nodes["__error__"])
         return 1
 
-    print("一致性检查" + ("（manifest 硬校验）" if has_manifest else "（无 manifest，旧口径）"))
+    mode = ("manifest 硬校验" if has_manifest else
+            "历史兼容旧口径" if legacy_manifest else "manifest 无效")
+    print(f"一致性检查（{mode}）")
 
     # 1. 节点数组长度
     n = len(nodes.get("nodes") or [])
@@ -277,8 +289,8 @@ def main():
                 else:
                     ok(f"同轮构建证明通过：run_id={pipe.get('run_id')}，"
                        f"{pipe.get('stage_count')}/{len(run_ledger.STAGE_KEYS)} 个阶段成功")
-    else:
-        warn("无 manifest，跳过同轮构建证明检查")
+    elif legacy_manifest:
+        warn("无 manifest 或历史 schema=1，跳过同轮构建证明检查")
 
     # 9. 节点数量异常下降（P22）：上游改格式/被封时，最常见的事故不是
     #    数据错，而是数据「少了但看起来正常」。只比同一口径的入库条数，
@@ -299,28 +311,48 @@ def main():
             ok(f"节点数量正常：上一版 {prev} → 本轮 {n}（{sign}{delta}，保留 {keep:.0%}）")
 
     # 8. build manifest 硬校验（P20）
-    if not has_manifest:
-        warn("没有 build_manifest.json，跳过产物哈希校验（CI 应先跑 build_manifest.py）")
-    else:
+    if legacy_manifest:
+        warn("无 manifest 或历史 schema=1，跳过产物哈希校验（CI 应先跑 build_manifest.py）")
+    elif has_manifest:
         # 8a. 逐产物 sha256——任何一个被单独改过就拦下发布
-        bad_hash = []
+        artifact_errors = []
         checked = 0
-        for key, meta in (mf.get("artifacts") or {}).items():
-            rel = meta.get("path")
+        artifacts = mf.get("artifacts")
+        if not isinstance(artifacts, dict):
+            artifact_errors.append("manifest.artifacts 必须是对象")
+            artifacts = {}
+        expected_paths = {key: rel for key, rel, _ in ARTIFACTS}
+        missing_keys = set(expected_paths) - set(artifacts)
+        extra_keys = set(artifacts) - set(expected_paths)
+        if missing_keys:
+            artifact_errors.append("缺少必需 artifact：" + ", ".join(sorted(missing_keys)))
+        if extra_keys:
+            artifact_errors.append("包含未知 artifact 键：" + ", ".join(sorted(extra_keys)))
+        for key, rel, _ in ARTIFACTS:
+            meta = artifacts.get(key)
+            if not isinstance(meta, dict):
+                if key in artifacts:
+                    artifact_errors.append(f"{key} 元数据必须是对象")
+                continue
+            if meta.get("path") != rel:
+                artifact_errors.append(f"{key} 的 path 应为 {rel}")
+                continue
             expected = meta.get("sha256")
-            if not rel or not expected:
+            if (not isinstance(expected, str)
+                    or re.fullmatch(r"[0-9a-f]{64}", expected) is None):
+                artifact_errors.append(f"{rel} 的 sha256 缺失或格式无效")
                 continue
             path = os.path.join(BASE, rel)
             if not os.path.isfile(path):
-                bad_hash.append(f"{rel} 文件缺失")
+                artifact_errors.append(f"{rel} 文件缺失")
                 continue
             if sha256_file(path) != expected:
-                bad_hash.append(f"{rel} 已被改动（与 manifest 哈希不符）")
+                artifact_errors.append(f"{rel} 已被改动（与 manifest 哈希不符）")
             checked += 1
-        if bad_hash:
-            bad("manifest 产物校验失败：" + "；".join(bad_hash))
+        if artifact_errors:
+            bad("manifest artifact 校验失败：" + "；".join(artifact_errors))
         else:
-            ok(f"manifest 覆盖的 {checked} 个产物 sha256 全部吻合")
+            ok(f"manifest 覆盖必需的 {checked} 个产物 sha256 全部吻合")
 
         # 8b. manifest 计数与磁盘一致
         c = mf.get("counts") or {}
