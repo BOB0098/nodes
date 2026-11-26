@@ -158,7 +158,7 @@ header{padding:20px 2px 10px}
 /* ── 底部导航 ── */
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:40;
-  display:grid;grid-template-columns:repeat(4,1fr);
+  display:grid;grid-template-columns:repeat(2,1fr);
   background:var(--surface); /* 回退：旧微信/Safari 不支持 color-mix 时用纯色 */
   background:color-mix(in srgb,var(--surface) 90%,transparent);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
@@ -228,7 +228,7 @@ header{padding:20px 2px 10px}
 .dm-row .v.sub{font-weight:500;color:var(--d-ink-2);font-size:12px}
 .dm-note{font-size:12px;color:var(--d-ink-2);line-height:1.6;margin:12px 2px 4px}
 .dm-warn{background:rgba(217,149,75,.12);border:1px solid rgba(217,149,75,.3);color:var(--warn-ink);border-radius:10px;padding:8px 12px;font-size:12px;margin:10px 2px}
-.dm-acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 18px calc(16px + env(safe-area-inset-bottom,0px));position:sticky;bottom:0;background:var(--d-bg)}
+.dm-acts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:12px 18px calc(16px + env(safe-area-inset-bottom,0px));position:sticky;bottom:0;background:var(--d-bg)}
 .dm-btn{
   min-height:44px;border-radius:var(--r-sub);border:1px solid transparent;
   background:var(--d-btn);color:var(--d-btn-ink);font-size:13px;font-weight:650;
@@ -240,6 +240,7 @@ header{padding:20px 2px 10px}
 
 /* ── 二维码弹层 ── */
 .qr-sheet{
+  position:relative;
   width:100%;max-width:340px;background:var(--d-bg);color:var(--d-ink);
   border-radius:18px;border:1px solid var(--d-line);padding:20px;text-align:center;
   transform:translateY(12px) scale(.98);transition:transform .3s var(--e-out);
@@ -257,22 +258,12 @@ header{padding:20px 2px 10px}
 .sec-card p{font-size:13px;color:var(--ink-2);margin:0 0 8px;line-height:1.7}
 .sec-card p:last-child{margin-bottom:0}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stat{border:1px solid var(--line);border-radius:var(--r-sub);padding:10px 12px;background:var(--surface-2)}
-.stat b{display:block;font-size:17px;font-weight:700}
-.stat span{font-size:11px;color:var(--ink-2)}
-.chip{display:inline-block;font-size:11px;padding:3px 9px;border-radius:7px;background:var(--accent-soft);color:var(--accent);margin:0 6px 6px 0}
-.rank-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
-.rank-row:last-child{border-bottom:0}
-.rank-row .n{width:20px;height:20px;border-radius:6px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
-.rank-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank-row .vl{color:var(--ink-2);font-size:12px;flex:none}
 .step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .step:last-child{border-bottom:0}
 .step .i{width:24px;height:24px;border-radius:8px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
 .step b{font-size:13px}
 .step p{font-size:12px;color:var(--ink-2);margin:2px 0 0}
 .page-h{font-size:18px;font-weight:750;margin:2px 0 14px}
-.data-note{font-size:11px;color:var(--ink-2);margin-top:8px;font-style:normal}
 .foot-disc{font-size:11px;color:var(--ink-2);text-align:center;line-height:1.7;padding:14px 6px 8px}
 
 /* ── 动效 ── */
@@ -336,25 +327,13 @@ header{padding:20px 2px 10px}
   <p class="foot-disc">本站仅收录第三方公开发布的订阅链接，不生产节点、不改写原始链接。<br>请遵守当地法律法规，违规使用后果自负。</p>
 </main>
 
-<!-- ═══════════ 数据中心 ═══════════ -->
-<main class="page wrap" id="page-data" hidden>
-  <h2 class="page-h">数据中心</h2>
-  <div id="dataContent">
-    <div class="sec-card"><h2>真实检测</h2><div class="grid-2" id="dcReal"></div><p class="data-note" id="dcChecked"></p></div>
-    <div class="sec-card"><h2>来源评分与节点</h2><div class="grid-2" id="dcScore"></div></div>
-    <div class="sec-card"><h2>质量分布</h2><div id="dcDist"></div></div>
-    <div class="sec-card"><h2>来源治理</h2><div id="dcGov"></div></div>
-    <div class="sec-card"><h2>四类优选榜单</h2><div id="dcPicks"></div><p class="data-note" id="dcPickNote"></p></div>
-  </div>
-</main>
-
 <!-- ═══════════ 使用指南 ═══════════ -->
 <main class="page wrap" id="page-guide" hidden>
   <h2 class="page-h">使用指南</h2>
   <div class="sec-card">
     <h2>三步开始</h2>
-    <div class="step"><span class="i">1</span><div><b>复制订阅链接</b><p>首页找到来源条目，点「复制」按钮，或打开详情复制。</p></div></div>
-    <div class="step"><span class="i">2</span><div><b>导入客户端</b><p>客户端的「配置 / 订阅」页 → 点 + → 从剪贴板导入；或在详情里用二维码扫码导入。</p></div></div>
+    <div class="step"><span class="i">1</span><div><b>复制订阅链接</b><p>首页找到来源条目，点右侧「复制」按钮即可。</p></div></div>
+    <div class="step"><span class="i">2</span><div><b>导入客户端</b><p>客户端的「配置 / 订阅」页 → 点 + → 从剪贴板导入；或点条目右侧二维码图标扫码导入。</p></div></div>
     <div class="step"><span class="i">3</span><div><b>更新并连接</b><p>点这条配置的「更新」→ 选中节点 → 打开代理开关。</p></div></div>
   </div>
   <div class="sec-card">
@@ -366,39 +345,17 @@ header{padding:20px 2px 10px}
   </div>
   <div class="sec-card">
     <h2>常见问题</h2>
-    <p><b>复制后客户端提示导入失败？</b>先确认客户端协议与分组一致，再从详情复制完整原始链接重试。</p>
+    <p><b>复制后客户端提示导入失败？</b>先确认客户端协议与分组一致，再点复制按钮获取完整原始链接重试。</p>
     <p><b>真实可用率是什么意思？</b>节点经 mihomo 真实握手、拿到 204 响应才算可用，比端口可连更严格，因此数值偏低属正常。</p>
     <p><b>为什么有的源节点很多但可用很少？</b>免费源常含大量失效或被转发的旧节点，本站按真实握手统计，帮助判断实际可用性。</p>
     <p><b>二维码扫不出来？</b>链接过长时二维码可能放不下，请用「复制订阅链接」代替。</p>
   </div>
 </main>
 
-<!-- ═══════════ 关于 ═══════════ -->
-<main class="page wrap" id="page-about" hidden>
-  <h2 class="page-h">关于</h2>
-  <div class="sec-card">
-    <h2>项目介绍</h2>
-    <p>Nodes 是一个免费节点订阅索引站，收录第三方公开发布的订阅链接，按 Clash / V2Ray / sing-box 三类分组展示，并用真实握手检测标注可用率。</p>
-    <p>数据更新 <b id="aboutUpd">—</b>。</p>
-  </div>
-  <div class="sec-card">
-    <h2>数据来源与检测</h2>
-    <p>来源登记于 sources.yaml，由采集程序每日自动更新，仅收录公开订阅。节点检测使用 mihomo 真实出网握手（拿到 204 才算可用），并单独统计端口连通情况。</p>
-    <p>来源评分基于真实可用率、样本量与稳定性；样本不足时标注「样本不足」，不显示稳定标签。历史趋势按实际跟踪天数展示，不足时明确说明，不伪造曲线。</p>
-  </div>
-  <div class="sec-card">
-    <h2>免责声明</h2>
-    <p>本站不生产、不代理、不改写任何节点，仅提供公开链接的索引与检测参考。请遵守所在地区法律法规，因使用产生的任何后果由使用者自行承担。</p>
-    <p><a id="aboutRepo" href="https://github.com/BOB0098/nodes" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">GitHub 仓库 →</a></p>
-  </div>
-</main>
-
 <!-- ═══════════ 底部导航 ═══════════ -->
 <nav class="tabbar" role="navigation" aria-label="主导航">
   <button class="tab active" type="button" data-page="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>首页</button>
-  <button class="tab" type="button" data-page="data"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15v-4m4 4V8m4 7v-6"/></svg>数据中心</button>
   <button class="tab" type="button" data-page="guide"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5zM4 5.5v16"/></svg>使用指南</button>
-  <button class="tab" type="button" data-page="about"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>关于</button>
 </nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -415,7 +372,6 @@ header{padding:20px 2px 10px}
     <div class="dm-acts">
       <button class="dm-btn" id="dmCopy" type="button"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>复制订阅</button>
       <button class="dm-btn" id="dmQr" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>二维码</button>
-      <button class="dm-btn ghost" id="dmRepo" type="button"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-3 17.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.4-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-4.9 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.8-2.4 4.6-4.6 4.9.4.3.7 1 .7 2v3c0 .3.2.6.7.5A9 9 0 0 0 12 3z"/></svg>原项目</button>
     </div>
   </div>
 </div>
@@ -750,8 +706,6 @@ const PICKS = __PICKS__;
   (function overview(){
     const st = DATA.stats || {};
     document.getElementById('upd').textContent = DATA.updated || st.checked_at || '—';
-    const aboutUpd = document.getElementById('aboutUpd');
-    if (aboutUpd) aboutUpd.textContent = DATA.updated || st.checked_at || '—';
     countUp(document.getElementById('ovSrc'), st.sources ?? '—', '');
     const rt = st.real_tested, ro = st.real_ok;
     const ovReal = document.getElementById('ovReal');
@@ -804,15 +758,15 @@ const PICKS = __PICKS__;
       status.innerHTML='<i></i>'; status.appendChild(document.createTextNode(stt.txt));
       r1.appendChild(status);
       const acts=document.createElement('div'); acts.className='r-acts';
-      const detailBtn=document.createElement('button');
-      detailBtn.type='button'; detailBtn.className='rbtn'; detailBtn.setAttribute('aria-label','查看 '+d.name+' 详情');
-      detailBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>';
-      detailBtn.dataset.act='detail';
       const copyBtn=document.createElement('button');
       copyBtn.type='button'; copyBtn.className='rbtn'; copyBtn.setAttribute('aria-label','复制 '+d.name+' 订阅链接');
       copyBtn.innerHTML='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>';
       copyBtn.dataset.act='copy';
-      acts.append(detailBtn, copyBtn); r1.appendChild(acts);
+      const qrBtn=document.createElement('button');
+      qrBtn.type='button'; qrBtn.className='rbtn'; qrBtn.setAttribute('aria-label','查看 '+d.name+' 二维码');
+      qrBtn.innerHTML='<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>';
+      qrBtn.dataset.act='qr';
+      acts.append(copyBtn, qrBtn); r1.appendChild(acts);
       // 第二行：次级信息
       const r2=document.createElement('div'); r2.className='r2 num';
       const cnt = (it.count===null||it.count===undefined) ? '—' : it.count;
@@ -834,7 +788,11 @@ const PICKS = __PICKS__;
           setTimeout(()=>b.classList.remove('copied'),1200);
           return;
         }
-        if (e.target.closest('[data-act="detail"]') || !e.target.closest('button')) openDetail(it, d, cls, stt);
+        if (e.target.closest('[data-act="qr"]')) {
+          openQr(it.url, d.name+' 订阅二维码', e.target.closest('.rbtn'));
+          return;
+        }
+        if (!e.target.closest('button')) openDetail(it, d, cls, stt);
       });
       list.appendChild(row);
     });
@@ -847,7 +805,7 @@ const PICKS = __PICKS__;
   const dmOverlay=document.getElementById('dmOverlay');
   const dmTitle=document.getElementById('dmTitle'), dmSub=document.getElementById('dmSub');
   const dmBody=document.getElementById('dmBody'), dmClose=document.getElementById('dmClose');
-  const dmCopy=document.getElementById('dmCopy'), dmQr=document.getElementById('dmQr'), dmRepo=document.getElementById('dmRepo');
+  const dmCopy=document.getElementById('dmCopy'), dmQr=document.getElementById('dmQr');
   let cur=null, lastFocus=null;
 
   function row(k, vHtml, mono){
@@ -882,8 +840,6 @@ const PICKS = __PICKS__;
     dmBody.appendChild(key);
     // 次级信息：仓库 / 订阅地址 / 样本 / 直连 / 客户端 / 更新时间
     const box=document.createElement('div'); box.className='dm-card';
-    if (d.repo) box.appendChild(row('项目仓库','<a href="'+esc(d.repo)+'" target="_blank" rel="noopener">'+esc(d.repo.replace(/^https?:\/\//,''))+'</a>'));
-    else box.appendChild(row('来源类型','<span class="sub">公开订阅站点（无开源仓库）</span>'));
     box.appendChild(row('订阅地址',esc(it.url),true));
     if (pct!==null) box.appendChild(row('检测样本','<span class="num">'+(it.rok||0)+' / '+it.rtest+' 次握手可用</span>'));
     else box.appendChild(row('检测样本','<span class="sub">样本不足，暂不显示可用率</span>'));
@@ -895,7 +851,6 @@ const PICKS = __PICKS__;
     const w=document.createElement('div'); w.className='dm-warn';
     w.textContent='免费节点仅供技术学习与测试参考，稳定性与安全性无法保证；请遵守所在地区法律法规。';
     dmBody.appendChild(w);
-    dmRepo.style.display = d.repo ? '' : 'none';
     dmOverlay.hidden=false;
     requestAnimationFrame(()=>dmOverlay.classList.add('show'));
     document.documentElement.style.overflow='hidden';
@@ -912,7 +867,6 @@ const PICKS = __PICKS__;
   dmClose.addEventListener('click',closeDetail);
   dmOverlay.addEventListener('click',e=>{ if(e.target===dmOverlay) closeDetail(); });
   dmCopy.addEventListener('click',()=>{ if(cur) copyText(cur.it.url,'已复制 '+cur.d.name+' 订阅链接'); });
-  dmRepo.addEventListener('click',()=>{ if(cur&&cur.d.repo) window.open(cur.d.repo,'_blank','noopener'); });
 
   /* ── 二维码（复用 QR 编码器）── */
   const qrOverlay=document.getElementById('qrOverlay');
@@ -947,8 +901,7 @@ const PICKS = __PICKS__;
 
   /* ── 底部导航 ── */
   const tabs=document.querySelectorAll('.tab');
-  const pages={home:document.getElementById('page-home'),data:document.getElementById('page-data'),guide:document.getElementById('page-guide'),about:document.getElementById('page-about')};
-  let dataLoaded=false;
+  const pages={home:document.getElementById('page-home'),guide:document.getElementById('page-guide')};
   function go(page){
     Object.keys(pages).forEach(k=>{ pages[k].hidden = k!==page; });
     tabs.forEach(t=>{
@@ -957,79 +910,9 @@ const PICKS = __PICKS__;
       if(on) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current');
     });
     window.scrollTo({top:0,behavior:REDUCE?'auto':'smooth'});
-    if(page==='data' && !dataLoaded){ dataLoaded=true; loadDataCenter(); }
   }
   tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.page)));
 
-  /* ── 数据中心（真实数据源，缺数据不伪造）── */
-  function statBox(b, label){
-    const d=document.createElement('div'); d.className='stat';
-    const value=document.createElement('b'); value.className='num'; value.textContent=String(b);
-    const caption=document.createElement('span'); caption.textContent=String(label);
-    d.append(value,caption); return d;
-  }
-  const RANK_LABEL={stable:'稳定',lowlat:'低延迟',fast:'高速',best:'综合优选'};
-  function rankRows(el, lists, counts, basis){
-    el.replaceChildren();
-    const keys=Object.keys(lists||{});
-    if(!keys.length){ const p=document.createElement('p');p.className='data-note';p.textContent='榜单数据暂不可用';el.appendChild(p);return; }
-    keys.forEach(k=>{
-      // 兼容两种结构：值直接是数组，或 {list:[...], label:...}
-      const raw=lists[k];
-      const arr=Array.isArray(raw) ? raw : (raw&&(raw.list||raw.items)) || [];
-      const label=(basis&&basis[k]&&basis[k].title) || (!Array.isArray(raw)&&raw&&raw.label) || RANK_LABEL[k] || k;
-      const cnt=(counts&&counts[k]!==undefined)?counts[k]:arr.length;
-      const h=document.createElement('div'); h.style.cssText='font-size:12px;color:var(--ink-2);margin:10px 0 2px;font-weight:600';
-      h.textContent=label+' · '+cnt+' 条';
-      el.appendChild(h);
-      if(!arr.length){ const p=document.createElement('p');p.className='data-note';p.textContent='暂无可展示条目';el.appendChild(p);return; }
-      arr.slice(0,5).forEach((n,i)=>{
-        const row=document.createElement('div'); row.className='rank-row';
-        const nm=(n.name||n.tag||n.addr||n.host||('节点'+(i+1)));
-        let vl = (n.score!==undefined && n.score!==null) ? ('评分 '+n.score)
-               : (n.ms!==undefined && n.ms!==null ? n.ms+'ms'
-               : (n.rate!==undefined && n.rate!==null ? Math.round(n.rate*100)+'%' : (n.region||n.rg||n.proto||'')));
-        const rank=document.createElement('span'); rank.className='n'; rank.textContent=String(i+1);
-        const name=document.createElement('span'); name.className='nm'; name.textContent=String(nm);
-        const value=document.createElement('span'); value.className='vl'; value.textContent=String(vl);
-        row.append(rank,name,value);
-        el.appendChild(row);
-      });
-    });
-  }
-  function loadDataCenter(){
-    const st=DATA.stats||{};
-    const real=document.getElementById('dcReal');
-    real.appendChild(statBox(st.real_ok??'—','真实可用节点'));
-    real.appendChild(statBox(st.real_tested??'—','真实检测样本'));
-    const dcChecked=document.getElementById('dcChecked');
-    dcChecked.textContent = st.checked_at ? ('检测时间：'+st.checked_at+' · 口径：mihomo 真握手 204') : '检测时间暂不可用';
-    const score=document.getElementById('dcScore');
-    score.appendChild(statBox(st.sources??'—','来源数'));
-    score.appendChild(statBox(st.dedup??'—','去重入库节点'));
-    // 质量分布
-    const dist=document.getElementById('dcDist'); dist.replaceChildren();
-    const tags=st.tags||{};
-    Object.keys(tags).slice(0,8).forEach(k=>{ const c=document.createElement('span');c.className='chip';c.textContent=k+' '+tags[k];dist.appendChild(c); });
-    if(!dist.childNodes.length){ const p=document.createElement('p');p.className='data-note';p.textContent='质量分布数据暂不可用';dist.appendChild(p); }
-    // 来源治理
-    const gov=document.getElementById('dcGov'); gov.replaceChildren();
-    const g=GOVERNANCE;
-    if(g){
-      const dup=Array.isArray(g.duplicates)?g.duplicates.length:(g.duplicates?'—':'0');
-      const ov=Array.isArray(g.overlap)?g.overlap.length:'—';
-      gov.appendChild(statBox(dup,'同源/镜像源组'));
-      gov.appendChild(statBox(ov,'高度重合源组'));
-      gov.appendChild(statBox(g.obs_rounds??'—','观察轮次'));
-      const note=document.createElement('p'); note.className='data-note';
-      note.textContent='统计窗口 '+(g.window||'—')+' 天；地址按 sha256 存储，重合判断样本 <20 条不判。';
-      gov.appendChild(note);
-    } else { const p=document.createElement('p');p.className='data-note';p.textContent='来源治理数据暂不可用';gov.appendChild(p); }
-    // 榜单
-    rankRows(document.getElementById('dcPicks'), PICKS&&PICKS.lists, PICKS&&PICKS.counts, PICKS&&PICKS.basis);
-    const pn=document.getElementById('dcPickNote');
-    if(PICKS) pn.textContent='依据真实检测打分 · 统计窗口 '+(PICKS.window_days||'—')+' 天 · 生成于 '+(PICKS.updated||'—');
-  }
 })();
 </script>
 </body>
