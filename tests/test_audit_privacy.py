@@ -28,6 +28,102 @@ class AuditPrivacyRegressionTest(unittest.TestCase):
             code = audit_privacy.main()
         return code, output.getvalue()
 
+    def make_public_tree(self, base, *, index_kind="file"):
+        data_dir = base / "data"
+        data_dir.mkdir(parents=True)
+        (data_dir / "safe.json").write_text('{"ok": true}', encoding="utf-8")
+        if index_kind == "file":
+            (base / "index.html").write_text("safe page", encoding="utf-8")
+        elif index_kind == "directory":
+            (base / "index.html").mkdir()
+
+    def run_public_scan(self, base, opener=None):
+        output = io.StringIO()
+        argv = ["audit_privacy.py"]
+        with (
+            patch.object(audit_privacy, "BASE", str(base)),
+            patch.object(audit_privacy.sys, "argv", argv),
+            redirect_stdout(output),
+        ):
+            if opener is None:
+                code = audit_privacy.main()
+            else:
+                with patch.object(builtins, "open", side_effect=opener):
+                    code = audit_privacy.main()
+        return code, output.getvalue()
+
+    def assert_public_scan_fails_closed(self, code, output, secret=None):
+        self.assertNotEqual(code, 0)
+        self.assertNotIn("允许发布", output)
+        self.assertNotIn("未发现凭据/令牌泄漏", output)
+        if secret is not None:
+            self.assertNotIn(secret, output)
+
+    def test_missing_public_artifact_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="p24-audit-privacy-") as td:
+            base = Path(td)
+            self.make_public_tree(base, index_kind=None)
+
+            code, output = self.run_public_scan(base)
+
+        self.assert_public_scan_fails_closed(code, output)
+
+    def test_permission_denied_public_artifact_is_rejected_without_error_text(self):
+        secret = "ghp_" + "Z" * 40
+        with tempfile.TemporaryDirectory(prefix="p24-audit-privacy-") as td:
+            base = Path(td)
+            self.make_public_tree(base)
+            real_open = builtins.open
+
+            def deny_index(path, *args, **kwargs):
+                if str(path) == str(base / "index.html"):
+                    raise PermissionError(f"denied while reading {secret}")
+                return real_open(path, *args, **kwargs)
+
+            code, output = self.run_public_scan(base, deny_index)
+
+        self.assert_public_scan_fails_closed(code, output, secret)
+
+    def test_directory_in_place_of_public_artifact_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="p24-audit-privacy-") as td:
+            base = Path(td)
+            self.make_public_tree(base, index_kind="directory")
+
+            code, output = self.run_public_scan(base)
+
+        self.assert_public_scan_fails_closed(code, output)
+
+    def test_mid_read_error_is_rejected_without_error_text(self):
+        secret = "ghp_" + "Y" * 40
+        with tempfile.TemporaryDirectory(prefix="p24-audit-privacy-") as td:
+            base = Path(td)
+            self.make_public_tree(base)
+            real_open = builtins.open
+
+            class InterruptedRead:
+                def __init__(self, stream):
+                    self.stream = stream
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *_exc):
+                    self.stream.close()
+
+                def read(self, *args, **kwargs):
+                    self.stream.read(16)
+                    raise OSError(f"read interrupted after partial data: {secret}")
+
+            def interrupt_index(path, *args, **kwargs):
+                stream = real_open(path, *args, **kwargs)
+                if str(path) == str(base / "index.html"):
+                    return InterruptedRead(stream)
+                return stream
+
+            code, output = self.run_public_scan(base, interrupt_index)
+
+        self.assert_public_scan_fails_closed(code, output, secret)
+
     def test_log_option_without_path_is_rejected(self):
         code, output = self.run_isolated("--log")
 

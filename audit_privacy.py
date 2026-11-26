@@ -35,6 +35,7 @@ import json
 import math
 import os
 import re
+import stat
 import sys
 from collections import Counter
 
@@ -241,13 +242,22 @@ def main():
         return 0 if selftest() else 1
     all_hits = []
     log_scan_failed = False
+    public_scan_failed = 0
     scanned = 0
-    for rel in public_files():
+    try:
+        files = public_files()
+    except Exception:
+        print("公开产物清单检查失败，拒绝通过")
+        return 2
+    for rel in files:
         path = os.path.join(BASE, rel)
         try:
+            if not stat.S_ISREG(os.stat(path).st_mode):
+                raise OSError
             with open(path, encoding="utf-8") as f:
                 text = f.read()
         except Exception:
+            public_scan_failed += 1
             continue
         scanned += 1
         for typ, frag in audit_text(text, rel):
@@ -276,6 +286,10 @@ def main():
             print(f"  ✘ {rel}: {typ} → 内容已隐藏")
         print(f"结论：命中 {len(all_hits)} 处疑似凭据 → 拦下发布")
         return 1
+    if public_scan_failed:
+        print(f"  公开产物检查失败：{public_scan_failed} 个目标无法检查（错误详情已隐藏）")
+        print("结论：公开产物扫描不完整 → 拒绝通过")
+        return 2
     if log_scan_failed:
         print("结论：日志扫描不完整 → 拒绝通过")
         return 2
