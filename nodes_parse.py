@@ -214,6 +214,11 @@ def to_uri(n):
 
 # ── URI 解析 ────────────────────────────────────────────────────────────────
 
+URI_HOST_SCHEMES = frozenset({
+    "vmess", "ss", "vless", "trojan", "hysteria2", "hy2", "tuic",
+    "socks5", "anytls", "http", "https",
+})
+
 def parse_uri(line):
     line = line.strip()
     if "://" not in line:
@@ -267,6 +272,8 @@ def _parse_uri_body(scheme, body, name):
                       "anytls", "http", "https"):
             t = {"hy2": "hysteria2", "https": "http"}.get(scheme, scheme)
             u = up.urlsplit(body)
+            if not u.hostname or u.port is None:
+                return None
             q = {k: v[0] for k, v in up.parse_qs(u.query).items()}
             node = {"type": t, "name": name, "server": norm_host(u.hostname or ""),
                     "port": u.port or 0,
@@ -638,7 +645,14 @@ def parse_any(data, rejects=None):
 
 def _host_of_uri(line):
     try:
-        return (up.urlsplit(line.split("#")[0]).hostname or "")[:60]
+        scheme = line.split("://", 1)[0].lower()
+        if scheme not in URI_HOST_SCHEMES:
+            return ""
+        parsed = up.urlsplit(line.split("#", 1)[0])
+        host = parsed.hostname or ""
+        if not host or parsed.port is None:
+            return ""
+        return host[:60]
     except Exception:
         return ""
 
