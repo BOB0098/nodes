@@ -13,9 +13,8 @@
 * 云服务器暂停：真的 `SIGSTOP` 再 `SIGCONT`；
 * 检测超时：真的把 mihomo 换成一个只会 sleep 的假程序。
 
-所有破坏性操作都在临时目录里做，仓库里的 `data/` 一个字都不动。唯一会
-临时挪动的仓库文件（第 4 项要删掉 `export/nodes_full.json`）在原位备份、
-结束时还原，并用 md5 校验还原是否成功。
+所有破坏性操作都在临时目录里做，仓库里的正式产物只读。第 4 项在临时应用
+副本中省略 `export/nodes_full.json`，验证缺输入会失败且不会改写检测数据。
 
 用法:
     python3 drill.py              # 全部七项
@@ -43,7 +42,8 @@ REPORT = os.path.join(BASE, "docs", "P14-drills.md")
 
 def md5(p):
     try:
-        return hashlib.md5(open(p, "rb").read()).hexdigest()
+        with open(p, "rb") as source:
+            return hashlib.md5(source.read()).hexdigest()
     except FileNotFoundError:
         return None
 
@@ -187,23 +187,26 @@ def drill_actions_fail():
     before = md5(NODECHECK)
     if before is None:
         return False, "缺少 data/nodecheck.json，先跑一轮 CI"
-    moved = None
-    try:
-        if os.path.exists(FULL):
-            moved = FULL + ".drill-bak"
-            os.replace(FULL, moved)
-        r = subprocess.run([sys.executable, os.path.join(BASE, "nodecheck.py")],
-                           capture_output=True, text=True, cwd=BASE, timeout=120)
-        rc = r.returncode
+    with tempfile.TemporaryDirectory(prefix="drill-actions-fail-") as tmp:
+        for name in ("nodecheck.py", "netsafe.py"):
+            shutil.copy2(os.path.join(BASE, name), os.path.join(tmp, name))
+        tmp_data = os.path.join(tmp, "data")
+        os.makedirs(tmp_data)
+        tmp_nodecheck = os.path.join(tmp_data, "nodecheck.json")
+        shutil.copy2(NODECHECK, tmp_nodecheck)
+        # 故意不复制 export/nodes_full.json，模拟 Actions 阶段输入缺失。
+        result = subprocess.run(
+            [sys.executable, os.path.join(tmp, "nodecheck.py")],
+            capture_output=True, text=True, cwd=tmp, timeout=120,
+        )
         after = md5(NODECHECK)
-        good = rc != 0 and after == before
-        tail = (r.stdout or r.stderr).strip().splitlines()
-        return good, (f"退出码 {rc}（期望非 0），nodecheck.json "
-                      f"{'未变' if after == before else '被改写'}；"
+        clone_after = md5(tmp_nodecheck)
+        good = result.returncode != 0 and after == before and clone_after == before
+        tail = (result.stdout or result.stderr).strip().splitlines()
+        return good, (f"临时副本退出码 {result.returncode}（期望非 0），正式 nodecheck.json "
+                      f"{'未变' if after == before else '被改写'}，副本检测数据 "
+                      f"{'未变' if clone_after == before else '被改写'}；"
                       f"最后一行：{tail[-1][:60] if tail else '—'}")
-    finally:
-        if moved and os.path.exists(moved):
-            os.replace(moved, FULL)
 
 
 # ── 5. 检测超时（mihomo 起不来）──────────────────────────────────────
@@ -329,8 +332,8 @@ def write_report(rows):
     L.append("* 第 1 项的耗时取决于当时的网络：404 正常情况下十几秒，链路拥塞时"
              "会一直走到 90 秒读预算才超时。判据不是「多久失败」，而是"
              "「没写缓存、其它源的文件一个字节没变」——一个源变坏不能连累别的源。")
-    L.append("* 只有第 4 项会临时挪动仓库文件（`export/nodes_full.json`），"
-             "结束后按原路径还原；其余各项全部在临时目录里做。")
+    L.append("* 第 4 项在临时应用副本中省略 `export/nodes_full.json`，"
+             "验证 Actions 缺输入时非零退出；不会挪动或改写仓库正式产物。")
     L.append("* 第 2 项判定「真的中断在写入窗口内」的依据是**残留的 `.tmp-*.part`**："
              "它在，说明进程死在 rename 之前，此时目标文件必须还是旧内容。"
              "如果没有残留，说明子进程已经写完，这一轮演练不算数。")
