@@ -36,7 +36,12 @@ COPY dockerprobe/ ./dockerprobe/
 COPY docs/ ./docs/
 
 # 非 root 运行。采集不需要写系统目录，给一个固定 uid 免得挂载出来的文件属主乱跳
-RUN useradd -u 10001 -m runner && mkdir -p /app/data /app/.cache && chown -R runner /app
+# 备份卷父目录用 sticky 共享权限兼容 NODES_UID 覆盖；run.sh 的 mktemp -d
+# 为每轮快照创建 0700 私有子目录，快照内的 export 不可被其他 uid 遍历读取。
+RUN useradd -u 10001 -m runner \
+ && mkdir -p /app/data /app/.cache /var/backups/nodes \
+ && chmod 1777 /var/backups/nodes \
+ && chown -R runner /app
 USER runner
 
 # 默认跑一轮完整采集；`docker compose run --rm collect python3 nodecheck.py` 之类

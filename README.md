@@ -300,6 +300,8 @@ docker compose run --rm collect
 * mihomo 放在命名卷里，第二次跑不用再下载
 * 不假设多台机器共享磁盘。想并行就在各自机器上跑，再去合并 `data/nodes.json`
 
+快照只支持 Compose 当前的两个输出挂载（`./data:/app/data`、`./index.html:/app/index.html`）和 mihomo 的 `/app/.cache` 命名卷；`/app` 内其他或嵌套挂载会在快照开始前拒绝。恢复是逐项 best-effort：普通文件先在同目录暂存再替换，已挂载的 `index.html` 只能原位写入；不保证整个 bind-mount 树全局原子回滚。恢复失败时快照保存在 `transaction-backups` 命名卷中，即使 `docker compose run --rm` 删除容器也仍可读取，脚本会打印人工重试命令；完成人工恢复前不要删除该卷。共享卷父目录使用 sticky 权限以兼容 `NODES_UID` 覆盖；每轮 `mktemp -d` 创建 0700 私有快照目录，export 内容隔离在该目录中。
+
 评估一台云服务器能不能用，先在那台机器上跑体检：
 
 ```bash

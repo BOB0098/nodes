@@ -91,7 +91,7 @@ clienttest.py ─ nodes_parse.py + 三个客户端二进制
 | 单条订阅生成失败 | 按订阅导出器的逐条错误处理记录；若阶段最终非零则整轮中止/回滚 | 保留 |
 | 历史写盘失败 | 所属阶段非零退出，阻断发布并触发容器恢复；不继续以旧历史生成新结果 | 保留 |
 | 渲染失败 | 不 mark render、不生成有效本轮 manifest；容器恢复数据与页面快照 | 保留 |
-| 写盘中途被中断 | 单文件写入仍用原子替换；脚本捕获的失败会恢复运行前产物 | 保留；强制杀进程/断电或恢复失败仍需人工核查 |
+| 写盘中途被中断 | 单文件写入仍用原子替换；脚本捕获的失败会逐项 best-effort 恢复运行前产物 | 保留；强制杀进程/断电或恢复失败仍需人工核查 |
 
 ## 数据文件的三种性质
 
@@ -120,4 +120,4 @@ clienttest.py ─ nodes_parse.py + 三个客户端二进制
 * 容器里没有 `GITHUB_ACTIONS` 变量，所以 `NODES_FORCE_WRITE=1` 显式打开写盘；
 * `threshold_watch.py` 在 CI 中是可选观测步骤，容器完整链路不运行该步骤；CI 的全历史 Git 凭据扫描及最终提交/推送也仅在 GitHub runner 上执行。
 
-容器入口的失败恢复是脚本级回滚，不等同于目录级原子切换；强制终止或机器断电不保证恢复。`docs/P11-docker-platforms.md` 记录了既有容器完整跑一轮的情况（6m37s）。
+容器入口会把快照写入 `transaction-backups` 命名卷，因此 `docker compose run --rm` 后恢复失败的快照仍可用；快照前只接受当前 Compose 的 `/app/data`、`/app/index.html` 两个输出挂载和 `/app/.cache` mihomo 缓存卷，`/app` 内其他或嵌套挂载一律拒绝。恢复按单项暂存和替换，已挂载的 `index.html` 只能尽力原位写入；这不是 bind-mount 树的全局原子回滚。失败日志会给出备份位置和人工重试命令，强制终止或断电仍需人工核查。`docs/P11-docker-platforms.md` 记录了既有容器完整跑一轮的情况（6m37s）。

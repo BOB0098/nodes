@@ -3,6 +3,7 @@
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -162,8 +163,14 @@ class DockerRunSafetyTest(unittest.TestCase):
         try:
             self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
             self.assertIn("快照保留于", result.stdout)
+            self.assertIn("best-effort", result.stdout)
+            self.assertIn(
+                "docker compose run --rm --entrypoint python3 collect docker/transaction.py restore /app",
+                result.stdout,
+            )
             backups = list(Path(td.name).glob("nodes-output-backup.*"))
             self.assertEqual(len(backups), 1)
+            self.assertEqual(stat.S_IMODE(backups[0].stat().st_mode), 0o700)
             self.assertEqual(
                 (backups[0] / "data" / "nodes.json").read_text(encoding="utf-8"),
                 '{"nodes":[{"addr":"old"}]}',

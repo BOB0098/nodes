@@ -39,8 +39,11 @@ if [ "${SKIP_GATE:-0}" != "1" ] && [ -f data/nodes.json ]; then
 fi
 
 # 先备份实际可变产物；data/logs 保留运行日志，私密 export 只在本地权限受限的
-# 临时目录中保存。快照失败时尚未运行任何业务阶段，因此可以安全中止。
-BACKUP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/nodes-output-backup.XXXXXX") || exit 1
+# 临时目录中保存。Compose 将该目录放入持久 named volume，避免 --rm 删除失败快照。
+# 快照失败时尚未运行任何业务阶段，因此可以安全中止。
+BACKUP_ROOT="${NODES_BACKUP_DIR:-${TMPDIR:-/tmp}}"
+mkdir -p "$BACKUP_ROOT" || exit 1
+BACKUP_DIR=$(mktemp -d "$BACKUP_ROOT/nodes-output-backup.XXXXXX") || exit 1
 if ! python3 docker/transaction.py snapshot "$APP_ROOT" "$BACKUP_DIR"; then
   rm -rf "$BACKUP_DIR"
   exit 1
@@ -53,6 +56,9 @@ finish_run() {
     echo "[$(date '+%F %T')] 本轮失败（rc=$rc），恢复运行前产物"
     if ! python3 docker/transaction.py restore "$APP_ROOT" "$BACKUP_DIR"; then
       echo "[$(date '+%F %T')] ✘ 产物恢复失败；请检查数据目录，快照保留于 $BACKUP_DIR"
+      echo "恢复按逐项 best-effort 执行；不保证整个 bind-mount 树全局原子回滚。"
+      echo "可在 Nodes 仓库目录手动重试恢复："
+      printf '  docker compose run --rm --entrypoint python3 collect docker/transaction.py restore /app "%s"\n' "$BACKUP_DIR"
       cleanup_backup=0
       rc=1
     fi
