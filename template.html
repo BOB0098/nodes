@@ -435,6 +435,8 @@ header{padding:20px 2px 10px}
 (() => {
 'use strict';
 const DATA = __DATA__;
+const GOVERNANCE = __GOVERNANCE__;
+const PICKS = __PICKS__;
 
   const QR = (() => {
     // GF(256) 指数 / 对数表
@@ -814,7 +816,9 @@ const DATA = __DATA__;
       // 第二行：次级信息
       const r2=document.createElement('div'); r2.className='r2 num';
       const cnt = (it.count===null||it.count===undefined) ? '—' : it.count;
-      const r2a=document.createElement('span'); r2a.innerHTML='<b>'+cnt+'</b> 节点'; r2.appendChild(r2a);
+      const r2a=document.createElement('span');
+      const countValue=document.createElement('b'); countValue.textContent=String(cnt);
+      r2a.append(countValue, document.createTextNode(' 节点')); r2.appendChild(r2a);
       const sep1=document.createElement('span'); sep1.className='sep'; sep1.textContent='·'; r2.appendChild(sep1);
       const real=document.createElement('span'); real.className='real'+(pct!==null&&pct<10?' weak':'');
       real.innerHTML = pct!==null ? '真实 <b>'+pct+'%</b>' : '无真实样本';
@@ -960,17 +964,15 @@ const DATA = __DATA__;
   /* ── 数据中心（真实数据源，缺数据不伪造）── */
   function statBox(b, label){
     const d=document.createElement('div'); d.className='stat';
-    d.innerHTML='<b class="num">'+esc(b)+'</b><span>'+esc(label)+'</span>'; return d;
-  }
-  async function getJson(path){
-    try{ const r=await fetch(path,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.json(); }
-    catch(e){ return null; }
+    const value=document.createElement('b'); value.className='num'; value.textContent=String(b);
+    const caption=document.createElement('span'); caption.textContent=String(label);
+    d.append(value,caption); return d;
   }
   const RANK_LABEL={stable:'稳定',lowlat:'低延迟',fast:'高速',best:'综合优选'};
   function rankRows(el, lists, counts, basis){
     el.replaceChildren();
     const keys=Object.keys(lists||{});
-    if(!keys.length){ el.innerHTML='<p class="data-note">榜单数据暂不可用</p>'; return; }
+    if(!keys.length){ const p=document.createElement('p');p.className='data-note';p.textContent='榜单数据暂不可用';el.appendChild(p);return; }
     keys.forEach(k=>{
       // 兼容两种结构：值直接是数组，或 {list:[...], label:...}
       const raw=lists[k];
@@ -987,12 +989,15 @@ const DATA = __DATA__;
         let vl = (n.score!==undefined && n.score!==null) ? ('评分 '+n.score)
                : (n.ms!==undefined && n.ms!==null ? n.ms+'ms'
                : (n.rate!==undefined && n.rate!==null ? Math.round(n.rate*100)+'%' : (n.region||n.rg||n.proto||'')));
-        row.innerHTML='<span class="n">'+(i+1)+'</span><span class="nm">'+esc(nm)+'</span><span class="vl">'+esc(vl)+'</span>';
+        const rank=document.createElement('span'); rank.className='n'; rank.textContent=String(i+1);
+        const name=document.createElement('span'); name.className='nm'; name.textContent=String(nm);
+        const value=document.createElement('span'); value.className='vl'; value.textContent=String(vl);
+        row.append(rank,name,value);
         el.appendChild(row);
       });
     });
   }
-  async function loadDataCenter(){
+  function loadDataCenter(){
     const st=DATA.stats||{};
     const real=document.getElementById('dcReal');
     real.appendChild(statBox(st.real_ok??'—','真实可用节点'));
@@ -1006,10 +1011,10 @@ const DATA = __DATA__;
     const dist=document.getElementById('dcDist'); dist.replaceChildren();
     const tags=st.tags||{};
     Object.keys(tags).slice(0,8).forEach(k=>{ const c=document.createElement('span');c.className='chip';c.textContent=k+' '+tags[k];dist.appendChild(c); });
-    if(!dist.childNodes.length) dist.innerHTML='<p class="data-note">质量分布数据暂不可用</p>';
+    if(!dist.childNodes.length){ const p=document.createElement('p');p.className='data-note';p.textContent='质量分布数据暂不可用';dist.appendChild(p); }
     // 来源治理
     const gov=document.getElementById('dcGov'); gov.replaceChildren();
-    const g=await getJson('data/source_governance.json');
+    const g=GOVERNANCE;
     if(g){
       const dup=Array.isArray(g.duplicates)?g.duplicates.length:(g.duplicates?'—':'0');
       const ov=Array.isArray(g.overlap)?g.overlap.length:'—';
@@ -1019,12 +1024,11 @@ const DATA = __DATA__;
       const note=document.createElement('p'); note.className='data-note';
       note.textContent='统计窗口 '+(g.window||'—')+' 天；地址按 sha256 存储，重合判断样本 <20 条不判。';
       gov.appendChild(note);
-    } else gov.innerHTML='<p class="data-note">来源治理数据暂不可用</p>';
+    } else { const p=document.createElement('p');p.className='data-note';p.textContent='来源治理数据暂不可用';gov.appendChild(p); }
     // 榜单
-    const picks=await getJson('data/picks.json');
-    rankRows(document.getElementById('dcPicks'), picks&&picks.lists, picks&&picks.counts, picks&&picks.basis);
+    rankRows(document.getElementById('dcPicks'), PICKS&&PICKS.lists, PICKS&&PICKS.counts, PICKS&&PICKS.basis);
     const pn=document.getElementById('dcPickNote');
-    if(picks) pn.textContent='依据真实检测打分 · 统计窗口 '+(picks.window_days||'—')+' 天 · 生成于 '+(picks.updated||'—');
+    if(PICKS) pn.textContent='依据真实检测打分 · 统计窗口 '+(PICKS.window_days||'—')+' 天 · 生成于 '+(PICKS.updated||'—');
   }
 })();
 </script>

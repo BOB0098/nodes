@@ -223,15 +223,38 @@ def load_template():
     return _template_cache
 
 
-def render_page(page):
+def _load_page_json(filename):
+    """读取构建时嵌入页面的只读侧车数据；缺失或损坏时页面显示原有降级提示。"""
+    try:
+        with open(os.path.join(OUT_DATA, filename), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def _script_json(value):
+    """序列化 HTML script-data 上下文中的 JSON 字面量，阻断标签/脚本闭合。"""
+    return (json.dumps(value, ensure_ascii=False)
+            .replace("&", "\\u0026")
+            .replace("<", "\\u003c")
+            .replace(">", "\\u003e")
+            .replace("\u2028", "\\u2028")
+            .replace("\u2029", "\\u2029"))
+
+
+def render_page(page, *, governance=None, picks=None):
     r"""把数据填进模板。__DATA__ 是整页 JSON。
 
-    JSON 里的 </ 转义成 <\/，否则数据中出现 </script> 会截断脚本块。
+    治理与榜单 JSON 也在构建时内嵌，避免 file:// 页面运行时请求本地文件。
+    所有数据字面量按 HTML script-data 上下文转义，避免恶意字符串截断脚本块。
     模板里已经没有 __N__ 占位符（源条数由页面自己数），原先那步替换是空转，去掉。
     """
     tpl = load_template()
-    payload = json.dumps(page, ensure_ascii=False).replace("</", "<\\/")
-    return tpl.replace("__DATA__", payload)
+    governance = _load_page_json("source_governance.json") if governance is None else governance
+    picks = _load_page_json("picks.json") if picks is None else picks
+    return (tpl.replace("__DATA__", _script_json(page))
+            .replace("__GOVERNANCE__", _script_json(governance))
+            .replace("__PICKS__", _script_json(picks)))
 
 
 def count_of(data):
