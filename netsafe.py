@@ -36,17 +36,21 @@ str 就是 URL），而订阅 URL 的 query 里常放 token。`mask_url` / `mask
 是所有日志的唯一出口，别在别处直接 f-string 拼 URL。
 """
 
+import contextlib
 import errno
 import ipaddress
 import os
 import re
 import socket
+import string
 import sys
 import tempfile
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections import Counter
+from math import log2
 
 # ---- 上限 ----------------------------------------------------------------
 # 单源 12 MB：现在最大的源是 1.7 MB（v2ray-configs），留 7 倍余量。
@@ -75,6 +79,15 @@ class Unresolvable(Exception):
     """域名解析失败。不是安全问题，是网络问题，单独一类便于排查。"""
 
 
+def _remaining_seconds(deadline, total_timeout=TOTAL_TIMEOUT):
+    if deadline is None:
+        return None
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise TooSlow(f"请求超过 {total_timeout}s 总时限")
+    return remaining
+
+
 # ---- 地址检查 -------------------------------------------------------------
 
 def _banned(ip):
@@ -91,11 +104,13 @@ def _banned(ip):
             or a.is_multicast or a.is_reserved or a.is_unspecified)
 
 
-def check_url(url, allow_ports=ALLOW_PORTS):
+def check_url(url, allow_ports=ALLOW_PORTS, deadline=None,
+              total_timeout=TOTAL_TIMEOUT):
     """校验一个 URL 是否可以访问。不满足就抛 Blocked / Unresolvable。
 
     只做检查，不发请求。重定向处理器会对每一跳再调一次。
     """
+    _remaining_seconds(deadline, total_timeout)
     if not isinstance(url, str) or not url:
         raise Blocked("空 URL")
     try:
@@ -132,6 +147,7 @@ def check_url(url, allow_ports=ALLOW_PORTS):
     else:
         if _banned(host):
             raise Blocked(f"目标是非公网地址：{host}")
+        _remaining_seconds(deadline, total_timeout)
         return
 
     # 域名：解析后逐个比对。全部必须公网。
@@ -140,7 +156,10 @@ def check_url(url, allow_ports=ALLOW_PORTS):
     try:
         infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except socket.gaierror as e:
+        # getaddrinfo 是同步系统调用，无法由 socket timeout 取消；超时后拒绝迟到结果。
+        _remaining_seconds(deadline, total_timeout)
         raise Unresolvable(f"解析不了 {host}：{e}")
+    _remaining_seconds(deadline, total_timeout)
     addrs = {i[4][0] for i in infos}
     if not addrs:
         raise Unresolvable(f"{host} 没有解析结果")
@@ -153,14 +172,77 @@ class _SafeRedirect(urllib.request.HTTPRedirectHandler):
     """每一跳都重查地址。
 
     urllib 自带的处理器只看 `max_redirections` 次数，不看跳去哪。
-    这里在 `redirect_request` 里插一道检查——它正好在发下一跳之前被调用。
+    每个 Request 自带 deadline；handler 本身保持无状态，适用于缓存 opener 并发。
     """
 
     max_redirections = MAX_REDIRECTS
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        check_url(newurl)
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
+        deadline = getattr(req, "_netsafe_deadline", None) if req is not None else None
+        total_timeout = getattr(req, "_netsafe_total_timeout", TOTAL_TIMEOUT)
+        if deadline is None:
+            check_url(newurl)
+        else:
+            _remaining_seconds(deadline, total_timeout)
+            check_url(newurl, deadline=deadline, total_timeout=total_timeout)
+        new = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new is not None and deadline is not None:
+            remaining = _remaining_seconds(deadline, total_timeout)
+            connect_timeout = getattr(req, "_netsafe_connect_timeout", CONNECT_TIMEOUT)
+            req.timeout = min(connect_timeout, remaining)
+            new._netsafe_deadline = deadline
+            new._netsafe_total_timeout = total_timeout
+            new._netsafe_connect_timeout = connect_timeout
+        return new
+
+    def http_error_302(self, req, fp, code, msg, headers):
+        """Follow redirects without urllib's unbounded ``fp.read()`` drain."""
+        if "location" in headers:
+            newurl = headers["location"]
+        elif "uri" in headers:
+            newurl = headers["uri"]
+        else:
+            return
+
+        parts = urllib.parse.urlparse(newurl)
+        if parts.scheme not in ("http", "https", "ftp", ""):
+            raise urllib.error.HTTPError(
+                newurl, code,
+                f"{msg} - Redirection to url '{newurl}' is not allowed",
+                headers, fp)
+        if not parts.path and parts.netloc:
+            parts = parts._replace(path="/")
+        newurl = urllib.parse.urlunparse(parts)
+        newurl = urllib.parse.quote(
+            newurl, encoding="iso-8859-1", safe=string.punctuation)
+        newurl = urllib.parse.urljoin(req.full_url, newurl)
+
+        try:
+            new = self.redirect_request(req, fp, code, msg, headers, newurl)
+            if new is None:
+                return
+            if hasattr(req, "redirect_dict"):
+                visited = new.redirect_dict = req.redirect_dict
+                if (visited.get(newurl, 0) >= self.max_repeats or
+                        len(visited) >= self.max_redirections):
+                    raise urllib.error.HTTPError(
+                        req.full_url, code, self.inf_msg + msg, headers, fp)
+            else:
+                visited = new.redirect_dict = req.redirect_dict = {}
+            visited[newurl] = visited.get(newurl, 0) + 1
+        except Exception:
+            fp.close()
+            raise
+
+        # HTTPHandler sends Connection: close; draining an unused redirect body
+        # is unnecessary and can block outside the shared time/byte budget.
+        fp.close()
+        return self.parent.open(new, timeout=req.timeout)
+
+    http_error_301 = http_error_302
+    http_error_303 = http_error_302
+    http_error_307 = http_error_302
+    http_error_308 = http_error_302
 
 
 def _opener():
@@ -199,12 +281,87 @@ def opener():
 
 # ---- 读取 -----------------------------------------------------------------
 
-def read_capped(fp, headers=None, max_bytes=MAX_BYTES, total_timeout=TOTAL_TIMEOUT):
-    """流式读到 EOF，两个上限持续检查。
+def _response_socket(fp):
+    """从 urllib response wrapper 中找底层 socket；测试替身可以不提供。"""
+    pending = [fp]
+    seen = set()
+    while pending and len(seen) < 64:
+        obj = pending.pop()
+        if obj is None or id(obj) in seen:
+            continue
+        seen.add(id(obj))
+        for name in ("_sock", "sock"):
+            candidate = getattr(obj, name, None)
+            if callable(getattr(candidate, "settimeout", None)):
+                return candidate
+        for name in ("_response", "fp", "raw"):
+            child = getattr(obj, name, None)
+            if child is not None:
+                pending.append(child)
+    return None
+
+
+class _DeadlineResponse:
+    """每次底层读取前后都检查同一个请求 deadline。"""
+
+    def __init__(self, response, deadline, total_timeout, socket_timeout):
+        self._response = response
+        self.deadline = deadline
+        self.total_timeout = total_timeout
+        self.socket_timeout = socket_timeout
+
+    def __getattr__(self, name):
+        return getattr(self._response, name)
+
+    def _read_once(self, size):
+        remaining = _remaining_seconds(self.deadline, self.total_timeout)
+        sock = _response_socket(self._response)
+        if sock is not None:
+            timeout = (remaining if self.socket_timeout is None else
+                       min(self.socket_timeout, remaining))
+            sock.settimeout(timeout)
+        reader = getattr(self._response, "read1", None)
+        if not callable(reader):
+            reader = self._response.read
+        try:
+            chunk = reader(size)
+        except (TimeoutError, socket.timeout):
+            _remaining_seconds(self.deadline, self.total_timeout)
+            raise
+        _remaining_seconds(self.deadline, self.total_timeout)
+        return chunk
+
+    def read(self, size=-1):
+        if size is None or size < 0:
+            chunks = []
+            while True:
+                chunk = self._read_once(65536)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+            return b"".join(chunks)
+        if size == 0:
+            _remaining_seconds(self.deadline, self.total_timeout)
+            return b""
+        chunks = bytearray()
+        while len(chunks) < size:
+            chunk = self._read_once(min(65536, size - len(chunks)))
+            if not chunk:
+                break
+            chunks.extend(chunk)
+        return bytes(chunks)
+
+
+def read_capped(fp, headers=None, max_bytes=MAX_BYTES, total_timeout=TOTAL_TIMEOUT,
+                deadline=None, socket_timeout=CONNECT_TIMEOUT):
+    """流式读到 EOF，字节上限与绝对总时限持续检查。
 
     抽成独立函数是为了能测：selftest 里用一个假 fp 喂 1 字节给一次，
     验证「总时长超了要抛」不需要真的等 90 秒。
     """
+    if deadline is None:
+        deadline = time.monotonic() + total_timeout
+    _remaining_seconds(deadline, total_timeout)
     headers = headers or {}
     cl = headers.get("Content-Length")
     if cl and str(cl).isdigit() and int(cl) > max_bytes:
@@ -212,32 +369,65 @@ def read_capped(fp, headers=None, max_bytes=MAX_BYTES, total_timeout=TOTAL_TIMEO
         raise TooLarge(f"声明 {int(cl)} 字节，超过上限 {max_bytes}")
 
     buf = bytearray()
-    t0 = time.time()
     while True:
-        chunk = fp.read(65536)
+        remaining = _remaining_seconds(deadline, total_timeout)
+        sock = _response_socket(fp)
+        if sock is not None:
+            sock.settimeout(min(socket_timeout, remaining))
+        try:
+            chunk = fp.read(65536)
+        except (TimeoutError, socket.timeout):
+            _remaining_seconds(deadline, total_timeout)
+            raise
+        _remaining_seconds(deadline, total_timeout)
         if not chunk:
             break
         buf += chunk
         if len(buf) > max_bytes:
             raise TooLarge(f"已读超过 {max_bytes} 字节，中止")
-        if time.time() - t0 > total_timeout:
-            raise TooSlow(f"读取超过 {total_timeout}s 预算")
     return bytes(buf)
 
 
+@contextlib.contextmanager
+def open_response(url, method="GET", timeout=CONNECT_TIMEOUT,
+                 total_timeout=TOTAL_TIMEOUT, headers=None):
+    """打开受同一 deadline 约束的 HTTP 响应；调用方负责在 with 中读取。"""
+    deadline = time.monotonic() + total_timeout
+    remaining = _remaining_seconds(deadline, total_timeout)
+    check_url(url, deadline=deadline, total_timeout=total_timeout)
+    remaining = _remaining_seconds(deadline, total_timeout)
+    hdr = {"User-Agent": "Mozilla/5.0 v2rayN/6.0"}
+    hdr.update(headers or {})
+    req = urllib.request.Request(url, headers=hdr, method=method)
+    req._netsafe_deadline = deadline
+    req._netsafe_total_timeout = total_timeout
+    req._netsafe_connect_timeout = timeout
+    try:
+        with opener().open(req, timeout=min(timeout, remaining)) as response:
+            _remaining_seconds(deadline, total_timeout)
+            yield _DeadlineResponse(response, deadline, total_timeout, timeout)
+    except (TimeoutError, socket.timeout, urllib.error.URLError) as e:
+        reason = getattr(e, "reason", None)
+        is_timeout = isinstance(e, (TimeoutError, socket.timeout)) or isinstance(
+            reason, (TimeoutError, socket.timeout))
+        if is_timeout and time.monotonic() >= deadline:
+            raise TooSlow(f"请求超过 {total_timeout}s 总时限") from e
+        raise
+
+
 def open_url(url, timeout=CONNECT_TIMEOUT, max_bytes=MAX_BYTES,
-             total_timeout=TOTAL_TIMEOUT, headers=None):
+             total_timeout=TOTAL_TIMEOUT, headers=None, with_headers=False):
     """校验后 GET，返回 bytes。任何一步不合规都抛异常，不返回半截数据。
 
     半截数据是最坏的结果：解析器会把它当成一份「少了很多条」的正常订阅，
     于是页面上的条数悄悄变少，看起来像源正常衰败。
     """
-    check_url(url)
-    hdr = {"User-Agent": "Mozilla/5.0 v2rayN/6.0"}
-    hdr.update(headers or {})
-    req = urllib.request.Request(url, headers=hdr)
-    with opener().open(req, timeout=timeout) as r:
-        return read_capped(r, dict(r.headers), max_bytes, total_timeout)
+    with open_response(url, timeout=timeout, total_timeout=total_timeout,
+                       headers=headers) as r:
+        body = read_capped(
+            r, dict(r.headers), max_bytes, total_timeout,
+            deadline=r.deadline, socket_timeout=timeout)
+        return (body, dict(r.headers)) if with_headers else body
 
 
 # ---- 脱敏 -----------------------------------------------------------------
@@ -247,14 +437,58 @@ _SECRET_KEY = re.compile(
     r"(token|key|uuid|passw|pass|pwd|auth|secret|sig|signature|sub|code|user)",
     re.I)
 
-# 路径里的长随机段（订阅 token 常放在路径里，如 /sub/a1b2c3...）
-_SEG_RANDOM = re.compile(r"[A-Za-z0-9_\-]{20,}")
+# URL 中可能承载不透明 token 的字符集；是否遮盖还需满足长度与熵阈值。
+_OPAQUE_VALUE = re.compile(r"[A-Za-z0-9_+/=\-]{20,}")
+_JWT_VALUE = re.compile(r"[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}")
+
+
+def _looks_opaque(value):
+    """只将足够长且字符分布接近随机 token 的值视为秘密。"""
+    if not _OPAQUE_VALUE.fullmatch(value):
+        return False
+    counts = Counter(value)
+    if len(counts) < 10:
+        return False
+    entropy = -sum((n / len(value)) * log2(n / len(value)) for n in counts.values())
+    return entropy >= 3.8
+
+
+def _decode_for_secret_detection(value, max_rounds=4):
+    """Decode nested percent escapes only for detection, never for requests."""
+    decoded = value
+    for _ in range(max_rounds):
+        next_value = urllib.parse.unquote(decoded)
+        if next_value == decoded:
+            break
+        decoded = next_value
+    return decoded
 
 
 def _mask_seg(seg):
-    if _SEG_RANDOM.fullmatch(seg) and sum(c.isdigit() for c in seg) >= 2:
+    if _is_secret_value(seg):
+        if "%" in seg:
+            return "***"
         return seg[:3] + "***" + seg[-2:]
     return seg
+
+
+def _is_secret_value(value):
+    decoded = _decode_for_secret_detection(value)
+    candidates = (decoded, decoded.replace(" ", "+"))
+    return any(_TOKEN.search(candidate) or _UUID.search(candidate)
+               or _JWT_VALUE.fullmatch(candidate) or _looks_opaque(candidate)
+               for candidate in candidates)
+
+
+def _mask_params(text):
+    pairs = urllib.parse.parse_qsl(text, keep_blank_values=True)
+    if not pairs:
+        return "***" if _is_secret_value(text) else text
+    return urllib.parse.urlencode([
+        (key, "***" if _SECRET_KEY.search(_decode_for_secret_detection(key))
+         or _is_secret_value(value) else value)
+        for key, value in pairs
+    ])
 
 
 def mask_url(u):
@@ -273,10 +507,8 @@ def mask_url(u):
     if "@" in netloc:
         netloc = "***@" + netloc.rsplit("@", 1)[-1]
     path = "/".join(_mask_seg(s) for s in p.path.split("/"))
-    q = urllib.parse.parse_qsl(p.query, keep_blank_values=True)
-    q = [(k, "***" if _SECRET_KEY.search(k) else v) for k, v in q]
     return urllib.parse.urlunsplit(
-        (p.scheme, netloc, path, urllib.parse.urlencode(q), p.fragment))
+        (p.scheme, netloc, path, _mask_params(p.query), _mask_params(p.fragment)))
 
 
 _TOKEN = re.compile(
@@ -293,8 +525,17 @@ _UUID = re.compile(
 # `scheme://userinfo@host`。分开处理，因为打码的位置不一样。
 _URI_BLOB = re.compile(r"\b(vmess|ssr|ss)://[A-Za-z0-9+/=_\-\.]{20,}")
 _URI_USERINFO = re.compile(
-    r"\b(vless|trojan|hysteria2?|hy2|tuic|anytls|socks5?|http)://[^@\s/]{1,200}@",
+    r"\b(vless|trojan|hysteria2?|hy2|tuic|anytls|socks5?|http)://[^@\s]{1,200}@",
     re.I)
+_URL_IN_TEXT = re.compile(r"https?://[^\s<>\"']+", re.I)
+
+
+def _mask_embedded_url(match):
+    raw = match.group(0)
+    end = len(raw)
+    while end and raw[end - 1] in ".,;:!?)]}":
+        end -= 1
+    return mask_url(raw[:end]) + raw[end:]
 
 
 def mask_text(s):
@@ -307,6 +548,7 @@ def mask_text(s):
         s = str(s)
     s = _URI_BLOB.sub(lambda m: f"{m.group(1)}://***", s)
     s = _URI_USERINFO.sub(lambda m: f"{m.group(1)}://***@", s)
+    s = _URL_IN_TEXT.sub(_mask_embedded_url, s)
     s = _TOKEN.sub("***token***", s)
     s = _UUID.sub("***uuid***", s)
     return s

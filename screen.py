@@ -151,13 +151,7 @@ def fetch(url, limit=LIMIT, timeout=20):
     """
     t0 = time.time()
     try:
-        netsafe.check_url(url)
-    except netsafe.Blocked as e:
-        return {"code": 0, "ms": int((time.time() - t0) * 1000), "data": b"", "size": 0,
-                "err": "Blocked:" + str(e)[:40]}
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    try:
-        with netsafe.opener().open(req, timeout=timeout) as r:
+        with netsafe.open_response(url, timeout=timeout, headers={"User-Agent": UA}) as r:
             data = r.read(limit + 1)
             ctype = r.headers.get("Content-Type", "")
             # HTTP 200 也可能给的是登录页 / CDN 错误页。以前只会报「解析 0 条」，
@@ -167,6 +161,9 @@ def fetch(url, limit=LIMIT, timeout=20):
                     "data": data[:limit], "size": len(data),
                     "truncated": len(data) > limit,
                     "ctype": ctype, "ctype_ok": ctype_ok, "ctype_why": why}
+    except netsafe.Blocked as e:
+        return {"code": 0, "ms": int((time.time() - t0) * 1000), "data": b"", "size": 0,
+                "err": "Blocked:" + netsafe.mask_text(str(e))[:40]}
     except urllib.error.HTTPError as e:
         return {"code": e.code, "ms": int((time.time() - t0) * 1000), "data": b"", "size": 0}
     except Exception as e:
@@ -356,6 +353,17 @@ def enabled_index():
     return urls, repos
 
 
+def _sanitize_output(value):
+    """Recursively redact untrusted text before it enters a tracked report."""
+    if isinstance(value, dict):
+        return {key: _sanitize_output(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_sanitize_output(item) for item in value]
+    if isinstance(value, str):
+        return netsafe.mask_text(value)
+    return value
+
+
 def main():
     known, lib_size = lib_keys()
     cands = list(CANDIDATES)
@@ -393,14 +401,17 @@ def main():
             recs.append(rec)
             print(f"[{rec['verdict']:<10}] {rec['repo'][:34]:<36} "
                   f"解析 {str(rec.get('parsed') or '—'):>5} 新增 {str(rec.get('new_unique') or '—'):>5} "
-                  f"可连 {str(rec.get('alive_pct') or '—'):>4}  {rec['reasons'][0][:44]}")
+                  f"可连 {str(rec.get('alive_pct') or '—'):>4}  "
+                  f"{netsafe.mask_text(rec['reasons'][0])[:44]}")
     # 按候选原顺序输出，便于和清单对照
     idx = {c.get("repo"): i for i, c in enumerate(order)}
     recs.sort(key=lambda r: idx.get(r.get("repo"), 99))
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-    json.dump({"library_size": lib_size, "checked": len(recs), "results": recs},
-              open(OUT_PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    report = _sanitize_output(
+        {"library_size": lib_size, "checked": len(recs), "results": recs})
+    with open(OUT_PATH, "w", encoding="utf-8") as out:
+        json.dump(report, out, ensure_ascii=False, indent=1)
     write_md(recs, lib_size)
     print(f"\n已写 {OUT_PATH}")
     print(f"已写 {MD_PATH}")
@@ -422,30 +433,33 @@ def write_md(recs, lib_size):
     L.append("| 判定 | 仓库 | 解析 | 独立新增 | 新增占比 | 抽样可连 | 预计可用 | HTTP | 说明 |")
     L.append("|---|---|---|---|---|---|---|---|---|")
     for r in recs:
+        safe_reasons = netsafe.mask_text("；".join(r["reasons"]))
         L.append("| {v} | `{repo}` | {p} | {n} | {ra} | {a} | {u} | {h} | {w} |".format(
             v={"pass": "✅ 通过", "watch": "⚠️ 观察", "reject": "❌ 拒绝",
                "skip": "⏭ 跳过", "unverified": "❓ 未核验"}[r["verdict"]],
-            repo=r["repo"], p=r.get("parsed") or "—", n=r.get("new_unique") or "—",
+            repo=netsafe.mask_text(r["repo"]), p=r.get("parsed") or "—", n=r.get("new_unique") or "—",
             ra=f"{r['new_ratio']*100:.0f}%" if r.get("new_ratio") is not None else "—",
             a=f"{r['alive_pct']}%" if r.get("alive_pct") is not None else "—",
             u=r.get("expected_usable") if r.get("expected_usable") is not None else "—",
-            h=r.get("http") or "—", w="；".join(r["reasons"])[:90]))
+            h=r.get("http") or "—", w=safe_reasons[:90]))
     L.append("\n## 逐个说明\n")
     for r in recs:
-        L.append(f"### `{r['repo']}` — {r['verdict']}\n")
+        safe_reasons = netsafe.mask_text("；".join(r["reasons"]))
+        L.append(f"### `{netsafe.mask_text(r['repo'])}` — {r['verdict']}\n")
         if r.get("url"):
-            L.append(f"- 数据文件：`{r['url']}`")
+            L.append(f"- 数据文件：`{netsafe.mask_url(r['url'])}`")
             L.append(f"- 体积：{r.get('bytes', 0)/1024:.0f} KB"
                      + ("（**超过上限已截断**）" if r.get("truncated") else ""))
         L.append(f"- 解析 {r.get('parsed', '—')} 条 / 唯一指纹 {r.get('unique', '—')} / "
                  f"与现有库重合 {r.get('parsed', 0) - (r.get('new_unique') or 0)} 条")
         if r.get("types"):
             L.append(f"- 协议分布：{r['types']}")
-        L.append(f"- 判定理由：{'；'.join(r['reasons'])}")
+        L.append(f"- 判定理由：{safe_reasons}")
         if r.get("note"):
-            L.append(f"- 备注：{r['note']}")
+            L.append(f"- 备注：{netsafe.mask_text(r['note'])}")
         L.append("")
-    open(MD_PATH, "w", encoding="utf-8").write("\n".join(L))
+    with open(MD_PATH, "w", encoding="utf-8") as out:
+        out.write("\n".join(L))
 
 
 if __name__ == "__main__":

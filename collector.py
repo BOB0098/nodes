@@ -244,9 +244,9 @@ def http_probe(url, timeout=12):
     """
     t0 = time.time()
     try:
-        netsafe.check_url(url)
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 v2rayN/6.0"})
-        with netsafe.opener().open(req, timeout=timeout) as r:
+        with netsafe.open_response(
+                url, timeout=timeout,
+                headers={"User-Agent": "Mozilla/5.0 v2rayN/6.0"}) as r:
             r.read(512)
             return {"code": r.status, "ms": int((time.time() - t0) * 1000)}
     except netsafe.Blocked:
@@ -316,9 +316,9 @@ def src_meta(url, timeout=10):
         except Exception:
             return None
     try:
-        netsafe.check_url(url)
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}, method="HEAD")
-        with netsafe.opener().open(req, timeout=timeout) as r:
+        with netsafe.open_response(
+                url, method="HEAD", timeout=timeout,
+                headers={"User-Agent": "Mozilla/5.0"}) as r:
             lm = r.headers.get("Last-Modified")
         if lm:
             dt = datetime.strptime(lm, "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
@@ -702,7 +702,7 @@ def assemble(nodes, raw_total, errors, counts, probes, delta, health, srcstat=No
                   "med_age": (fresh.get(SRC_NAME_BY_URL.get(i["url"])) or {}).get("median_age"),
                   } for i in g["items"]]
         # 排序分在这里算：需要 item 上的 count/probe，放不进上面那次 comprehension。
-        # rank_real 是收缩后的真实可用条数，rank_has_real 表示它有没有真实样本。
+        # rank_real 有真实样本时是实际可用条数；否则是 TCP 可连率 × 节点数 × 0.3 的估值。
         for it, i in zip(items, g["items"]):
             it["rank_real"], it["rank_has_real"] = _rank_real(i, counts, probes, real)
         # 国内直连不通的固定沉底；已隔离的再沉一层（不是删除，是「先别信」）；

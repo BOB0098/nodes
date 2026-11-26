@@ -252,18 +252,21 @@ def guard_url(url):
 def open_source(url, max_bytes=netsafe.MAX_BYTES):
     """审核 / 复测用的安全拉取。异常类型区分「不该访问」「太大」「太慢」「内容不对」，
     不把四种情况都压成「HTTP 000」。"""
-    guard_url(url)
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
     t0 = time.monotonic()
-    with netsafe.opener().open(req, timeout=netsafe.CONNECT_TIMEOUT) as r:
-        peek = r.read(512)
-        ok, why = content_type_ok(r.headers.get("Content-Type"), peek)
-        if not ok:
-            raise BadContent(why)
-        data = read_limited(r, max_bytes=max_bytes, prefix=peek)
-        return {"code": r.status, "data": data, "size": len(data),
-                "ctype": r.headers.get("Content-Type", ""),
-                "ms": int((time.monotonic() - t0) * 1000)}
+    try:
+        with netsafe.open_response(
+                url, timeout=netsafe.CONNECT_TIMEOUT,
+                headers={"User-Agent": UA, "Accept": "*/*"}) as r:
+            peek = r.read(512)
+            ok, why = content_type_ok(r.headers.get("Content-Type"), peek)
+            if not ok:
+                raise BadContent(why)
+            data = read_limited(r, max_bytes=max_bytes, prefix=peek)
+            return {"code": r.status, "data": data, "size": len(data),
+                    "ctype": r.headers.get("Content-Type", ""),
+                    "ms": int((time.monotonic() - t0) * 1000)}
+    except (netsafe.Blocked, netsafe.Unresolvable) as e:
+        raise type(e)(netsafe.mask_text(str(e))) from e
 
 
 # ── 逐源指标 ────────────────────────────────────────────────────────────────
@@ -319,12 +322,21 @@ def discovery(sources, screening):
     return out
 
 
-def per_source(sources, stats, scores, prev=None):
+def _current_run_id():
+    """CI 重跑共享同一个 run ID；本地可用 NODES_RUN_ID 显式指定逻辑轮次。"""
+    return os.environ.get("GITHUB_RUN_ID") or os.environ.get("NODES_RUN_ID")
+
+
+def per_source(sources, stats, scores, prev=None, run_id=None):
     """逐源指标 + 30 轮滚动历史 + 观察期判定。
 
     状态直接取 score.py 当轮结果：治理层再跑一遍状态机会把 watch 推成
     degraded，一个单轮失败就变成降级，和评分口径打架。
+
+    轮次身份是逻辑 workflow run（GITHUB_RUN_ID），而不是分钟精度的
+    checked_at。旧 round 没有 run_id 时不按时间戳回配，避免追溯合并。
     """
+    run_id = run_id or _current_run_id()
     prev_doc = prev or {}
     prev_src = prev_doc.get("sources") or {}
     baseline = set(prev_doc.get("baseline") or [])
@@ -343,10 +355,41 @@ def per_source(sources, stats, scores, prev=None):
         r = by_name.get(name) or {}
         prev_r = prev_src.get(name) or {}
         rounds = list(prev_r.get("rounds") or [])
+        stored_ids = prev_r.get("round_ids")
+        round_ids = list(dict.fromkeys(
+            item for item in stored_ids
+            if isinstance(item, str) and item
+        )) if isinstance(stored_ids, list) else []
+        known_ids = set(round_ids)
+        for item in rounds:
+            item_id = item.get("run_id") if isinstance(item, dict) else None
+            if isinstance(item_id, str) and item_id and item_id not in known_ids:
+                round_ids.append(item_id)
+                known_ids.add(item_id)
         ok_http = r.get("http") == 200 and isinstance(r.get("parsed"), int)
-        rounds.append({"ts": r.get("checked_at") or now, "ok": bool(ok_http),
+        observation = {"ts": r.get("checked_at") or now, "ok": bool(ok_http),
                        "http": r.get("http"), "parsed": r.get("parsed"),
-                       "kept": r.get("kept"), "dup_pct": r.get("dup_rate")})
+                       "kept": r.get("kept"), "dup_pct": r.get("dup_rate")}
+        if run_id:
+            observation["run_id"] = str(run_id)
+            already_counted = str(run_id) in known_ids
+            matches = [item for item in rounds
+                       if isinstance(item, dict) and item.get("run_id") == str(run_id)]
+            if matches:
+                # 同一逻辑 run 即使非相邻重跑，也只保留最新一次结果。
+                rounds = [item for item in rounds
+                          if not (isinstance(item, dict)
+                                  and item.get("run_id") == str(run_id))]
+                rounds.append(observation)
+            elif not already_counted:
+                # 若该 run 已超出 30 轮窗口，只保留它的已处理标记，不重新塞回窗口。
+                rounds.append(observation)
+            if not already_counted:
+                round_ids.append(str(run_id))
+                known_ids.add(str(run_id))
+        else:
+            # 无显式 run 身份的本地调用保持原有“每次调用一轮”行为。
+            rounds.append(observation)
         rounds = rounds[-WINDOW:]
         t = tested.get(name) or {}
         ntest, nok = int(t.get("tested") or 0), int(t.get("ok") or 0)
@@ -356,12 +399,14 @@ def per_source(sources, stats, scores, prev=None):
         if old_state and old_state != state:
             trans.append({"from": old_state, "to": state, "ts": now})
         trans = trans[-10:]
-        seen = int(prev_r.get("rounds_seen") or 0) + 1
+        seen = int(prev_r.get("rounds_seen") or 0) + (
+            0 if run_id and already_counted else 1)
         under_obs = name not in baseline and seen < OBS_ROUNDS
         out[name] = {
             "id": s.get("id"), "enabled": True,
             "first_seen": prev_r.get("first_seen") or now,
             "rounds_seen": seen,
+            "round_ids": round_ids,
             # 存量源标记为 legacy，新增源标记 new，观察期只压后者
             "intake": "legacy" if name in baseline else "new",
             "state": state, "state_label": score.STATE_LABEL.get(state, state),
@@ -585,12 +630,15 @@ def selftest():
     fake_stats = {"sources": [{"name": n, "http": 200, "parsed": 100, "kept": 100,
                                "fails_streak": 0, "checked_at": _stamp()}
                               for n in ("新源", "老源")]}
-    mm = per_source(fake_src, fake_stats, {"by_source": {}}, prev)
+    mm = per_source(fake_src, fake_stats, {"by_source": {}}, prev,
+                     run_id="governance-selftest-1")
     chk(mm["sources"]["新源"]["under_observation"] and
         mm["sources"]["新源"]["grade_cap"] == "B", "新源首轮观察期封顶 B")
     chk(not mm["sources"]["老源"]["under_observation"], "存量源不追溯观察期")
-    mm2 = per_source(fake_src, fake_stats, {"by_source": {}}, mm)
-    mm3 = per_source(fake_src, fake_stats, {"by_source": {}}, mm2)
+    mm2 = per_source(fake_src, fake_stats, {"by_source": {}}, mm,
+                      run_id="governance-selftest-2")
+    mm3 = per_source(fake_src, fake_stats, {"by_source": {}}, mm2,
+                      run_id="governance-selftest-3")
     chk(not mm3["sources"]["新源"]["under_observation"], "三轮后解除观察期")
 
     # 观察期必须真的压到评分上：治理文件写了 cap，score 要读得到
