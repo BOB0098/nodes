@@ -523,6 +523,9 @@ class NetsafePinnedTransportTest(unittest.TestCase):
         targets = []
 
         class FakeTLSContext:
+            verify_mode = ssl.CERT_REQUIRED
+            check_hostname = True
+
             def wrap_socket(self, raw, server_hostname):
                 self.server_hostname = server_hostname
                 if raw is first_raw:
@@ -744,6 +747,9 @@ class NetsafeSocketCleanupTest(unittest.TestCase):
         raw, wrapped = FakeSocket(), FakeSocket()
 
         class FakeTLSContext:
+            verify_mode = ssl.CERT_REQUIRED
+            check_hostname = True
+
             def wrap_socket(self, _raw, server_hostname):
                 self.server_hostname = server_hostname
                 clock.advance(1.1)
