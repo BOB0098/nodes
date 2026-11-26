@@ -122,11 +122,42 @@ def load(path=DEFAULT_PATH):
 # ── 动态统计（每轮采集写一次，不进 sources.yaml，避免 diff 噪声）──────
 
 def load_stats():
-    import json
+    """读取动态统计；仅首次缺失时兼容为空状态。
+
+    损坏或结构不符的数据必须中止当前流程，避免 collector 把空统计写回并
+    覆盖原始证据文件。
+    """
     try:
-        return json.load(open(STATS_PATH, encoding="utf-8"))
-    except Exception:
+        with open(STATS_PATH, encoding="utf-8") as f:
+            doc = json.load(f)
+    except FileNotFoundError:
         return {"sources": []}
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise SourceError(f"sources_stats.json JSON 损坏: {exc}") from exc
+    except OSError as exc:
+        raise SourceError(f"读取 sources_stats.json 失败: {exc}") from exc
+
+    if not isinstance(doc, dict) or not isinstance(doc.get("sources"), list):
+        raise SourceError("sources_stats.json schema 错误: sources 必须是列表")
+    if any(not isinstance(row, dict) for row in doc["sources"]):
+        raise SourceError("sources_stats.json schema 错误: sources 条目必须是对象")
+    seen_ids = set()
+    for index, row in enumerate(doc["sources"], start=1):
+        source_id = row.get("id")
+        if not isinstance(source_id, str) or not source_id:
+            raise SourceError(
+                f"sources_stats.json schema 错误: 第 {index} 条 id 必须是非空字符串")
+        if source_id in seen_ids:
+            raise SourceError(
+                f"sources_stats.json schema 错误: 来源 id 重复: {source_id}")
+        seen_ids.add(source_id)
+        for field in ("fails_total", "fails_streak"):
+            value = row.get(field)
+            if (not isinstance(value, int) or isinstance(value, bool) or value < 0):
+                raise SourceError(
+                    f"sources_stats.json schema 错误: 第 {index} 条 {field} "
+                    "必须是非负整数")
+    return doc
 
 
 def save_stats(rows, updated=None, in_ci=None):
