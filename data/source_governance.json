@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "updated": "2026-11-27 20:31",
+ "updated": "2026-11-28 07:39",
  "window": 30,
  "obs_rounds": 3,
  "whitelist": {
@@ -402,32 +402,32 @@
   {
    "a": "radarhub",
    "b": "radarhub·singbox",
-   "jaccard": 0.996,
-   "shared": 280,
-   "size_a": 281,
-   "size_b": 280,
+   "jaccard": 0.993,
+   "shared": 270,
+   "size_a": 272,
+   "size_b": 270,
    "kind": "高度重合",
    "a_id": "radarhub-clash",
    "b_id": "radarhub-singbox"
   },
   {
-   "a": "尔毛子·全量Clash",
-   "b": "尔毛子·可连Clash",
-   "jaccard": 0.985,
-   "shared": 257,
-   "size_a": 261,
-   "size_b": 257,
+   "a": "尔毛子·可连Clash",
+   "b": "尔毛子·全量Clash",
+   "jaccard": 0.978,
+   "shared": 263,
+   "size_a": 263,
+   "size_b": 269,
    "kind": "高度重合",
-   "a_id": "ermao-clash-full",
-   "b_id": "ermao-clash-reachable"
+   "a_id": "ermao-clash-reachable",
+   "b_id": "ermao-clash-full"
   },
   {
    "a": "尔毛子·全量Clash",
    "b": "bzfq21",
-   "jaccard": 0.874,
-   "shared": 236,
-   "size_a": 261,
-   "size_b": 245,
+   "jaccard": 0.899,
+   "shared": 249,
+   "size_a": 269,
+   "size_b": 257,
    "kind": "高度重合",
    "a_id": "ermao-clash-full",
    "b_id": "bzfq21"
@@ -435,10 +435,10 @@
   {
    "a": "尔毛子·可连Clash",
    "b": "bzfq21",
-   "jaccard": 0.859,
-   "shared": 232,
-   "size_a": 257,
-   "size_b": 245,
+   "jaccard": 0.877,
+   "shared": 243,
+   "size_a": 263,
+   "size_b": 257,
    "kind": "高度重合",
    "a_id": "ermao-clash-reachable",
    "b_id": "bzfq21"
@@ -446,10 +446,10 @@
   {
    "a": "尔毛子·全量Clash",
    "b": "尔毛子·V2Ray",
-   "jaccard": 0.834,
-   "shared": 251,
-   "size_a": 261,
-   "size_b": 291,
+   "jaccard": 0.829,
+   "shared": 261,
+   "size_a": 269,
+   "size_b": 307,
    "kind": "高度重合",
    "a_id": "ermao-clash-full",
    "b_id": "ermao-v2ray"
@@ -457,10 +457,10 @@
   {
    "a": "尔毛子·可连Clash",
    "b": "尔毛子·V2Ray",
-   "jaccard": 0.821,
-   "shared": 247,
-   "size_a": 257,
-   "size_b": 291,
+   "jaccard": 0.81,
+   "shared": 255,
+   "size_a": 263,
+   "size_b": 307,
    "kind": "高度重合",
    "a_id": "ermao-clash-reachable",
    "b_id": "ermao-v2ray"
@@ -468,43 +468,44 @@
   {
    "a": "尔毛子·V2Ray",
    "b": "bzfq21",
-   "jaccard": 0.793,
-   "shared": 237,
-   "size_a": 291,
-   "size_b": 245,
+   "jaccard": 0.796,
+   "shared": 250,
+   "size_a": 307,
+   "size_b": 257,
    "kind": "部分重合",
    "a_id": "ermao-v2ray",
    "b_id": "bzfq21"
   }
  ],
- "overlap_source": "source_keys.json（2026-11-27 20:19）",
+ "overlap_source": "source_keys.json（2026-11-28 07:27）",
  "overlap_note": "地址以 sha256 前 16 位存储（明文不落盘）。旧轮次无 source_keys.json 时用去重后的 nodes.json 兜底，那种口径下重合恒为 0，不能当成「没有重合」。样本 <20 条不判。",
  "sources": {
   "尔毛子·可连Clash": {
    "id": "ermao-clash-reachable",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 267,
-   "kept": 264,
+   "parsed": 282,
+   "kept": 271,
    "dup_pct": 100.0,
-   "valid_ok": 30,
+   "valid_ok": 33,
    "valid_tested": 90,
-   "valid_pct": 33.3,
+   "valid_pct": 36.7,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -558,6 +559,15 @@
      "kept": 264,
      "dup_pct": 100.0,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 282,
+     "kept": 271,
+     "dup_pct": 100.0,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -565,27 +575,28 @@
    "id": "radarhub-clash",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 495,
-   "kept": 359,
-   "dup_pct": 98.4,
-   "valid_ok": 57,
+   "parsed": 494,
+   "kept": 336,
+   "dup_pct": 98.8,
+   "valid_ok": 73,
    "valid_tested": 90,
-   "valid_pct": 63.3,
+   "valid_pct": 81.1,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -639,6 +650,15 @@
      "kept": 359,
      "dup_pct": 98.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 494,
+     "kept": 336,
+     "dup_pct": 98.8,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -646,27 +666,28 @@
    "id": "ermao-clash-full",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 334,
-   "kept": 59,
-   "dup_pct": 97.6,
-   "valid_ok": 9,
-   "valid_tested": 59,
-   "valid_pct": 15.3,
+   "parsed": 353,
+   "kept": 64,
+   "dup_pct": 98.3,
+   "valid_ok": 8,
+   "valid_tested": 64,
+   "valid_pct": 12.5,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -720,6 +741,15 @@
      "kept": 59,
      "dup_pct": 97.6,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 353,
+     "kept": 64,
+     "dup_pct": 98.3,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -727,27 +757,28 @@
    "id": "anaer",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 1770,
-   "kept": 1759,
-   "dup_pct": 1.1,
-   "valid_ok": 0,
+   "parsed": 2053,
+   "kept": 2011,
+   "dup_pct": 3.8,
+   "valid_ok": 1,
    "valid_tested": 90,
-   "valid_pct": 0.0,
+   "valid_pct": 1.1,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -801,6 +832,15 @@
      "kept": 1759,
      "dup_pct": 1.1,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 2053,
+     "kept": 2011,
+     "dup_pct": 3.8,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -808,27 +848,28 @@
    "id": "barabama",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
    "parsed": 1090,
-   "kept": 731,
-   "dup_pct": 36.8,
-   "valid_ok": 28,
+   "kept": 738,
+   "dup_pct": 35.8,
+   "valid_ok": 30,
    "valid_tested": 90,
-   "valid_pct": 31.1,
+   "valid_pct": 33.3,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -882,6 +923,15 @@
      "kept": 731,
      "dup_pct": 36.8,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 1090,
+     "kept": 738,
+     "dup_pct": 35.8,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -889,27 +939,28 @@
    "id": "pawdroid",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 9,
-   "kept": 5,
-   "dup_pct": 100.0,
+   "parsed": 11,
+   "kept": 6,
+   "dup_pct": 90.9,
    "valid_ok": 4,
-   "valid_tested": 5,
-   "valid_pct": 80.0,
+   "valid_tested": 6,
+   "valid_pct": 66.7,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -963,6 +1014,15 @@
      "kept": 5,
      "dup_pct": 100.0,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 11,
+     "kept": 6,
+     "dup_pct": 90.9,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -970,27 +1030,28 @@
    "id": "ermao-v2ray",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 368,
-   "kept": 190,
-   "dup_pct": 52.4,
-   "valid_ok": 8,
+   "parsed": 405,
+   "kept": 217,
+   "dup_pct": 52.6,
+   "valid_ok": 14,
    "valid_tested": 90,
-   "valid_pct": 8.9,
+   "valid_pct": 15.6,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1044,6 +1105,15 @@
      "kept": 190,
      "dup_pct": 52.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 405,
+     "kept": 217,
+     "dup_pct": 52.6,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1051,27 +1121,28 @@
    "id": "aliilapro",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 4675,
-   "kept": 4368,
-   "dup_pct": 48.2,
-   "valid_ok": 5,
+   "parsed": 4792,
+   "kept": 4469,
+   "dup_pct": 45.5,
+   "valid_ok": 7,
    "valid_tested": 90,
-   "valid_pct": 5.6,
+   "valid_pct": 7.8,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1125,6 +1196,15 @@
      "kept": 4368,
      "dup_pct": 48.2,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 4792,
+     "kept": 4469,
+     "dup_pct": 45.5,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1132,27 +1212,28 @@
    "id": "v2rayfree",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 62,
-   "kept": 34,
-   "dup_pct": 48.4,
-   "valid_ok": 5,
-   "valid_tested": 34,
-   "valid_pct": 14.7,
+   "parsed": 19,
+   "kept": 5,
+   "dup_pct": 78.9,
+   "valid_ok": 0,
+   "valid_tested": 5,
+   "valid_pct": 0.0,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1206,6 +1287,15 @@
      "kept": 34,
      "dup_pct": 48.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 19,
+     "kept": 5,
+     "dup_pct": 78.9,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1213,27 +1303,28 @@
    "id": "free18",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
    "parsed": 230,
-   "kept": 186,
-   "dup_pct": 19.1,
-   "valid_ok": 29,
+   "kept": 172,
+   "dup_pct": 27.0,
+   "valid_ok": 35,
    "valid_tested": 90,
-   "valid_pct": 32.2,
+   "valid_pct": 38.9,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1287,6 +1378,15 @@
      "kept": 186,
      "dup_pct": 19.1,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 230,
+     "kept": 172,
+     "dup_pct": 27.0,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1294,27 +1394,28 @@
    "id": "matinghanbari",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 3855,
-   "kept": 1714,
-   "dup_pct": 55.5,
-   "valid_ok": 0,
+   "parsed": 3857,
+   "kept": 1780,
+   "dup_pct": 53.9,
+   "valid_ok": 2,
    "valid_tested": 90,
-   "valid_pct": 0.0,
+   "valid_pct": 2.2,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1368,6 +1469,15 @@
      "kept": 1714,
      "dup_pct": 55.5,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 3857,
+     "kept": 1780,
+     "dup_pct": 53.9,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1375,27 +1485,28 @@
    "id": "radarhub-singbox",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 494,
-   "kept": 18,
-   "dup_pct": 96.4,
-   "valid_ok": 5,
-   "valid_tested": 18,
-   "valid_pct": 27.8,
+   "parsed": 491,
+   "kept": 5,
+   "dup_pct": 99.0,
+   "valid_ok": 4,
+   "valid_tested": 5,
+   "valid_pct": 80.0,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1449,6 +1560,15 @@
      "kept": 18,
      "dup_pct": 96.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 491,
+     "kept": 5,
+     "dup_pct": 99.0,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1456,27 +1576,28 @@
    "id": "bzfq21",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 342,
-   "kept": 170,
-   "dup_pct": 50.3,
-   "valid_ok": 14,
+   "parsed": 362,
+   "kept": 199,
+   "dup_pct": 45.3,
+   "valid_ok": 15,
    "valid_tested": 90,
-   "valid_pct": 15.6,
+   "valid_pct": 16.7,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1530,6 +1651,15 @@
      "kept": 170,
      "dup_pct": 50.3,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 362,
+     "kept": 199,
+     "dup_pct": 45.3,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1537,27 +1667,28 @@
    "id": "awesome-vpn",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
    "parsed": 28,
    "kept": 20,
    "dup_pct": 28.6,
-   "valid_ok": 11,
+   "valid_ok": 13,
    "valid_tested": 20,
-   "valid_pct": 55.0,
+   "valid_pct": 65.0,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1611,6 +1742,15 @@
      "kept": 20,
      "dup_pct": 28.6,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 28,
+     "kept": 20,
+     "dup_pct": 28.6,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1618,18 +1758,19 @@
    "id": "andrejewild",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
@@ -1692,6 +1833,15 @@
      "kept": 18,
      "dup_pct": 10.0,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 20,
+     "kept": 18,
+     "dup_pct": 10.0,
+     "run_id": "46082575660"
     }
    ]
   }
@@ -1701,27 +1851,28 @@
    "id": "ermao-clash-reachable",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 267,
-   "kept": 264,
+   "parsed": 282,
+   "kept": 271,
    "dup_pct": 100.0,
-   "valid_ok": 30,
+   "valid_ok": 33,
    "valid_tested": 90,
-   "valid_pct": 33.3,
+   "valid_pct": 36.7,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1775,6 +1926,15 @@
      "kept": 264,
      "dup_pct": 100.0,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 282,
+     "kept": 271,
+     "dup_pct": 100.0,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1782,27 +1942,28 @@
    "id": "radarhub-clash",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 495,
-   "kept": 359,
-   "dup_pct": 98.4,
-   "valid_ok": 57,
+   "parsed": 494,
+   "kept": 336,
+   "dup_pct": 98.8,
+   "valid_ok": 73,
    "valid_tested": 90,
-   "valid_pct": 63.3,
+   "valid_pct": 81.1,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1856,6 +2017,15 @@
      "kept": 359,
      "dup_pct": 98.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 494,
+     "kept": 336,
+     "dup_pct": 98.8,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1863,27 +2033,28 @@
    "id": "ermao-clash-full",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 334,
-   "kept": 59,
-   "dup_pct": 97.6,
-   "valid_ok": 9,
-   "valid_tested": 59,
-   "valid_pct": 15.3,
+   "parsed": 353,
+   "kept": 64,
+   "dup_pct": 98.3,
+   "valid_ok": 8,
+   "valid_tested": 64,
+   "valid_pct": 12.5,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -1937,6 +2108,15 @@
      "kept": 59,
      "dup_pct": 97.6,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 353,
+     "kept": 64,
+     "dup_pct": 98.3,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -1944,27 +2124,28 @@
    "id": "anaer",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 1770,
-   "kept": 1759,
-   "dup_pct": 1.1,
-   "valid_ok": 0,
+   "parsed": 2053,
+   "kept": 2011,
+   "dup_pct": 3.8,
+   "valid_ok": 1,
    "valid_tested": 90,
-   "valid_pct": 0.0,
+   "valid_pct": 1.1,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2018,6 +2199,15 @@
      "kept": 1759,
      "dup_pct": 1.1,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 2053,
+     "kept": 2011,
+     "dup_pct": 3.8,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2025,27 +2215,28 @@
    "id": "barabama",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
    "parsed": 1090,
-   "kept": 731,
-   "dup_pct": 36.8,
-   "valid_ok": 28,
+   "kept": 738,
+   "dup_pct": 35.8,
+   "valid_ok": 30,
    "valid_tested": 90,
-   "valid_pct": 31.1,
+   "valid_pct": 33.3,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2099,6 +2290,15 @@
      "kept": 731,
      "dup_pct": 36.8,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 1090,
+     "kept": 738,
+     "dup_pct": 35.8,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2106,27 +2306,28 @@
    "id": "pawdroid",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 9,
-   "kept": 5,
-   "dup_pct": 100.0,
+   "parsed": 11,
+   "kept": 6,
+   "dup_pct": 90.9,
    "valid_ok": 4,
-   "valid_tested": 5,
-   "valid_pct": 80.0,
+   "valid_tested": 6,
+   "valid_pct": 66.7,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2180,6 +2381,15 @@
      "kept": 5,
      "dup_pct": 100.0,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 11,
+     "kept": 6,
+     "dup_pct": 90.9,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2187,27 +2397,28 @@
    "id": "ermao-v2ray",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 368,
-   "kept": 190,
-   "dup_pct": 52.4,
-   "valid_ok": 8,
+   "parsed": 405,
+   "kept": 217,
+   "dup_pct": 52.6,
+   "valid_ok": 14,
    "valid_tested": 90,
-   "valid_pct": 8.9,
+   "valid_pct": 15.6,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2261,6 +2472,15 @@
      "kept": 190,
      "dup_pct": 52.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 405,
+     "kept": 217,
+     "dup_pct": 52.6,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2268,27 +2488,28 @@
    "id": "aliilapro",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 4675,
-   "kept": 4368,
-   "dup_pct": 48.2,
-   "valid_ok": 5,
+   "parsed": 4792,
+   "kept": 4469,
+   "dup_pct": 45.5,
+   "valid_ok": 7,
    "valid_tested": 90,
-   "valid_pct": 5.6,
+   "valid_pct": 7.8,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2342,6 +2563,15 @@
      "kept": 4368,
      "dup_pct": 48.2,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 4792,
+     "kept": 4469,
+     "dup_pct": 45.5,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2349,27 +2579,28 @@
    "id": "v2rayfree",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 62,
-   "kept": 34,
-   "dup_pct": 48.4,
-   "valid_ok": 5,
-   "valid_tested": 34,
-   "valid_pct": 14.7,
+   "parsed": 19,
+   "kept": 5,
+   "dup_pct": 78.9,
+   "valid_ok": 0,
+   "valid_tested": 5,
+   "valid_pct": 0.0,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2423,6 +2654,15 @@
      "kept": 34,
      "dup_pct": 48.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 19,
+     "kept": 5,
+     "dup_pct": 78.9,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2430,27 +2670,28 @@
    "id": "free18",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
    "parsed": 230,
-   "kept": 186,
-   "dup_pct": 19.1,
-   "valid_ok": 29,
+   "kept": 172,
+   "dup_pct": 27.0,
+   "valid_ok": 35,
    "valid_tested": 90,
-   "valid_pct": 32.2,
+   "valid_pct": 38.9,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2504,6 +2745,15 @@
      "kept": 186,
      "dup_pct": 19.1,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 230,
+     "kept": 172,
+     "dup_pct": 27.0,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2511,27 +2761,28 @@
    "id": "matinghanbari",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 3855,
-   "kept": 1714,
-   "dup_pct": 55.5,
-   "valid_ok": 0,
+   "parsed": 3857,
+   "kept": 1780,
+   "dup_pct": 53.9,
+   "valid_ok": 2,
    "valid_tested": 90,
-   "valid_pct": 0.0,
+   "valid_pct": 2.2,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2585,6 +2836,15 @@
      "kept": 1714,
      "dup_pct": 55.5,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 3857,
+     "kept": 1780,
+     "dup_pct": 53.9,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2592,27 +2852,28 @@
    "id": "radarhub-singbox",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 494,
-   "kept": 18,
-   "dup_pct": 96.4,
-   "valid_ok": 5,
-   "valid_tested": 18,
-   "valid_pct": 27.8,
+   "parsed": 491,
+   "kept": 5,
+   "dup_pct": 99.0,
+   "valid_ok": 4,
+   "valid_tested": 5,
+   "valid_pct": 80.0,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2666,6 +2927,15 @@
      "kept": 18,
      "dup_pct": 96.4,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 491,
+     "kept": 5,
+     "dup_pct": 99.0,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2673,27 +2943,28 @@
    "id": "bzfq21",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
-   "parsed": 342,
-   "kept": 170,
-   "dup_pct": 50.3,
-   "valid_ok": 14,
+   "parsed": 362,
+   "kept": 199,
+   "dup_pct": 45.3,
+   "valid_ok": 15,
    "valid_tested": 90,
-   "valid_pct": 15.6,
+   "valid_pct": 16.7,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2747,6 +3018,15 @@
      "kept": 170,
      "dup_pct": 50.3,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 362,
+     "kept": 199,
+     "dup_pct": 45.3,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2754,27 +3034,28 @@
    "id": "awesome-vpn",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
    "parsed": 28,
    "kept": 20,
    "dup_pct": 28.6,
-   "valid_ok": 11,
+   "valid_ok": 13,
    "valid_tested": 20,
-   "valid_pct": 55.0,
+   "valid_pct": 65.0,
    "grade_cap": null,
    "under_observation": false,
    "rounds": [
@@ -2828,6 +3109,15 @@
      "kept": 20,
      "dup_pct": 28.6,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 28,
+     "kept": 20,
+     "dup_pct": 28.6,
+     "run_id": "46082575660"
     }
    ]
   },
@@ -2835,18 +3125,19 @@
    "id": "andrejewild",
    "enabled": true,
    "first_seen": "2026-11-25 13:59",
-   "rounds_seen": 6,
+   "rounds_seen": 7,
    "round_ids": [
     "p24-approved-1795695070-197232",
     "45924264333",
-    "45997647665"
+    "45997647665",
+    "46082575660"
    ],
    "intake": "legacy",
    "state": "ok",
    "state_label": "正常",
    "transitions": [],
    "fetch_success_pct": 100.0,
-   "last_success": "11-27 20:19",
+   "last_success": "11-28 07:27",
    "fails_streak": 0,
    "fails_total": 0,
    "last_error": null,
@@ -2909,6 +3200,15 @@
      "kept": 18,
      "dup_pct": 10.0,
      "run_id": "45997647665"
+    },
+    {
+     "ts": "11-28 07:27",
+     "ok": true,
+     "http": 200,
+     "parsed": 20,
+     "kept": 18,
+     "dup_pct": 10.0,
+     "run_id": "46082575660"
     }
    ]
   }
