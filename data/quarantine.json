@@ -1,82 +1,82 @@
 {
- "updated": "2026-11-26 20:11",
- "total": 1206,
+ "updated": "2026-11-27 09:44",
+ "total": 1248,
  "by_reason": {
-  "凭据不是合法 UUID（vmess/vless 无法握手）": 382,
-  "明文代理（流量与凭据均可被链路上任何人读取）": 716,
-  "不支持的协议类型": 10,
-  "非公网地址（回环/私有/保留网段）": 55,
-  "条目结构异常（不是对象或字段类型不对）": 42,
+  "不支持的协议类型": 15,
+  "条目结构异常（不是对象或字段类型不对）": 35,
+  "非公网地址（回环/私有/保留网段）": 46,
+  "明文代理（流量与凭据均可被链路上任何人读取）": 783,
+  "凭据不是合法 UUID（vmess/vless 无法握手）": 368,
   "缺少地址或端口": 1
  },
  "sources": [
   {
    "src": "Barabama",
-   "count": 601,
+   "count": 593,
    "by_reason": {
-    "凭据不是合法 UUID（vmess/vless 无法握手）": 2,
-    "明文代理（流量与凭据均可被链路上任何人读取）": 599
+    "不支持的协议类型": 1,
+    "明文代理（流量与凭据均可被链路上任何人读取）": 592
    }
   },
   {
    "src": "ALIILAPRO",
-   "count": 256,
+   "count": 255,
    "by_reason": {
     "条目结构异常（不是对象或字段类型不对）": 1,
     "凭据不是合法 UUID（vmess/vless 无法握手）": 243,
-    "非公网地址（回环/私有/保留网段）": 11,
+    "非公网地址（回环/私有/保留网段）": 10,
     "缺少地址或端口": 1
    }
   },
   {
    "src": "v2ray-configs",
-   "count": 145,
+   "count": 137,
    "by_reason": {
-    "条目结构异常（不是对象或字段类型不对）": 34,
-    "凭据不是合法 UUID（vmess/vless 无法握手）": 107,
-    "非公网地址（回环/私有/保留网段）": 4
-   }
-  },
-  {
-   "src": "bzfq21",
-   "count": 61,
-   "by_reason": {
-    "明文代理（流量与凭据均可被链路上任何人读取）": 51,
-    "非公网地址（回环/私有/保留网段）": 10
-   }
-  },
-  {
-   "src": "anaer",
-   "count": 41,
-   "by_reason": {
-    "不支持的协议类型": 1,
-    "非公网地址（回环/私有/保留网段）": 10,
-    "凭据不是合法 UUID（vmess/vless 无法握手）": 30
-   }
-  },
-  {
-   "src": "尔毛子·V2Ray",
-   "count": 38,
-   "by_reason": {
-    "条目结构异常（不是对象或字段类型不对）": 6,
-    "非公网地址（回环/私有/保留网段）": 10,
-    "明文代理（流量与凭据均可被链路上任何人读取）": 22
+    "条目结构异常（不是对象或字段类型不对）": 31,
+    "凭据不是合法 UUID（vmess/vless 无法握手）": 101,
+    "非公网地址（回环/私有/保留网段）": 5
    }
   },
   {
    "src": "尔毛子·全量Clash",
-   "count": 37,
+   "count": 65,
    "by_reason": {
-    "不支持的协议类型": 5,
+    "不支持的协议类型": 9,
     "非公网地址（回环/私有/保留网段）": 10,
-    "明文代理（流量与凭据均可被链路上任何人读取）": 22
+    "明文代理（流量与凭据均可被链路上任何人读取）": 46
+   }
+  },
+  {
+   "src": "bzfq21",
+   "count": 63,
+   "by_reason": {
+    "明文代理（流量与凭据均可被链路上任何人读取）": 53,
+    "非公网地址（回环/私有/保留网段）": 10
+   }
+  },
+  {
+   "src": "尔毛子·V2Ray",
+   "count": 58,
+   "by_reason": {
+    "条目结构异常（不是对象或字段类型不对）": 2,
+    "非公网地址（回环/私有/保留网段）": 10,
+    "明文代理（流量与凭据均可被链路上任何人读取）": 46
    }
   },
   {
    "src": "尔毛子·可连Clash",
-   "count": 22,
+   "count": 46,
    "by_reason": {
-    "明文代理（流量与凭据均可被链路上任何人读取）": 22
+    "明文代理（流量与凭据均可被链路上任何人读取）": 46
+   }
+  },
+  {
+   "src": "anaer",
+   "count": 26,
+   "by_reason": {
+    "不支持的协议类型": 1,
+    "凭据不是合法 UUID（vmess/vless 无法握手）": 24,
+    "非公网地址（回环/私有/保留网段）": 1
    }
   },
   {
@@ -103,96 +103,6 @@
  ],
  "samples": [
   {
-   "kind": "node",
-   "type": "vless",
-   "name": "NL荷兰(mibei77.com 米贝节点分享) (3)",
-   "server": "104.171.135.229",
-   "port": 443,
-   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇺🇸US_83|812KB/s|P002-260618 [0002809537c",
-   "server": "138.199.35.218",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇩🇪DE_97|1.5MB/s|K001-260618 [00b0076b54b",
-   "server": "213.109.163.119",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇺🇸US_231|781KB/s|P002-260618 [012da4b295",
-   "server": "crosscards.site",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇺🇸US_189|814KB/s|R002-260618 [024ef203eb",
-   "server": "138.199.35.200",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "clash",
-   "type": "vmess",
-   "name": "其他 084",
-   "server": "使用前记得更新订阅",
-   "port": 0,
-   "reason": "不支持的协议类型",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 001",
-   "server": "127.0.0.53",
-   "port": 80,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 002",
-   "server": "127.0.0.53",
-   "port": 81,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 003",
-   "server": "127.0.0.53",
-   "port": 82,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
-   "kind": "node",
-   "type": "vmess",
-   "name": "其他 004",
-   "server": "127.0.0.53",
-   "port": 83,
-   "reason": "非公网地址（回环/私有/保留网段）",
-   "src": "anaer"
-  },
-  {
    "kind": "clash",
    "type": "hysteria",
    "name": "🇫🇷 France 36",
@@ -212,93 +122,246 @@
   },
   {
    "kind": "uri",
-   "type": "# 📥 subscription link: https",
+   "type": "hysteria2",
    "name": "",
    "server": "",
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "ALIILAPRO"
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "kind": "uri",
+   "type": "hysteria2",
+   "name": "",
+   "server": "",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "尔毛子·V2Ray"
   },
   {
    "kind": "node",
    "type": "vmess",
-   "name": "❤ ALIILAPRO (ALI.B) Official Config",
-   "server": "https://github.com/aliilapro/v2rayng-config",
+   "name": "防范境外势力渗透",
+   "server": "127.0.0.53",
+   "port": 80,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "防范境外势力渗透 #1",
+   "server": "127.0.0.53",
+   "port": 81,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "防范境外势力渗透 #2",
+   "server": "127.0.0.53",
+   "port": 82,
+   "reason": "非公网地址（回环/私有/保留网段）",
+   "src": "尔毛子·V2Ray"
+  },
+  {
+   "kind": "clash",
+   "type": "hysteria",
+   "name": "🇫🇷FR_1|3.4MB/s",
+   "server": "62.210.124.132",
+   "port": 24667,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
+  },
+  {
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_1|2.3MB/s",
+   "server": "162.159.192.1",
+   "port": 500,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
+  },
+  {
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_2|2.8MB/s",
+   "server": "8.6.112.207",
+   "port": 8742,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
+  },
+  {
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_3|1.3MB/s",
+   "server": "8.6.112.134",
+   "port": 3854,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
+  },
+  {
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_4|1.9MB/s",
+   "server": "162.159.192.2",
+   "port": 500,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "BR_speednode_0002",
+   "server": "152.233.16.174",
+   "port": 9443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "尔毛子·可连Clash"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "NL_speednode_0014",
+   "server": "149.36.51.129",
    "port": 443,
-   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
-   "src": "ALIILAPRO"
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
-   "type": "vmess",
-   "name": "🕒 Last Update: 2026-11-26 - 14:19 (IR-🇮🇷",
-   "server": "time.ir",
+   "type": "http",
+   "name": "US_speednode_0027",
+   "server": "172.64.69.89",
    "port": 443,
-   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
-   "src": "ALIILAPRO"
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
-   "type": "vmess",
-   "name": "CA 🇨🇦 | @Raydikalx | 61155A",
-   "server": "104.19.174.68",
-   "port": 8080,
-   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
-   "src": "ALIILAPRO"
+   "type": "http",
+   "name": "🇺🇸US_4|1.7MB/s",
+   "server": "138.199.35.220",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "尔毛子·可连Clash"
   },
   {
    "kind": "node",
+   "type": "http",
+   "name": "BE_speednode_0001",
+   "server": "146.70.123.98",
+   "port": 443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "尔毛子·可连Clash"
+  },
+  {
+   "kind": "clash",
    "type": "vmess",
-   "name": "CA 🇨🇦 | @Raydikalx | B73D0C",
-   "server": "104.21.69.44",
-   "port": 8080,
+   "name": "其他 075",
+   "server": "使用前记得更新订阅",
+   "port": 0,
+   "reason": "不支持的协议类型",
+   "src": "anaer"
+  },
+  {
+   "kind": "node",
+   "type": "vless",
+   "name": "美国 283",
+   "server": "172.65.111.43",
+   "port": 22,
    "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
-   "src": "ALIILAPRO"
+   "src": "anaer"
   },
   {
-   "kind": "uri",
-   "type": "#profile-web-page-url: https",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
+   "kind": "node",
+   "type": "vless",
+   "name": "瑞士 002",
+   "server": "83.228.228.44",
+   "port": 22,
+   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
+   "src": "anaer"
   },
   {
-   "kind": "uri",
-   "type": "#support-url: https",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
+   "kind": "node",
+   "type": "vless",
+   "name": "俄罗斯 007",
+   "server": "176.97.210.2",
+   "port": 37589,
+   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
+   "src": "anaer"
   },
   {
-   "kind": "uri",
+   "kind": "node",
+   "type": "vless",
+   "name": "美国 423",
+   "server": "zmaoz.faculty.ucdavis.edu",
+   "port": 80,
+   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
+   "src": "anaer"
+  },
+  {
+   "kind": "clash",
    "type": "ssr",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
+   "name": "🇳🇱NL_158|574KB/s|R002-260618 [8b79f7273e",
+   "server": "109.104.153.43",
+   "port": 33336,
+   "reason": "不支持的协议类型",
+   "src": "Barabama"
   },
   {
-   "kind": "uri",
-   "type": "ssr",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
+   "kind": "node",
+   "type": "http",
+   "name": "🇺🇸US_270|776KB/s|P002-260618 [0002809537",
+   "server": "138.199.35.218",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
   },
   {
-   "kind": "uri",
-   "type": "ssr",
-   "name": "",
-   "server": "",
-   "port": 0,
-   "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "v2ray-configs"
+   "kind": "node",
+   "type": "http",
+   "name": "🇩🇪DE_14|4.1MB/s|K001-260618 [00b0076b54b",
+   "server": "213.109.163.119",
+   "port": 443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "🇺🇸US_45|89KB/s|P002-260618 [012da4b2957a",
+   "server": "crosscards.site",
+   "port": 443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "🇺🇸US_441|817KB/s|R002-260618 [024ef203eb",
+   "server": "138.199.35.200",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
+  },
+  {
+   "kind": "singbox",
+   "type": "hysteria",
+   "name": "🇫🇷 France 36",
+   "server": "163.172.117.163",
+   "port": 36699,
+   "reason": "不支持的协议类型",
+   "src": "radarhub·singbox"
+  },
+  {
+   "kind": "singbox",
+   "type": "hysteria",
+   "name": "🇫🇷 France 37",
+   "server": "62.210.28.175",
+   "port": 24667,
+   "reason": "不支持的协议类型",
+   "src": "radarhub·singbox"
   },
   {
    "kind": "node",
@@ -347,6 +410,51 @@
   },
   {
    "kind": "uri",
+   "type": "# 📥 subscription link: https",
+   "name": "",
+   "server": "",
+   "port": 0,
+   "reason": "条目结构异常（不是对象或字段类型不对）",
+   "src": "ALIILAPRO"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "❤ ALIILAPRO (ALI.B) Official Config",
+   "server": "https://github.com/aliilapro/v2rayng-config",
+   "port": 443,
+   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
+   "src": "ALIILAPRO"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "🕒 Last Update: 2026-11-27 - 03:57 (IR-🇮🇷",
+   "server": "time.ir",
+   "port": 443,
+   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
+   "src": "ALIILAPRO"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "CA 🇨🇦 | @Raydikalx | 61155A",
+   "server": "104.19.174.68",
+   "port": 8080,
+   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
+   "src": "ALIILAPRO"
+  },
+  {
+   "kind": "node",
+   "type": "vmess",
+   "name": "CA 🇨🇦 | @Raydikalx | B73D0C",
+   "server": "104.21.69.44",
+   "port": 8080,
+   "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
+   "src": "ALIILAPRO"
+  },
+  {
+   "kind": "uri",
    "type": "#support-url: https",
    "name": "",
    "server": "",
@@ -356,156 +464,48 @@
   },
   {
    "kind": "uri",
-   "type": "hysteria",
+   "type": "#profile-web-page-url: https",
    "name": "",
    "server": "",
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "尔毛子·V2Ray"
+   "src": "v2ray-configs"
   },
   {
    "kind": "uri",
-   "type": "hysteria",
+   "type": "#support-url: https",
    "name": "",
    "server": "",
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "尔毛子·V2Ray"
+   "src": "v2ray-configs"
   },
   {
    "kind": "uri",
-   "type": "hysteria",
+   "type": "ssr",
    "name": "",
    "server": "",
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "尔毛子·V2Ray"
+   "src": "v2ray-configs"
   },
   {
    "kind": "uri",
-   "type": "hysteria",
+   "type": "ssr",
    "name": "",
    "server": "",
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "尔毛子·V2Ray"
+   "src": "v2ray-configs"
   },
   {
    "kind": "uri",
-   "type": "hysteria2",
+   "type": "ssr",
    "name": "",
    "server": "",
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
-   "src": "尔毛子·V2Ray"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "BE_speednode_0001",
-   "server": "146.70.123.98",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "BR_speednode_0002",
-   "server": "152.233.16.174",
-   "port": 9443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "DE_speednode_0003",
-   "server": "149.36.50.1",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "DK_speednode_0004",
-   "server": "158.173.154.1",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "DK_speednode_0005",
-   "server": "158.173.154.4",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "尔毛子·可连Clash"
-  },
-  {
-   "kind": "clash",
-   "type": "hysteria",
-   "name": "🇺🇸_US_美国_IPV4",
-   "server": "137.175.82.41",
-   "port": 20022,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
-  },
-  {
-   "kind": "clash",
-   "type": "hysteria",
-   "name": "🇺🇸_US_美国_IPV4 (2)",
-   "server": "38.6.222.132",
-   "port": 11008,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
-  },
-  {
-   "kind": "clash",
-   "type": "hysteria",
-   "name": "🇺🇸_US_美国_IPV4 (3)",
-   "server": "38.6.222.131",
-   "port": 11008,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
-  },
-  {
-   "kind": "clash",
-   "type": "hysteria",
-   "name": "🇫🇷_FR_法国_IPV4",
-   "server": "62.210.124.132",
-   "port": 24667,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
-  },
-  {
-   "kind": "clash",
-   "type": "hysteria",
-   "name": "https://alvin9999.com",
-   "server": "62.210.124.132",
-   "port": 24667,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
-  },
-  {
-   "kind": "singbox",
-   "type": "hysteria",
-   "name": "🇫🇷 France 36",
-   "server": "163.172.117.163",
-   "port": 36699,
-   "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
-  },
-  {
-   "kind": "singbox",
-   "type": "hysteria",
-   "name": "🇫🇷 France 37",
-   "server": "62.210.28.175",
-   "port": 24667,
-   "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
+   "src": "v2ray-configs"
   }
  ]
 }
