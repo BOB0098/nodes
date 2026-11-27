@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-27 09:44",
- "total": 1248,
+ "updated": "2026-11-27 20:19",
+ "total": 1269,
  "by_reason": {
   "不支持的协议类型": 15,
-  "条目结构异常（不是对象或字段类型不对）": 35,
-  "非公网地址（回环/私有/保留网段）": 46,
-  "明文代理（流量与凭据均可被链路上任何人读取）": 783,
-  "凭据不是合法 UUID（vmess/vless 无法握手）": 368,
+  "条目结构异常（不是对象或字段类型不对）": 32,
+  "非公网地址（回环/私有/保留网段）": 45,
+  "明文代理（流量与凭据均可被链路上任何人读取）": 795,
+  "凭据不是合法 UUID（vmess/vless 无法握手）": 381,
   "缺少地址或端口": 1
  },
  "sources": [
@@ -30,11 +30,19 @@
   },
   {
    "src": "v2ray-configs",
-   "count": 137,
+   "count": 146,
    "by_reason": {
-    "条目结构异常（不是对象或字段类型不对）": 31,
-    "凭据不是合法 UUID（vmess/vless 无法握手）": 101,
-    "非公网地址（回环/私有/保留网段）": 5
+    "条目结构异常（不是对象或字段类型不对）": 28,
+    "凭据不是合法 UUID（vmess/vless 无法握手）": 114,
+    "非公网地址（回环/私有/保留网段）": 4
+   }
+  },
+  {
+   "src": "bzfq21",
+   "count": 75,
+   "by_reason": {
+    "明文代理（流量与凭据均可被链路上任何人读取）": 65,
+    "非公网地址（回环/私有/保留网段）": 10
    }
   },
   {
@@ -44,14 +52,6 @@
     "不支持的协议类型": 9,
     "非公网地址（回环/私有/保留网段）": 10,
     "明文代理（流量与凭据均可被链路上任何人读取）": 46
-   }
-  },
-  {
-   "src": "bzfq21",
-   "count": 63,
-   "by_reason": {
-    "明文代理（流量与凭据均可被链路上任何人读取）": 53,
-    "非公网地址（回环/私有/保留网段）": 10
    }
   },
   {
@@ -167,48 +167,48 @@
   },
   {
    "kind": "clash",
-   "type": "hysteria",
-   "name": "🇫🇷FR_1|3.4MB/s",
-   "server": "62.210.124.132",
-   "port": 24667,
+   "type": "ssr",
+   "name": "🇳🇱NL_158|574KB/s|R002-260618 [8b79f7273e",
+   "server": "109.104.153.43",
+   "port": 33336,
    "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
+   "src": "Barabama"
   },
   {
-   "kind": "clash",
-   "type": "wireguard",
-   "name": "🇨🇳CN_1|2.3MB/s",
-   "server": "162.159.192.1",
-   "port": 500,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
+   "kind": "node",
+   "type": "http",
+   "name": "🇺🇸US_270|776KB/s|P002-260618 [0002809537",
+   "server": "138.199.35.218",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
   },
   {
-   "kind": "clash",
-   "type": "wireguard",
-   "name": "🇨🇳CN_2|2.8MB/s",
-   "server": "8.6.112.207",
-   "port": 8742,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
+   "kind": "node",
+   "type": "http",
+   "name": "🇩🇪DE_14|4.1MB/s|K001-260618 [00b0076b54b",
+   "server": "213.109.163.119",
+   "port": 443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
   },
   {
-   "kind": "clash",
-   "type": "wireguard",
-   "name": "🇨🇳CN_3|1.3MB/s",
-   "server": "8.6.112.134",
-   "port": 3854,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
+   "kind": "node",
+   "type": "http",
+   "name": "🇺🇸US_45|89KB/s|P002-260618 [012da4b2957a",
+   "server": "crosscards.site",
+   "port": 443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
   },
   {
-   "kind": "clash",
-   "type": "wireguard",
-   "name": "🇨🇳CN_4|1.9MB/s",
-   "server": "162.159.192.2",
-   "port": 500,
-   "reason": "不支持的协议类型",
-   "src": "尔毛子·全量Clash"
+   "kind": "node",
+   "type": "http",
+   "name": "🇺🇸US_441|817KB/s|R002-260618 [024ef203eb",
+   "server": "138.199.35.200",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "Barabama"
   },
   {
    "kind": "node",
@@ -302,111 +302,48 @@
   },
   {
    "kind": "clash",
-   "type": "ssr",
-   "name": "🇳🇱NL_158|574KB/s|R002-260618 [8b79f7273e",
-   "server": "109.104.153.43",
-   "port": 33336,
-   "reason": "不支持的协议类型",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇺🇸US_270|776KB/s|P002-260618 [0002809537",
-   "server": "138.199.35.218",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇩🇪DE_14|4.1MB/s|K001-260618 [00b0076b54b",
-   "server": "213.109.163.119",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇺🇸US_45|89KB/s|P002-260618 [012da4b2957a",
-   "server": "crosscards.site",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "🇺🇸US_441|817KB/s|R002-260618 [024ef203eb",
-   "server": "138.199.35.200",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "Barabama"
-  },
-  {
-   "kind": "singbox",
    "type": "hysteria",
-   "name": "🇫🇷 France 36",
-   "server": "163.172.117.163",
-   "port": 36699,
-   "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
-  },
-  {
-   "kind": "singbox",
-   "type": "hysteria",
-   "name": "🇫🇷 France 37",
-   "server": "62.210.28.175",
+   "name": "🇫🇷FR_1|3.4MB/s",
+   "server": "62.210.124.132",
    "port": 24667,
    "reason": "不支持的协议类型",
-   "src": "radarhub·singbox"
+   "src": "尔毛子·全量Clash"
   },
   {
-   "kind": "node",
-   "type": "http",
-   "name": "C🟠🇩🇪hos[📺]_dokng.com_4bdd61b7",
-   "server": "149.36.50.1",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_1|2.3MB/s",
+   "server": "162.159.192.1",
+   "port": 500,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
   },
   {
-   "kind": "node",
-   "type": "http",
-   "name": "D🔴🇷🇴hos[🤖💬🔮🧩]_dokng.com_caa83497",
-   "server": "193.176.84.23",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_2|2.8MB/s",
+   "server": "8.6.112.207",
+   "port": 8742,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
   },
   {
-   "kind": "node",
-   "type": "http",
-   "name": "D🔴🇷🇴hos[🤖💬🔮🧩]_dokng.com_12ca5365",
-   "server": "193.176.84.34",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_3|1.3MB/s",
+   "server": "8.6.112.134",
+   "port": 3854,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
   },
   {
-   "kind": "node",
-   "type": "http",
-   "name": "D🔴🇷🇴hos[🤖💬🔮🧩]_dokng.com_cf95381b",
-   "server": "193.176.84.27",
-   "port": 9002,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
-  },
-  {
-   "kind": "node",
-   "type": "http",
-   "name": "U⚪🏳️ukn_dokng.com_3744e5a8",
-   "server": "149.36.51.129",
-   "port": 443,
-   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
-   "src": "bzfq21"
+   "kind": "clash",
+   "type": "wireguard",
+   "name": "🇨🇳CN_4|1.9MB/s",
+   "server": "162.159.192.2",
+   "port": 500,
+   "reason": "不支持的协议类型",
+   "src": "尔毛子·全量Clash"
   },
   {
    "kind": "uri",
@@ -429,7 +366,7 @@
   {
    "kind": "node",
    "type": "vmess",
-   "name": "🕒 Last Update: 2026-11-27 - 03:57 (IR-🇮🇷",
+   "name": "🕒 Last Update: 2026-11-27 - 14:39 (IR-🇮🇷",
    "server": "time.ir",
    "port": 443,
    "reason": "凭据不是合法 UUID（vmess/vless 无法握手）",
@@ -454,6 +391,24 @@
    "src": "ALIILAPRO"
   },
   {
+   "kind": "singbox",
+   "type": "hysteria",
+   "name": "🇫🇷 France 36",
+   "server": "163.172.117.163",
+   "port": 36699,
+   "reason": "不支持的协议类型",
+   "src": "radarhub·singbox"
+  },
+  {
+   "kind": "singbox",
+   "type": "hysteria",
+   "name": "🇫🇷 France 37",
+   "server": "62.210.28.175",
+   "port": 24667,
+   "reason": "不支持的协议类型",
+   "src": "radarhub·singbox"
+  },
+  {
    "kind": "uri",
    "type": "#support-url: https",
    "name": "",
@@ -461,6 +416,51 @@
    "port": 0,
    "reason": "条目结构异常（不是对象或字段类型不对）",
    "src": "Andrejewild"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇷🇴hos[🤖💬🔮🧩]_dokng.com_cf95381b",
+   "server": "193.176.84.27",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "C🟠🇬🇷hos[🤖💬🧩📺]_dokng.com_8d8bfa9f",
+   "server": "149.22.85.65",
+   "port": 443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇺🇸hos[🤖💬🔮🧩]_dokng.com_4cc7e454",
+   "server": "38.95.111.226",
+   "port": 9443,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇷🇴hos[🤖💬🔮🧩]_dokng.com_49894881",
+   "server": "193.176.84.25",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
+  },
+  {
+   "kind": "node",
+   "type": "http",
+   "name": "D🔴🇳🇱hos[🤖💬🔮🧩]_dokng.com_33ffe908",
+   "server": "84.17.47.146",
+   "port": 9002,
+   "reason": "明文代理（流量与凭据均可被链路上任何人读取）",
+   "src": "bzfq21"
   },
   {
    "kind": "uri",
