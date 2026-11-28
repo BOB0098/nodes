@@ -242,7 +242,7 @@ def _script_json(value):
             .replace("\u2029", "\\u2029"))
 
 
-def render_page(page, *, governance=None, picks=None):
+def render_page(page, *, governance=None, picks=None, daily_top50=None):
     r"""把数据填进模板。__DATA__ 是整页 JSON。
 
     治理与榜单 JSON 也在构建时内嵌，避免 file:// 页面运行时请求本地文件。
@@ -252,9 +252,12 @@ def render_page(page, *, governance=None, picks=None):
     tpl = load_template()
     governance = _load_page_json("source_governance.json") if governance is None else governance
     picks = _load_page_json("picks.json") if picks is None else picks
+    daily_top50 = (_load_page_json("daily_top50.json")
+                   if daily_top50 is None else daily_top50)
     return (tpl.replace("__DATA__", _script_json(page))
             .replace("__GOVERNANCE__", _script_json(governance))
-            .replace("__PICKS__", _script_json(picks)))
+            .replace("__PICKS__", _script_json(picks))
+            .replace("__DAILY_TOP50__", _script_json(daily_top50)))
 
 
 def count_of(data):
