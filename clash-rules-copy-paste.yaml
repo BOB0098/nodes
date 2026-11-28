@@ -1,1 +1,89 @@
-IyBDbGFzaCAvIE1paG9tbyDliIbliYjop6PliYjvvIjmhqjliLDnu7Lnlr7nliYjlj6/ku7YpCiMg5p2l5rqQ77yaR2l0SHViIOe2q+eLruaYr+ebmuOAgTG95YWxzb2xkaWVyL2NsYXNoLXJ1bGVz77yILm1ycyDkuozpgJPnlLHns7vCUNSVGh1IOavj+acm+ePvuWJp+eyDmQojCiM= 
+# Clash / Mihomo 分流规则（复制粘贴即可用）
+# 来源：GitHub 热门项目 Loyalsoldier/clash-rules（.mrs 二进制版由 CRThu 每日同步编译）
+#   https://github.com/Loyalsoldier/clash-rules
+#   https://github.com/CRThu/clash-rules-mrs
+#   另见黑矩阵 blackmatrix7/ios_rule_script、ACL4SSR/ACL4SSR（备选，不混用）
+# 用法：把下面整段复制，粘贴到你的 Clash YAML 里，替换掉原来的 dns / rule-providers / rules 三段。
+# 策略组名必须是“节点选择”，不要改名，否则规则会找不到组。
+# 你的节点列表（proxies）和策略组（proxy-groups）不用动，规则会自动引用它们。
+# 导入后在客户端里点“更新规则”或重启一次，规则集每天自动更新一次。
+
+dns:
+  enable: true
+  ipv6: false
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  fallback:
+    - 8.8.8.8
+    - 1.1.1.1
+  fallback-filter:
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+  nameserver-policy:
+    geosite:cn,private:
+      - 223.5.5.5
+      - 119.29.29.29
+
+rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/CRThu/clash-rules-mrs@release/loyalsoldier/reject.mrs"
+    path: ./ruleset/reject.mrs
+    interval: 86400
+  private:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/CRThu/clash-rules-mrs@release/loyalsoldier/private.mrs"
+    path: ./ruleset/private.mrs
+    interval: 86400
+  lancidr:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/CRThu/clash-rules-mrs@release/loyalsoldier/lancidr.mrs"
+    path: ./ruleset/lancidr.mrs
+    interval: 86400
+  direct:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/CRThu/clash-rules-mrs@release/loyalsoldier/direct.mrs"
+    path: ./ruleset/direct.mrs
+    interval: 86400
+  cncidr:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/CRThu/clash-rules-mrs@release/loyalsoldier/cncidr.mrs"
+    path: ./ruleset/cncidr.mrs
+    interval: 86400
+  gfw:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/CRThu/clash-rules-mrs@release/loyalsoldier/gfw.mrs"
+    path: ./ruleset/gfw.mrs
+    interval: 86400
+  proxy:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://cdn.jsdelivr.net/gh/CRThu/clash-rules-mrs@release/loyalsoldier/proxy.mrs"
+    path: ./ruleset/proxy.mrs
+    interval: 86400
+
+rules:
+  - RULE-SET,reject,REJECT
+  - RULE-SET,private,DIRECT
+  - RULE-SET,lancidr,DIRECT,no-resolve
+  - RULE-SET,direct,DIRECT
+  - RULE-SET,cncidr,DIRECT,no-resolve
+  - GEOIP,CN,DIRECT,no-resolve
+  - RULE-SET,gfw,节点选择
+  - RULE-SET,proxy,节点选择
+  - MATCH,节点选择
