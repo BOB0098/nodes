@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-28 07:27",
+ "updated": "2026-11-28 15:48",
  "rounds": 30,
  "sources": {
   "radarhub-clash": [
@@ -205,6 +205,20 @@
     "real_pct": 63.3,
     "rtest": 90,
     "rok": 57,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 76.9,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 494,
+    "unique": 5,
+    "alive_pct": 92,
+    "real_pct": 81.1,
+    "rtest": 90,
+    "rok": 73,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -414,6 +428,20 @@
     "rok": 5,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 69.0,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 488,
+    "unique": 4,
+    "alive_pct": 92,
+    "real_pct": 80.0,
+    "rtest": 5,
+    "rok": 4,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "awesome-vpn": [
@@ -621,6 +649,20 @@
     "rok": 11,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 78.9,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 23,
+    "unique": 10,
+    "alive_pct": 100,
+    "real_pct": 65.0,
+    "rtest": 20,
+    "rok": 13,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "andrejewild": [
@@ -818,6 +860,20 @@
    {
     "ts": "2026-11-28 07:27",
     "score": 58.4,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 20,
+    "unique": 18,
+    "alive_pct": 94,
+    "real_pct": 22.2,
+    "rtest": 18,
+    "rok": 4,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 59.4,
     "grade": "C",
     "state": "ok",
     "parsed": 20,
@@ -1035,6 +1091,20 @@
     "rok": 4,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 67.4,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 13,
+    "unique": 1,
+    "alive_pct": 100,
+    "real_pct": 66.7,
+    "rtest": 6,
+    "rok": 4,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "bzfq21": [
@@ -1240,6 +1310,20 @@
     "real_pct": 15.6,
     "rtest": 90,
     "rok": 14,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 63.1,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 337,
+    "unique": 181,
+    "alive_pct": 100,
+    "real_pct": 16.7,
+    "rtest": 90,
+    "rok": 15,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -1449,6 +1533,20 @@
     "rok": 30,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 63.4,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 249,
+    "unique": 0,
+    "alive_pct": 100,
+    "real_pct": 36.7,
+    "rtest": 90,
+    "rok": 33,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "free18": [
@@ -1654,6 +1752,20 @@
     "real_pct": 32.2,
     "rtest": 90,
     "rok": 29,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 73.7,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 343,
+    "unique": 250,
+    "alive_pct": 88,
+    "real_pct": 38.9,
+    "rtest": 90,
+    "rok": 35,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -1863,6 +1975,20 @@
     "rok": 0,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 53.9,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 2053,
+    "unique": 1963,
+    "alive_pct": 100,
+    "real_pct": 1.1,
+    "rtest": 90,
+    "rok": 1,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "barabama": [
@@ -2068,6 +2194,20 @@
     "real_pct": 31.1,
     "rtest": 90,
     "rok": 28,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 71.8,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 1090,
+    "unique": 705,
+    "alive_pct": 96,
+    "real_pct": 33.3,
+    "rtest": 90,
+    "rok": 30,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -2277,6 +2417,20 @@
     "rok": 8,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 66.5,
+    "grade": "B",
+    "state": "ok",
+    "parsed": 368,
+    "unique": 175,
+    "alive_pct": 100,
+    "real_pct": 15.6,
+    "rtest": 90,
+    "rok": 14,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "ermao-clash-full": [
@@ -2482,6 +2636,20 @@
     "real_pct": 15.3,
     "rtest": 59,
     "rok": 9,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 55.8,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 318,
+    "unique": 4,
+    "alive_pct": 100,
+    "real_pct": 12.5,
+    "rtest": 64,
+    "rok": 8,
     "fails_streak": 0,
     "penalty": 0
    }
@@ -2691,6 +2859,20 @@
     "rok": 5,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 38.9,
+    "grade": "D",
+    "state": "ok",
+    "parsed": 22,
+    "unique": 7,
+    "alive_pct": 78,
+    "real_pct": 0.0,
+    "rtest": 5,
+    "rok": 0,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "aliilapro": [
@@ -2898,6 +3080,20 @@
     "rok": 5,
     "fails_streak": 0,
     "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 63.9,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 4799,
+    "unique": 2523,
+    "alive_pct": 46,
+    "real_pct": 7.8,
+    "rtest": 90,
+    "rok": 7,
+    "fails_streak": 0,
+    "penalty": 0
    }
   ],
   "matinghanbari": [
@@ -3103,6 +3299,20 @@
     "real_pct": 0.0,
     "rtest": 90,
     "rok": 0,
+    "fails_streak": 0,
+    "penalty": 0
+   },
+   {
+    "ts": "2026-11-28 15:48",
+    "score": 54.3,
+    "grade": "C",
+    "state": "ok",
+    "parsed": 3867,
+    "unique": 1674,
+    "alive_pct": 42,
+    "real_pct": 2.2,
+    "rtest": 90,
+    "rok": 2,
     "fails_streak": 0,
     "penalty": 0
    }
