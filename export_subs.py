@@ -32,6 +32,10 @@ import yaml
 import netsafe
 import nodes_parse
 from nodecheck import to_proxy
+try:
+    import rules as _rules
+except Exception:
+    _rules = None
 from picks import FAST_BPS, LOWLAT_MS
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -126,6 +130,7 @@ def build_clash(nodes):
         "allow-lan": False,
         "mode": "rule",
         "log-level": "info",
+        "ipv6": False,
         "proxies": proxies,
         "proxy-groups": [
             {"name": "节点选择", "type": "select", "proxies": ["自动选择"] + names},
@@ -133,8 +138,14 @@ def build_clash(nodes):
              "http://www.gstatic.com/generate_204", "interval": 300,
              "tolerance": 50, "proxies": names},
         ],
-        "rules": ["MATCH,节点选择"],
     }
+    if _rules is not None:
+        # 最优分流规则（rules.py）：Loyalsoldier .mrs，国内直连、其余走代理
+        cfg["dns"] = _rules.CLASH_DNS
+        cfg["rule-providers"] = _rules.CLASH_RULE_PROVIDERS
+        cfg["rules"] = _rules.CLASH_RULES
+    else:
+        cfg["rules"] = ["MATCH,节点选择"]
     return yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False, width=200)
 
 
@@ -232,8 +243,15 @@ def build_singbox(nodes):
         {"type": "urltest", "tag": "自动选择", "outbounds": tags,
          "url": "http://www.gstatic.com/generate_204", "interval": "5m"},
     ]
-    doc = {"log": {"level": "info"},
-           "outbounds": head + outs + [{"type": "direct", "tag": "direct"}]}
+    outbounds = head + outs + [{"type": "direct", "tag": "direct"},
+                               {"type": "block", "tag": "block"}]
+    doc = {"log": {"level": "info"}, "outbounds": outbounds}
+    if _rules is not None:
+        # 最优分流规则（rules.py）：SagerNet geosite/geoip .srs
+        doc["dns"] = _rules.SINGBOX_DNS
+        doc["route"] = {"rules": _rules.SINGBOX_ROUTE_RULES,
+                        "rule_set": _rules.SINGBOX_RULE_SETS,
+                        "final": "自动选择"}
     return json.dumps(doc, ensure_ascii=False, indent=1)
 
 
