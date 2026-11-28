@@ -323,6 +323,16 @@ header{padding:20px 2px 10px}
     <div class="ov-item"><b id="ovTime">—</b><span>检测时间</span></div>
   </section>
 
+  <section class="group" id="daily-top50" hidden>
+    <button class="g-head" type="button" id="top50-head" aria-expanded="true">
+      <span class="g-dot" style="background:var(--accent)"></span>
+      <span class="g-title">每日优选 Top50</span>
+      <span class="g-count" id="top50-count"></span>
+      <span class="g-core" id="top50-upd"></span>
+    </button>
+    <div class="plist" id="top50-list"></div>
+    <p style="font-size:11px;color:var(--ink-2);margin:6px 2px 0" id="top50-note"></p>
+  </section>
   <div id="groups"></div>
   <p class="foot-disc">本站仅收录第三方公开发布的订阅链接，不生产节点、不改写原始链接。<br>请遵守当地法律法规，违规使用后果自负。</p>
 </main>
@@ -393,6 +403,7 @@ header{padding:20px 2px 10px}
 const DATA = __DATA__;
 const GOVERNANCE = __GOVERNANCE__;
 const PICKS = __PICKS__;
+const DAILY_TOP50 = __DAILY_TOP50__;
 
   const QR = (() => {
     // GF(256) 指数 / 对数表
@@ -716,6 +727,48 @@ const PICKS = __PICKS__;
     }
     const t = st.checked_at || DATA.updated || '—';
     document.getElementById('ovTime').textContent = String(t).slice(-5) || '—';
+  })();
+
+  /* ── 每日优选 Top50（脱敏展示，不含 URI）── */
+  (function top50(){
+    const sec = document.getElementById('daily-top50');
+    if (!sec) return;
+    const rows = (DAILY_TOP50 && DAILY_TOP50.lists && DAILY_TOP50.lists.top50) || [];
+    if (!rows.length) return;
+    sec.hidden = false;
+    document.getElementById('top50-count').textContent = rows.length + ' 条';
+    document.getElementById('top50-upd').textContent = '更新于 ' + (DAILY_TOP50.updated || '—');
+    document.getElementById('top50-note').textContent =
+      (DAILY_TOP50.probe_label || '') + ' · ' + (DAILY_TOP50.probe_note || '') +
+      ' 完整订阅见每日邮件，网站只展示脱敏榜单。';
+    const list = document.getElementById('top50-list');
+    rows.forEach((r) => {
+      const row = document.createElement('article');
+      row.className = 'row';
+      const rate = (typeof r.rate === 'number') ? Math.round(r.rate * 100) + '% (' + r.hits + '/' + r.tries + ')' : '—';
+      const ms = (r.ms === null || r.ms === undefined) ? '—' : r.ms + 'ms';
+      const bps = (r.bps === null || r.bps === undefined) ? '—' :
+        (r.bps >= 1000000 ? (r.bps / 1000000).toFixed(2) + ' MB/s' : Math.round(r.bps / 1000) + ' KB/s');
+      row.innerHTML = '';
+      const r1 = document.createElement('div'); r1.className = 'r1';
+      const name = document.createElement('span'); name.className = 'r-name'; name.textContent = '#' + r.rank + ' ' + (r.name || '');
+      r1.appendChild(name);
+      const sub = document.createElement('span'); sub.className = 'r-sub'; sub.textContent = (r.type || '') + ' · ' + (r.rg || '');
+      r1.appendChild(sub);
+      row.appendChild(r1);
+      const r2 = document.createElement('div'); r2.className = 'r2';
+      r2.innerHTML = '';
+      const mk = (t) => { const b = document.createElement('b'); b.textContent = t; return b; };
+      r2.appendChild(document.createTextNode('评分 ')); r2.appendChild(mk(String(r.score ?? '—')));
+      r2.appendChild(document.createTextNode(' · 成功率 ')); r2.appendChild(mk(rate));
+      r2.appendChild(document.createTextNode(' · 延迟 ')); r2.appendChild(mk(ms));
+      r2.appendChild(document.createTextNode(' · 速度 ')); r2.appendChild(mk(bps));
+      row.appendChild(r2);
+      list.appendChild(row);
+    });
+    document.getElementById('top50-head').addEventListener('click', () => {
+      sec.classList.toggle('collapsed');
+    });
   })();
 
   /* ── 首页分组与卡片 ── */
